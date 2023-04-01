@@ -16,13 +16,16 @@ namespace BombAttackGame.Models
         public Vector2 Location { get; set; }
         public Texture2D Texture { get; set; }
         public Direction Direction { get; set; }
-        public bool IsDead { get; set; }
+        public int Damage { get; set; }
         public int Speed { get; set; }
-        public Bullet(Vector2 location, Direction direction)
+        public Player Owner { get; set; }
+        public Bullet(Vector2 location, Direction direction, Player owner)
         {
-            Location = new Vector2(location.X,location.Y);
+            this.Location = new Vector2(location.X, location.Y);
             this.Direction = direction;
-            Speed = 10;
+            this.Speed = 4;
+            this.Damage = 20;
+            this.Owner = owner;
         }
     }
 }

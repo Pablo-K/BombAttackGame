@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BombAttackGame
 {
@@ -49,7 +50,7 @@ namespace BombAttackGame
 
             _player = new Player(10, 10);
             _teamMate = new Player(10, 20);
-            _enemy = new Player(100, 20);
+            _enemy = new Player(100, 10);
 
             _player.Texture = Content.Load<Texture2D>("player");
             _enemy.Texture = Content.Load<Texture2D>("enemy");
@@ -76,6 +77,8 @@ namespace BombAttackGame
             if (kstate.IsKeyDown(Keys.Space)) { TryShoot(_player, gameTime, Content); }
 
             Move.BulletsMove(_bullets);
+            BulletsHit();
+            CheckIsDead();
 
             base.Update(gameTime);
         }
@@ -84,8 +87,8 @@ namespace BombAttackGame
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
             _spriteBatch.Begin();
+
             foreach (var player in _players)
             {
                 _spriteBatch.Draw(player.Texture, player.Location, Color.CornflowerBlue);
@@ -101,6 +104,24 @@ namespace BombAttackGame
         private void TryShoot(Player player, GameTime gameTime, Microsoft.Xna.Framework.Content.ContentManager content)
         {
             _bullet = Shoot.PlayerShoot(player, gameTime,content); if (_bullet.Location.X < 0) return; _bullets.Add(_bullet);
+        }
+        private void BulletsHit()
+        {
+            foreach (Bullet bullet in _bullets.ToList())
+            {
+                if (Hit.BulletHit(bullet, _players, out Player _player))
+                {
+                    _player.Hit(bullet.Damage);
+                    _bullets.Remove(bullet);
+                }
+            }
+        }
+        private void CheckIsDead()
+        {
+            foreach(Player player in _players.ToList())
+            {
+                if(player.Health <= 0) _players.Remove(player);
+            }
         }
     }
 }

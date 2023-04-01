@@ -14,8 +14,4 @@ namespace BombAttackGame.Enums
         Down,
         None
     }
-
-    internal class EDirection
-    {
-    }
 }

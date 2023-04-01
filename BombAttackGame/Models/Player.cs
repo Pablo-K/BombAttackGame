@@ -14,11 +14,11 @@ namespace BombAttackGame.Models
     {
         public Vector2 Location { get; set; }
         public Direction Direction { get; set; }
+        public int Health { get; set; }
         public Texture2D Texture { get; set; }
         public bool IsDead { get; set; }
         public bool IsAttacked { get; set; }
         public int Speed { get; set; }
-        public int Damage { get; set; }
         public double ShotTime { get; set; }
         public double ShotLatency { get; set; }
 
@@ -27,8 +27,12 @@ namespace BombAttackGame.Models
             this.Location = new Vector2(x,y);
             this.Direction = Direction.Right;
             this.Speed = 2;
-            this.Damage = 20;
+            this.Health = 100;
             this.ShotLatency = 100;
+        }
+        public void Hit(int Damage)
+        {
+            Health -= Damage;
         }
     }
 }

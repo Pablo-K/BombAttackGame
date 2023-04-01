@@ -16,12 +16,12 @@ namespace BombAttackGame.Events
         {
             if (gameTime.TotalGameTime.TotalMilliseconds - player.ShotTime >= player.ShotLatency)
             {
-                var bullet = new Bullet(player.Location, player.Direction);
+                var bullet = new Bullet(player.Location, player.Direction, player);
                 bullet.Texture = content.Load<Texture2D>("bullet");
                 player.ShotTime = gameTime.TotalGameTime.TotalMilliseconds;
                 return bullet;
             }
-            return new Bullet(new Vector2(-1, -1), Enums.Direction.None) ;
+            return new Bullet(new Vector2(-1, -1), Enums.Direction.None, player) ;
         }
     }
 }

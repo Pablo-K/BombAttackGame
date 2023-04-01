@@ -17,7 +17,7 @@ namespace BombAttackGame.Interfaces
         public bool IsDead { get; set; }
         public bool IsAttacked { get; set; }
         public int Speed { get; set; }
-        public int Damage { get; set; }
+        public int Health { get; set; }
         public double ShotTime { get; set; }
         public double ShotLatency { get; set; }
     }

@@ -14,7 +14,7 @@ namespace BombAttackGame.Interfaces
         public Vector2 Location { get; set; }
         public Direction Direction { get; set; }
         public Texture2D Texture { get; set; }
-        public bool IsDead { get; set; }
+        public int Damage { get; set; }
         public int Speed { get; set; }
 
     }
