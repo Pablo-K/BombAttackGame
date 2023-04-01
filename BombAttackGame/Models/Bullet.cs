@@ -23,7 +23,7 @@ namespace BombAttackGame.Models
         {
             this.Location = new Vector2(location.X, location.Y);
             this.Direction = direction;
-            this.Speed = 4;
+            this.Speed = 7;
             this.Damage = 20;
             this.Owner = owner;
         }

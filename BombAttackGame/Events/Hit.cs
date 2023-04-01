@@ -9,23 +9,24 @@ namespace BombAttackGame.Events
 {
     internal class Hit
     {
-        public static bool BulletHit(Bullet bullet, List<Player> players, out Player player) 
+        public static bool BulletHit(Bullet bullet, List<Player> players, out Player hitted) 
         {
-            player = null;
+            hitted = null;
             foreach (Player p in players)
             {
-
-                if (
-                    (Math.Abs(bullet.Location.X - p.Location.X) < p.Texture.Width) && 
-                    (bullet.Location.Y - p.Location.Y <= p.Texture.Height) && 
-                    (bullet.Location.Y >= p.Location.Y) &&
-                    bullet.Owner != p)
-                {
-                    player = p;
-                    return true;
-                }
+                if (InHitbox(bullet,p)) { hitted = p; return true; }
             }
             return false;
+        }
+        private static bool InHitbox(Bullet bullet, Player player)
+        {
+            if ( (Math.Abs(bullet.Location.X - player.Location.X) < player.Texture.Width) && 
+                    (bullet.Location.Y - player.Location.Y <= player.Texture.Height) && 
+                    (bullet.Location.Y >= player.Location.Y) &&
+                    bullet.Owner != player)
+                { return true; }
+            return false;
+
         }
     }
 }
