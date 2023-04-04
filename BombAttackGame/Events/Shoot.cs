@@ -12,16 +12,16 @@ namespace BombAttackGame.Events
 {
     internal class Shoot
     {
-        public static Bullet PlayerShoot(Player player, GameTime gameTime, ContentManager content)
+        public static Bullet PlayerShoot(Player player, GameTime gameTime, ContentManager content, Point point)
         {
             if (gameTime.TotalGameTime.TotalMilliseconds - player.ShotTime >= player.ShotLatency)
             {
-                var bullet = new Bullet(player.Location, player.Direction, player);
+                var bullet = new Bullet(player.Location, player, point);
                 bullet.Texture = content.Load<Texture2D>("bullet");
                 player.ShotTime = gameTime.TotalGameTime.TotalMilliseconds;
                 return bullet;
             }
-            return new Bullet(new Vector2(-1, -1), Enums.Direction.None, player) ;
+            return null;
         }
     }
 }

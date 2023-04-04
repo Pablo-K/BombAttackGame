@@ -11,8 +11,9 @@ namespace BombAttackGame.Events
 {
     internal class Move
     {
-        public static void PlayerMove(Player player, Direction direction)
+        public static void PlayerMove(Player player, Direction direction, int width, int height)
         {
+            Vector2 oldLoc = player.Location;
             if (direction == Direction.Left)
             {
                 player.Location = new Vector2(player.Location.X - player.Speed, player.Location.Y);
@@ -33,15 +34,22 @@ namespace BombAttackGame.Events
                 player.Location = new Vector2(player.Location.X, player.Location.Y - player.Speed);
                 player.Direction = Direction.Up;
             }
+            if(player.Location.X < 0 || player.Location.Y < 0 || player.Location.X+player.Texture.Width > width || player.Location.Y+player.Texture.Height > height)
+            {   
+                player.Location = new Vector2(oldLoc.X, oldLoc.Y);
+            }
         }
-        public static void BulletsMove(List<Bullet> bullets)
+        public static void BulletsMove(List<Bullet> bullets, int width, int height, out bool remove, out int index)
         {
+            index = -1;
+            remove = false;
             foreach (var bullet in bullets)
             {
-                if (bullet.Direction == Direction.Left) { bullet.Location = new Vector2(bullet.Location.X - bullet.Speed, bullet.Location.Y); }
-                if (bullet.Direction == Direction.Up) { bullet.Location = new Vector2(bullet.Location.X, bullet.Location.Y - bullet.Speed); }
-                if (bullet.Direction == Direction.Right) { bullet.Location = new Vector2(bullet.Location.X + bullet.Speed, bullet.Location.Y); }
-                if (bullet.Direction == Direction.Down) { bullet.Location = new Vector2(bullet.Location.X, bullet.Location.Y + bullet.Speed); }
+                int speed = bullet.Speed;
+                if (bullet.TrajectoryIndex >= bullet.Trajectory.Count - 1) { index += 1; remove = true; break; }
+                if (bullet.TrajectoryIndex >= bullet.Trajectory.Count) bullet.TrajectoryIndex = bullet.Trajectory.Count -1;
+                bullet.Location = bullet.Trajectory.ElementAt(bullet.TrajectoryIndex);
+                bullet.TrajectoryIndex += speed;
             }
 
         }

@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 
 namespace BombAttackGame
 {
@@ -29,6 +30,9 @@ namespace BombAttackGame
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
+        private int _width;
+        private int _height;
+
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -39,6 +43,8 @@ namespace BombAttackGame
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            _width = _graphics.PreferredBackBufferWidth;
+            _height = _graphics.PreferredBackBufferHeight;
 
             base.Initialize();
         }
@@ -84,14 +90,16 @@ namespace BombAttackGame
             if (_player?.ShotTime == null) _player.ShotTime = gameTime.TotalGameTime.TotalMilliseconds;
 
             var kstate = Keyboard.GetState();
+            var mstate = Mouse.GetState();
 
-            if (kstate.IsKeyDown(Keys.A)) { Move.PlayerMove(_player, Direction.Left); }
-            if (kstate.IsKeyDown(Keys.S)) { Move.PlayerMove(_player, Direction.Down); }
-            if (kstate.IsKeyDown(Keys.D)) { Move.PlayerMove(_player, Direction.Right); }
-            if (kstate.IsKeyDown(Keys.W)) { Move.PlayerMove(_player, Direction.Up); }
-            if (kstate.IsKeyDown(Keys.Space)) { TryShoot(_player, gameTime, Content); }
+            if (kstate.IsKeyDown(Keys.A)) { Move.PlayerMove(_player, Direction.Left, _width, _height); }
+            if (kstate.IsKeyDown(Keys.S)) { Move.PlayerMove(_player, Direction.Down, _width, _height); }
+            if (kstate.IsKeyDown(Keys.D)) { Move.PlayerMove(_player, Direction.Right, _width, _height); }
+            if (kstate.IsKeyDown(Keys.W)) { Move.PlayerMove(_player, Direction.Up, _width, _height); }
 
-            Move.BulletsMove(_bullets);
+            if (mstate.LeftButton == ButtonState.Pressed) { TryShoot(_player, gameTime, Content, mstate.Position); }
+            Move.BulletsMove(_bullets,_width,_height, out bool remove, out int index);
+            if (remove) _bullets.RemoveAt(index);
             BulletsHit();
             CheckIsDead();
 
@@ -116,9 +124,11 @@ namespace BombAttackGame
 
             base.Draw(gameTime);
         }
-        private void TryShoot(Player player, GameTime gameTime, Microsoft.Xna.Framework.Content.ContentManager content)
+        private void TryShoot(Player player, GameTime gameTime, Microsoft.Xna.Framework.Content.ContentManager content, Point point)
         {
-            _bullet = Shoot.PlayerShoot(player, gameTime, content); if (_bullet.Location.X < 0) return; _bullets.Add(_bullet);
+            _bullet = null;
+            _bullet = Shoot.PlayerShoot(player, gameTime, content, point); if( _bullet == null ) { return; } _bullets.Add(_bullet);
+            _bullet.Trajectory = SetTrajectory(_player.Location, point.ToVector2());
         }
         private void BulletsHit()
         {
@@ -136,6 +146,49 @@ namespace BombAttackGame
             foreach (Player enemy in _enemies.ToList()) { if (enemy.Health <= 0) { _enemies.Remove(enemy); _allPlayers.Remove(enemy); } }
             foreach (Player player in _players.ToList()) { if (player.Health <= 0) { _players.Remove(player); _allPlayers.Remove(player); } }
             foreach(Player teamMate in _teamMates.ToList()) { if(teamMate.Health <= 0) { _teamMates.Remove(teamMate); _allPlayers.Remove(teamMate); } }
+        }
+        private List<Vector2> SetTrajectory(Vector2 PlayerLoc, Vector2 ShootLoc)
+        {
+            List<Vector2> Trajectory = new List<Vector2>();
+
+            int w = Convert.ToInt32(ShootLoc.X - PlayerLoc.X);
+            int h = Convert.ToInt32(ShootLoc.Y - PlayerLoc.Y);
+            int x = Convert.ToInt32(PlayerLoc.X);
+            int y = Convert.ToInt32(PlayerLoc.Y);
+            int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0;
+            if (w < 0) dx1 = -1; else if (w > 0) dx1 = 1;
+            if (h < 0) dy1 = -1; else if (h > 0) dy1 = 1;
+            if (w < 0) dx2 = -1; else if (w > 0) dx2 = 1;
+            int longest = Math.Abs(w);
+            int shortest = Math.Abs(h);
+            if (!(longest > shortest))
+            {
+                longest = Math.Abs(h);
+                shortest = Math.Abs(w);
+                if (h < 0) dy2 = -1; else if (h > 0) dy2 = 1;
+                dx2 = 0;
+            }
+            int numerator = longest >> 1;
+            for (int i = 0; i <= longest; i++)
+            {
+                Vector2 Traj = new Vector2(x, y);
+                Trajectory.Add(Traj);
+                numerator += shortest;
+                if (!(numerator < longest))
+                {
+                    numerator -= longest;
+                    x += dx1;
+                    y += dy1;
+                }
+                else
+                {
+                    x += dx2;
+                    y += dy2;
+                }
+            }
+
+
+            return Trajectory;
         }
     }
 }
