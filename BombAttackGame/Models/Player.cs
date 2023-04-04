@@ -22,9 +22,8 @@ namespace BombAttackGame.Models
         public double ShotTime { get; set; }
         public double ShotLatency { get; set; }
 
-        public Player(Vector2 location) { 
+        public Player() { 
         
-            this.Location = new Vector2(location.X, location.Y);
             this.Direction = Direction.Right;
             this.Speed = 2;
             this.Health = 100;

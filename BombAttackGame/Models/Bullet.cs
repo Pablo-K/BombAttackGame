@@ -24,7 +24,7 @@ namespace BombAttackGame.Models
         public Bullet(Vector2 location, Player owner, Point point)
         {
             this.Location = new Vector2(location.X, location.Y);
-            this.Speed = 5;
+            this.Speed = 3;
             this.Damage = 20;
             this.Owner = owner;
             this.Point = point;

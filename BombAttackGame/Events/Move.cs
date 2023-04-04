@@ -11,9 +11,11 @@ namespace BombAttackGame.Events
 {
     internal class Move
     {
-        public static void PlayerMove(Player player, Direction direction, int width, int height)
+        public static void PlayerMove(Player player, Direction direction, int[] mapSize)
         {
             Vector2 oldLoc = player.Location;
+            int width = mapSize[0];
+            int height = mapSize[1];
             if (direction == Direction.Left)
             {
                 player.Location = new Vector2(player.Location.X - player.Speed, player.Location.Y);
@@ -39,7 +41,7 @@ namespace BombAttackGame.Events
                 player.Location = new Vector2(oldLoc.X, oldLoc.Y);
             }
         }
-        public static void BulletsMove(List<Bullet> bullets, int width, int height, out bool remove, out int index)
+        public static void BulletsMove(List<Bullet> bullets, out bool remove, out int index)
         {
             index = -1;
             remove = false;
