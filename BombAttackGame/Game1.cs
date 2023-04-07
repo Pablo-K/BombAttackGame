@@ -5,6 +5,7 @@ using BombAttackGame.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -33,6 +34,8 @@ namespace BombAttackGame
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
+        private Vector2 _mousePosition;
+
         private int[] _mapSize = new int[2];
 
         private int _teamMateCount;
@@ -47,8 +50,8 @@ namespace BombAttackGame
 
         protected override void Initialize()
         {
-            _mapSize[0] = 400;
-            _mapSize[1] = 400;
+            _mapSize[0] = 800;
+            _mapSize[1] = 800;
 
             _graphics.PreferredBackBufferWidth = _mapSize[0];
             _graphics.PreferredBackBufferHeight = _mapSize[1];
@@ -107,12 +110,16 @@ namespace BombAttackGame
             var kstate = Keyboard.GetState();
             var mstate = Mouse.GetState();
 
+            _mousePosition = mstate.Position.ToVector2();
+            
             if (kstate.IsKeyDown(Keys.A)) { Move.PlayerMove(_player, Direction.Left, _mapSize); }
             if (kstate.IsKeyDown(Keys.S)) { Move.PlayerMove(_player, Direction.Down, _mapSize); }
             if (kstate.IsKeyDown(Keys.D)) { Move.PlayerMove(_player, Direction.Right, _mapSize); }
             if (kstate.IsKeyDown(Keys.W)) { Move.PlayerMove(_player, Direction.Up, _mapSize); }
 
-            if (mstate.LeftButton == ButtonState.Pressed) { TryShoot(_player, gameTime, Content, mstate.Position); }
+            if (mstate.LeftButton == ButtonState.Pressed) { TryShoot(_player, gameTime, Content, _mousePosition.ToPoint()); }
+
+
             Move.BulletsMove(_bullets, out bool remove, out int index);
             if (remove) _bullets.RemoveAt(index);
             BulletsHit(gameTime);

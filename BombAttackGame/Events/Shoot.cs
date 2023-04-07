@@ -1,4 +1,5 @@
-﻿using BombAttackGame.Models;
+﻿using BombAttackGame.Enums;
+using BombAttackGame.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -23,7 +24,15 @@ namespace BombAttackGame.Events
         public static List<Vector2> SetTrajectory(Vector2 PlayerLoc, Vector2 ShootLoc)
         {
             List<Vector2> Trajectory = new List<Vector2>();
+            int xDiff = (int)PlayerLoc.X - (int)ShootLoc.X;
+            int yDiff = (int)PlayerLoc.Y - (int)ShootLoc.Y;
 
+            while(ShootLoc.X >= 0 && ShootLoc.Y >= 0 && ShootLoc.X <= 800 && ShootLoc.Y <= 800)
+            {
+                ShootLoc.X -= xDiff;
+                ShootLoc.Y -= yDiff;
+            }
+            
             int w = (int)ShootLoc.X - (int)PlayerLoc.X;
             int h = (int)ShootLoc.Y - (int)PlayerLoc.Y;
             int x = (int)PlayerLoc.X;
