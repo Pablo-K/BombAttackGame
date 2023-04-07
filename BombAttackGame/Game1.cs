@@ -150,7 +150,7 @@ namespace BombAttackGame
         {
             _bullet = null;
             _bullet = Shoot.PlayerShoot(player, gameTime, content, point); if( _bullet == null ) { return; } _bullets.Add(_bullet);
-            _bullet.Trajectory = Shoot.SetTrajectory(_player.Location, point.ToVector2());
+            _bullet.Trajectory = Shoot.SetTrajectory(_player.Location, point.ToVector2(), _mapSize);
         }
         private void BulletsHit(GameTime gameTime)
         {

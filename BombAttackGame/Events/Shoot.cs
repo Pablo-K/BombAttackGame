@@ -21,13 +21,14 @@ namespace BombAttackGame.Events
             }
             return null;
         }
-        public static List<Vector2> SetTrajectory(Vector2 PlayerLoc, Vector2 ShootLoc)
+        public static List<Vector2> SetTrajectory(Vector2 PlayerLoc, Vector2 ShootLoc, int[] MapSize)
         {
             List<Vector2> Trajectory = new List<Vector2>();
             int xDiff = (int)PlayerLoc.X - (int)ShootLoc.X;
             int yDiff = (int)PlayerLoc.Y - (int)ShootLoc.Y;
-
-            while(ShootLoc.X >= 0 && ShootLoc.Y >= 0 && ShootLoc.X <= 800 && ShootLoc.Y <= 800)
+            int width = MapSize[0];
+            int height = MapSize[1];
+            while(ShootLoc.X >= 0 && ShootLoc.Y >= 0 && ShootLoc.X <= width && ShootLoc.Y <= height)
             {
                 ShootLoc.X -= xDiff;
                 ShootLoc.Y -= yDiff;
