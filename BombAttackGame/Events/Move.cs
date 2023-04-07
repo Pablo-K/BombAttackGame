@@ -1,11 +1,8 @@
 ﻿using BombAttackGame.Enums;
 using BombAttackGame.Models;
 using Microsoft.Xna.Framework;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BombAttackGame.Events
 {
@@ -40,20 +37,6 @@ namespace BombAttackGame.Events
             {   
                 player.Location = new Vector2(oldLoc.X, oldLoc.Y);
             }
-        }
-        public static void BulletsMove(List<Bullet> bullets, out bool remove, out int index)
-        {
-            index = -1;
-            remove = false;
-            foreach (var bullet in bullets)
-            {
-                int speed = bullet.Speed;
-                if (bullet.TrajectoryIndex >= bullet.Trajectory.Count - 1) { index += 1; remove = true; break; }
-                if (bullet.TrajectoryIndex >= bullet.Trajectory.Count) bullet.TrajectoryIndex = bullet.Trajectory.Count -1;
-                bullet.Location = bullet.Trajectory.ElementAt(bullet.TrajectoryIndex);
-                bullet.TrajectoryIndex += speed;
-            }
-
         }
     }
 }

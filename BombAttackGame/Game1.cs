@@ -1,11 +1,11 @@
 ﻿using BombAttackGame.Enums;
 using BombAttackGame.Events;
 using BombAttackGame.HUD;
+using BombAttackGame.Interfaces;
 using BombAttackGame.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,11 +16,14 @@ namespace BombAttackGame
         private SpriteFont _hpF;
         private SpriteFont _damageF;
 
+        private Texture2D _wall;
+
         private Player _player;
         private Player _teamMate;
         private Player _enemy;
 
         private Bullet _bullet;
+        private Vector2 endOfMap;
 
         private List<Player> _players;
         private List<Player> _enemies;
@@ -52,6 +55,7 @@ namespace BombAttackGame
         {
             _mapSize[0] = 800;
             _mapSize[1] = 800;
+            endOfMap = new Vector2(_mapSize[0], _mapSize[1]);
 
             _graphics.PreferredBackBufferWidth = _mapSize[0];
             _graphics.PreferredBackBufferHeight = _mapSize[1];
@@ -69,6 +73,8 @@ namespace BombAttackGame
 
             _hpF = Content.Load<SpriteFont>("hp");
             _damageF = Content.Load<SpriteFont>("damage");
+
+            _wall = Content.Load<Texture2D>("wall");
 
             _players = new List<Player>();
             _teamMates = new List<Player>();
@@ -111,17 +117,25 @@ namespace BombAttackGame
             var mstate = Mouse.GetState();
 
             _mousePosition = mstate.Position.ToVector2();
-            
+
             if (kstate.IsKeyDown(Keys.A)) { Move.PlayerMove(_player, Direction.Left, _mapSize); }
             if (kstate.IsKeyDown(Keys.S)) { Move.PlayerMove(_player, Direction.Down, _mapSize); }
             if (kstate.IsKeyDown(Keys.D)) { Move.PlayerMove(_player, Direction.Right, _mapSize); }
             if (kstate.IsKeyDown(Keys.W)) { Move.PlayerMove(_player, Direction.Up, _mapSize); }
 
-            if (mstate.LeftButton == ButtonState.Pressed) { TryShoot(_player, gameTime, Content, _mousePosition.ToPoint()); }
+            if (mstate.LeftButton == ButtonState.Pressed) { TryShoot(_player, gameTime, Content, _mousePosition); }
 
+            foreach (var bullet in _bullets)
+            {
+                float distanceToEndOfMap = Vector2.Distance(bullet.Location, new Vector2(_mapSize[0], _mapSize[1]));
 
-            Move.BulletsMove(_bullets, out bool remove, out int index);
-            if (remove) _bullets.RemoveAt(index);
+                float lerpAmount = bullet.Speed * (float)gameTime.ElapsedGameTime.TotalSeconds ;
+
+                bullet.Location += bullet.Direction * lerpAmount;
+                bullet.DistanceTravelled += bullet.Speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            }
+
+            _bullets.RemoveAll(bullet => bullet.DistanceTravelled > Vector2.Distance(bullet.Location, endOfMap));
             BulletsHit(gameTime);
             CheckIsDead();
             CheckIfTimeIsGone(gameTime);
@@ -141,16 +155,16 @@ namespace BombAttackGame
             foreach (var bullet in _bullets) { _spriteBatch.Draw(bullet.Texture, bullet.Location, Color.CornflowerBlue); }
             foreach (var damage in _damages) {  _spriteBatch.DrawString(_damageF, damage.Amount.ToString(), damage.Location, Color.Red); }
             _spriteBatch.DrawString(_hpF, _player.Health.ToString(), HudVector.HpVector(_mapSize), Color.Red);
-
             _spriteBatch.End();
 
             base.Draw(gameTime);
         }
-        private void TryShoot(Player player, GameTime gameTime, Microsoft.Xna.Framework.Content.ContentManager content, Point point)
+        private void TryShoot(Player player, GameTime gameTime, Microsoft.Xna.Framework.Content.ContentManager content, Vector2 point)
         {
             _bullet = null;
             _bullet = Shoot.PlayerShoot(player, gameTime, content, point); if( _bullet == null ) { return; } _bullets.Add(_bullet);
-            _bullet.Trajectory = Shoot.SetTrajectory(_player.Location, point.ToVector2(), _mapSize);
+            _bullet.Direction = point - player.Location;
+            _bullet.Direction.Normalize();
         }
         private void BulletsHit(GameTime gameTime)
         {
