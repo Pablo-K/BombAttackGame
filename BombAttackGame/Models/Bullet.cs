@@ -1,7 +1,5 @@
-﻿using BombAttackGame.Interfaces;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Collections.Generic;
 
 namespace BombAttackGame.Models
 {
@@ -11,7 +9,6 @@ namespace BombAttackGame.Models
         public Texture2D Texture { get; set; }
         public int Damage { get; set; }
         public int Speed { get; set; }
-        public float LerpAmount { get; set; }
         public Vector2 Direction { get; set; }
         public float DistanceTravelled { get; set; }
         public Player Owner { get; set; }
@@ -19,7 +16,7 @@ namespace BombAttackGame.Models
         public Bullet(Vector2 location, Player owner, Vector2 point)
         {
             this.Location = new Vector2(location.X, location.Y);
-            this.Speed = 1;
+            this.Speed = 3;
             this.Damage = 20;
             this.Owner = owner;
             this.Point = point;
