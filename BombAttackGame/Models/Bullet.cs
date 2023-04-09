@@ -1,6 +1,7 @@
 ﻿using BombAttackGame.Events;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,11 +11,11 @@ namespace BombAttackGame.Models
     {
         public Vector2 Location { get; set; }
         public Texture2D Texture { get; set; }
-        public int Damage { get; set; }
         public int Speed { get; set; }
         public float Distance { get; set; }
         public float DistanceTravelled { get; set; }
         public float MaxDistance { get; set; }
+        public double Damage { get; set; }
         public double TeamDamage { get; set; }
         public double EnemyDamage { get; set; }
         public double OtherDamage { get; set; }
@@ -32,36 +33,45 @@ namespace BombAttackGame.Models
             this.Point = point;
             this.MaxDistance = 120000;
             this.TeamDamage = 0.5;
-            this.EnemyDamage = 1;
+            this.EnemyDamage = 5;
             this.OtherDamage = 1;
         }
-        public float CalculateDamage(Player Player)
+        public int CalculateDamage(Player Player)
         {
             switch (DistanceTravelled)
             {
                 case > 80000:
-                    return Damage * 0.1f;
+                    Convert.ToInt32(Damage = Damage * 0.1);
+                    break;
                 case > 55000:
-                    return Damage * 0.2f;
+                    Convert.ToInt32(Damage = Damage * 0.2);
+                    break;
                 case > 40000:
-                    return Damage * 0.3f;
+                    Convert.ToInt32(Damage = Damage * 0.3);
+                    break;
                 case > 30000:
-                    return Damage * 0.4f;
+                    Convert.ToInt32(Damage = Damage * 0.4);
+                    break;
                 case > 20000:
-                    return Damage * 0.5f;
+                    Convert.ToInt32(Damage = Damage * 0.5);
+                    break;
                 case > 15000:
-                    return Damage * 0.6f;
+                    Convert.ToInt32(Damage = Damage * 0.6);
+                    break;
                 case > 10000:
-                    return Damage * 0.7f;
+                    Convert.ToInt32(Damage = Damage * 0.7);
+                    break;
                 case > 8000:
-                    return Damage * 0.8f;
+                    Convert.ToInt32(Damage = Damage * 0.8);
+                    break;
                 case > 5000:
-                    return Damage * 0.9f;
+                    Convert.ToInt32(Damage = Damage * 0.9);
+                    break;
             }
             if (Player.Team == Owner.Team) return (int)(Damage * TeamDamage);
             if (Player.Team == Team.Enemy && (Owner.Team == Team.TeamMate || Owner.Team == Team.Player)) return (int)(Damage * EnemyDamage);
             if (Player.Team == Team.TeamMate && Owner.Team == Team.Player) return (int)(Damage * TeamDamage);
-            return Damage;
+            return (int)Damage;
         }
 
         private static void BulletsHit(GameTime GameTime, List<Player> AllPlayers, List<Bullet> Bullets, List<Damage> Damages)
