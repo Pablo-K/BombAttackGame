@@ -68,9 +68,7 @@ namespace BombAttackGame.Models
         public static void Tick(List<Player> Players)
         {
             foreach (var player in Players.ToList())
-            {
-                if(CheckIfDead(player)) Players.Remove(player);
-            }
+            { if(CheckIfDead(player)) Players.Remove(player); }
         }
         private static bool CheckIfDead(Player Player)
         {

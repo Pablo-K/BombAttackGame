@@ -22,8 +22,6 @@ namespace BombAttackGame
         private Texture2D _wall;
 
         private Player _player;
-        private Player _teamMate;
-        private Player _enemy;
 
         private List<Player> _allPlayers;
 
@@ -82,6 +80,7 @@ namespace BombAttackGame
             _player.Texture = Content.Load<Texture2D>("player");
             _player.Team = Team.Player;
             _player.Location = Spawn.GenerateRandomSpawnPoint(_mapSize, _player.Texture);
+
             _allPlayers.Add(_player);
 
             _allPlayers.AddRange(Player.AddPlayers(Team.TeamMate, Content, _teamMateAmount, _mapSize));

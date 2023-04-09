@@ -15,6 +15,9 @@ namespace BombAttackGame.Models
         public float Distance { get; set; }
         public float DistanceTravelled { get; set; }
         public float MaxDistance { get; set; }
+        public double TeamDamage { get; set; }
+        public double EnemyDamage { get; set; }
+        public double OtherDamage { get; set; }
         public Player Owner { get; set; }
         public Vector2 StartLocation { get; set; }
         public Vector2 Direction { get; set; }
@@ -28,8 +31,11 @@ namespace BombAttackGame.Models
             this.Owner = owner;
             this.Point = point;
             this.MaxDistance = 120000;
+            this.TeamDamage = 0.5;
+            this.EnemyDamage = 1;
+            this.OtherDamage = 1;
         }
-        public float CalculateDamage()
+        public float CalculateDamage(Player Player)
         {
             switch (DistanceTravelled)
             {
@@ -52,6 +58,9 @@ namespace BombAttackGame.Models
                 case > 5000:
                     return Damage * 0.9f;
             }
+            if (Player.Team == Owner.Team) return (int)(Damage * TeamDamage);
+            if (Player.Team == Team.Enemy && (Owner.Team == Team.TeamMate || Owner.Team == Team.Player)) return (int)(Damage * EnemyDamage);
+            if (Player.Team == Team.TeamMate && Owner.Team == Team.Player) return (int)(Damage * TeamDamage);
             return Damage;
         }
 
@@ -61,11 +70,11 @@ namespace BombAttackGame.Models
             {
                 if (Hit.BulletHit(bullet, AllPlayers, out Player PlayerHitted))
                 {
-                    int Damage = (int)bullet.CalculateDamage();
+                    int Damage = (int)bullet.CalculateDamage(PlayerHitted);
                     PlayerHitted.Hit(Damage);
                     Bullets.Remove(bullet);
 
-                    Damage damage = new Damage(Damage, PlayerHitted.Location);
+                    Damage damage = new Damage((int)Damage, PlayerHitted.Location);
                     damage.ShowTime = GameTime.TotalGameTime.TotalMilliseconds;
                     Damages.Add(damage);
                 }
