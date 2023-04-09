@@ -25,12 +25,6 @@ namespace BombAttackGame
         private Player _teamMate;
         private Player _enemy;
 
-        private Bullet _bullet;
-        private Vector2 endOfMap;
-
-        private List<Player> _players;
-        private List<Player> _enemies;
-        private List<Player> _teamMates;
         private List<Player> _allPlayers;
 
         private List<Damage> _damages;
@@ -44,11 +38,8 @@ namespace BombAttackGame
 
         private int[] _mapSize = new int[2];
 
-        private int _teamMateCount;
-        private int _enemyCount;
-
-        private int _width;
-        private int _height;
+        private int _teamMateAmount;
+        private int _enemyAmount;
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -63,14 +54,12 @@ namespace BombAttackGame
 
             Window.AllowUserResizing = true;
 
-            endOfMap = new Vector2(_mapSize[0], _mapSize[1]);
-            
             _graphics.PreferredBackBufferWidth = _mapSize[0];
             _graphics.PreferredBackBufferHeight = _mapSize[1];
             _graphics.ApplyChanges();
 
-            _enemyCount = 5;
-            _teamMateCount = 4;
+            _enemyAmount = 5;
+            _teamMateAmount = 4;
 
             base.Initialize();
         }
@@ -84,44 +73,28 @@ namespace BombAttackGame
 
             _wall = Content.Load<Texture2D>("wall");
 
-            _players = new List<Player>();
-            _teamMates = new List<Player>();
             _allPlayers = new List<Player>();
-            _enemies = new List<Player>();
 
             _bullets = new List<Bullet>();
             _damages = new List<Damage>();
 
             _player = new Player();
             _player.Texture = Content.Load<Texture2D>("player");
+            _player.Team = Team.Player;
             _player.Location = Spawn.GenerateRandomSpawnPoint(_mapSize, _player.Texture);
-            _players.Add(_player);
             _allPlayers.Add(_player);
 
-            for (int i = 0; i < _teamMateCount; i++)
-            {
-                _teamMate = new Player();
-                _teamMate.Texture = Content.Load<Texture2D>("teammate");
-                _teamMate.Location = Spawn.GenerateRandomSpawnPoint(_mapSize, _teamMate.Texture);
-                _teamMates.Add(_teamMate);
-                _allPlayers.Add(_teamMate);
-            }
-
-            for (int i = 0; i < _enemyCount; i++)
-            {
-                _enemy = new Player();
-                _enemy.Texture = Content.Load<Texture2D>("enemy");
-                _enemy.Location = Spawn.GenerateRandomSpawnPoint(_mapSize, _enemy.Texture);
-                _enemies.Add(_enemy);
-                _allPlayers.Add(_enemy);
-            }
+            _allPlayers.AddRange(Player.AddPlayers(Team.TeamMate, Content, _teamMateAmount, _mapSize));
+            _allPlayers.AddRange(Player.AddPlayers(Team.Enemy, Content, _enemyAmount, _mapSize));
+            
         }
 
         protected override void Update(GameTime gameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape)) Exit();
 
-            if (_player?.ShotTime == null) _player.ShotTime = gameTime.TotalGameTime.TotalMilliseconds;
+            _mapSize[0] = Window.ClientBounds.Width;
+            _mapSize[1] = Window.ClientBounds.Height;
 
             var kstate = Keyboard.GetState();
             var mstate = Mouse.GetState();
@@ -135,23 +108,9 @@ namespace BombAttackGame
 
             if (mstate.LeftButton == ButtonState.Pressed) { Player.TryShoot(_player, gameTime, Content, _mousePosition, _bullets); }
 
-            foreach (var bullet in _bullets.ToList())
-            {
-                var speed = bullet.Speed * (1 / bullet.Distance);
-                float Length = 0;
-                bullet.Location = Vector2.Lerp(bullet.Location, bullet.Point, speed);
-                Length += Vector2.Distance(bullet.Location, bullet.StartLocation);
-                if (bullet.DistanceTravelled >= 1000000)
-                { _bullets.Remove(bullet); }
-                else
-                {
-                    bullet.DistanceTravelled += Length;
-                }
-            }
-            
-            Bullet.BulletsHit(gameTime,_allPlayers,_bullets,_damages);
-            CheckIsDead();
-            CheckIfTimeIsGone(gameTime);
+            Bullet.Tick(gameTime, _allPlayers, _bullets, _damages);
+            Damage.Tick(gameTime, _damages);
+            Player.Tick(_allPlayers);
 
             base.Update(gameTime);
         }
@@ -162,25 +121,14 @@ namespace BombAttackGame
 
             _spriteBatch.Begin();
 
-            foreach (var player in _players) { _spriteBatch.Draw(player.Texture, player.Location, Color.CornflowerBlue); }
-            foreach (var enemy in _enemies) { _spriteBatch.Draw(enemy.Texture, enemy.Location, Color.CornflowerBlue); }
-            foreach (var teamMate in _teamMates) { _spriteBatch.Draw(teamMate.Texture, teamMate.Location, Color.CornflowerBlue); }
+            foreach (var player in _allPlayers) { _spriteBatch.Draw(player.Texture, player.Location, Color.CornflowerBlue); }
             foreach (var bullet in _bullets) { _spriteBatch.Draw(bullet.Texture, bullet.Location, Color.CornflowerBlue); }
             foreach (var damage in _damages) { _spriteBatch.DrawString(_damageF, damage.Amount.ToString(), damage.Location, Color.Red); }
-            _spriteBatch.DrawString(_hpF, _player.Health.ToString(), HudVector.HpVector(Window), Color.Red);
+            _spriteBatch.DrawString(_hpF, _player.Health.ToString(), HudVector.HpVector(_mapSize), Color.Red);
+
             _spriteBatch.End();
 
             base.Draw(gameTime);
-        }
-        private void CheckIsDead()
-        {
-            foreach (Player enemy in _enemies.ToList()) { if (enemy.Health <= 0) { _enemies.Remove(enemy); _allPlayers.Remove(enemy); } }
-            foreach (Player player in _players.ToList()) { if (player.Health <= 0) { _players.Remove(player); _allPlayers.Remove(player); } }
-            foreach (Player teamMate in _teamMates.ToList()) { if (teamMate.Health <= 0) { _teamMates.Remove(teamMate); _allPlayers.Remove(teamMate); } }
-        }
-        private void CheckIfTimeIsGone(GameTime gameTime)
-        {
-            foreach (Damage damage in _damages.ToList()) { if (gameTime.TotalGameTime.TotalMilliseconds - damage.ShowTime >= damage.ShowingTime) { _damages.Remove(damage); } }
         }
     }
 }

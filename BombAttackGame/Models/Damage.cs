@@ -1,5 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace BombAttackGame.Models
 {
@@ -16,6 +18,14 @@ namespace BombAttackGame.Models
             this.Amount = amount;
             this.Location = new Vector2(location.X, location.Y - 15);
             ShowingTime = 100;
+        }
+        public static void Tick(GameTime GameTime, List<Damage> Damages)
+        {
+            foreach (Damage damage in Damages.ToList())
+            {
+                if (GameTime.TotalGameTime.TotalMilliseconds - damage.ShowTime >= damage.ShowingTime)
+                { Damages.Remove(damage); }
+            }
         }
     }
 }
