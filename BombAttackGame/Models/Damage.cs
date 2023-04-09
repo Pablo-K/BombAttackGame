@@ -10,6 +10,7 @@ namespace BombAttackGame.Models
         public Texture2D Texture { get; set; }
         public double ShowTime { get; set; }
         public double ShowingTime { get; set; }
+        public Damage() { }
         public Damage(int amount, Vector2 location)
         {
             this.Amount = amount;

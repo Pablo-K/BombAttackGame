@@ -1,6 +1,9 @@
-﻿using Microsoft.Xna.Framework;
+﻿using BombAttackGame.Events;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace BombAttackGame.Models
 {
@@ -21,7 +24,7 @@ namespace BombAttackGame.Models
             this.Location = new Vector2(location.X, location.Y);
             this.StartLocation = new Vector2(location.X, location.Y);
             this.Speed = 3;
-            this.Damage = 20;
+            this.Damage = 25;
             this.Owner = owner;
             this.Point = point;
         }
@@ -29,13 +32,13 @@ namespace BombAttackGame.Models
         {
             switch (DistanceTravelled)
             {
-                case > 40000:
+                case > 80000:
                     return Damage * 0.1f;
-                case > 35000:
+                case > 55000:
                     return Damage * 0.2f;
-                case > 30000:
+                case > 40000:
                     return Damage * 0.3f;
-                case > 25000:
+                case > 30000:
                     return Damage * 0.4f;
                 case > 20000:
                     return Damage * 0.5f;
@@ -49,6 +52,23 @@ namespace BombAttackGame.Models
                     return Damage * 0.9f;
             }
             return Damage;
+        }
+
+        public static void BulletsHit(GameTime GameTime, List<Player> AllPlayers, List<Bullet> Bullets, List<Damage> Damages)
+        {
+            foreach (Bullet bullet in Bullets.ToList())
+            {
+                if (Hit.BulletHit(bullet, AllPlayers, out Player PlayerHitted))
+                {
+                    int Damage = (int)bullet.CalculateDamage();
+                    PlayerHitted.Hit(Damage);
+                    Bullets.Remove(bullet);
+
+                    Damage damage = new Damage(Damage, PlayerHitted.Location);
+                    damage.ShowTime = GameTime.TotalGameTime.TotalMilliseconds;
+                    Damages.Add(damage);
+                }
+            }
         }
     }
 }

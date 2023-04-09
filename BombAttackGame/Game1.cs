@@ -133,7 +133,7 @@ namespace BombAttackGame
             if (kstate.IsKeyDown(Keys.D)) { Move.PlayerMove(_player, Direction.Right, _mapSize); }
             if (kstate.IsKeyDown(Keys.W)) { Move.PlayerMove(_player, Direction.Up, _mapSize); }
 
-            if (mstate.LeftButton == ButtonState.Pressed) { TryShoot(_player, gameTime, Content, _mousePosition); }
+            if (mstate.LeftButton == ButtonState.Pressed) { Player.TryShoot(_player, gameTime, Content, _mousePosition, _bullets); }
 
             foreach (var bullet in _bullets.ToList())
             {
@@ -141,14 +141,15 @@ namespace BombAttackGame
                 float Length = 0;
                 bullet.Location = Vector2.Lerp(bullet.Location, bullet.Point, speed);
                 Length += Vector2.Distance(bullet.Location, bullet.StartLocation);
-                if (bullet.DistanceTravelled >= 100000f)
+                if (bullet.DistanceTravelled >= 1000000)
                 { _bullets.Remove(bullet); }
                 else
-                { bullet.DistanceTravelled += Length; }
+                {
+                    bullet.DistanceTravelled += Length;
+                }
             }
             
-
-            BulletsHit(gameTime);
+            Bullet.BulletsHit(gameTime,_allPlayers,_bullets,_damages);
             CheckIsDead();
             CheckIfTimeIsGone(gameTime);
 
@@ -170,32 +171,6 @@ namespace BombAttackGame
             _spriteBatch.End();
 
             base.Draw(gameTime);
-        }
-        private void TryShoot(Player Player, GameTime GameTime, Microsoft.Xna.Framework.Content.ContentManager Content, Vector2 ShootLoc)
-        {
-            _bullet = null;
-            ShootLoc = VectorTool.ExtendVector(ShootLoc, Player.Location, 100000); 
-            _bullet = Shoot.PlayerShoot(Player, GameTime, Content, ShootLoc);
-            if (_bullet == null) { return; }
-            _bullets.Add(_bullet);
-            _bullet.Direction = ShootLoc - Player.Location;
-            _bullet.Direction.Normalize();
-        }
-        private void BulletsHit(GameTime gameTime)
-        {
-            foreach (Bullet bullet in _bullets.ToList())
-            {
-                if (Hit.BulletHit(bullet, _allPlayers, out Player PlayerHitted))
-                {
-                    int Damage = (int)bullet.CalculateDamage();
-                    PlayerHitted.Hit(Damage);
-                    _bullets.Remove(bullet);
-
-                    Damage damage = new Damage(Damage, PlayerHitted.Location);
-                    damage.ShowTime = gameTime.TotalGameTime.TotalMilliseconds;
-                    _damages.Add(damage);
-                }
-            }
         }
         private void CheckIsDead()
         {
