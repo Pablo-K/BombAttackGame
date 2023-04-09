@@ -16,6 +16,7 @@ namespace BombAttackGame.Events
             {
                 var bullet = new Bullet(player.Location, player, point);
                 bullet.Texture = content.Load<Texture2D>("bullet");
+                bullet.Distance = Vector2.Distance(bullet.Point, bullet.Location);
                 player.ShotTime = gameTime.TotalGameTime.TotalMilliseconds;
 
                 return bullet;

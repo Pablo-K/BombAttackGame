@@ -3,12 +3,14 @@ using BombAttackGame.Events;
 using BombAttackGame.HUD;
 using BombAttackGame.Interfaces;
 using BombAttackGame.Models;
+using BombAttackGame.Vector;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 
 namespace BombAttackGame
 {
@@ -86,6 +88,7 @@ namespace BombAttackGame
             _teamMates = new List<Player>();
             _allPlayers = new List<Player>();
             _enemies = new List<Player>();
+
             _bullets = new List<Bullet>();
             _damages = new List<Damage>();
 
@@ -103,6 +106,7 @@ namespace BombAttackGame
                 _teamMates.Add(_teamMate);
                 _allPlayers.Add(_teamMate);
             }
+
             for (int i = 0; i < _enemyCount; i++)
             {
                 _enemy = new Player();
@@ -129,13 +133,18 @@ namespace BombAttackGame
             if (kstate.IsKeyDown(Keys.D)) { Move.PlayerMove(_player, Direction.Right, _mapSize); }
             if (kstate.IsKeyDown(Keys.W)) { Move.PlayerMove(_player, Direction.Up, _mapSize); }
 
-            if (mstate.LeftButton == ButtonState.Pressed) { TryShoot(_player, gameTime, Content, _mousePosition, _mapSize); }
+            if (mstate.LeftButton == ButtonState.Pressed) { TryShoot(_player, gameTime, Content, _mousePosition); }
 
             foreach (var bullet in _bullets.ToList())
             {
-                var speed = bullet.Speed * (1 / Vector2.Distance(bullet.Point, bullet.Location));
-
+                var speed = bullet.Speed * (1 / bullet.Distance);
+                float Length = 0;
                 bullet.Location = Vector2.Lerp(bullet.Location, bullet.Point, speed);
+                Length += Vector2.Distance(bullet.Location, bullet.StartLocation);
+                if (bullet.DistanceTravelled >= 100000f)
+                { _bullets.Remove(bullet); }
+                else
+                { bullet.DistanceTravelled += Length; }
             }
             
 
@@ -145,15 +154,7 @@ namespace BombAttackGame
 
             base.Update(gameTime);
         }
-        public static Vector2 ExtendVector(Vector2 xVector, Vector2 xVector2, float xDistance)
-        { float pDistance;
-            Vector2 VectorEnd;
-            pDistance = (float)Vector2.Distance(xVector, xVector2);
-            VectorEnd = new Vector2();
-            VectorEnd.X = xVector.X + (xVector.X - xVector2.X) / pDistance * xDistance;
-            VectorEnd.Y = xVector.Y + (xVector.Y - xVector2.Y) / pDistance * xDistance;
-            return VectorEnd;
-        }
+        
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
@@ -170,10 +171,10 @@ namespace BombAttackGame
 
             base.Draw(gameTime);
         }
-        private void TryShoot(Player Player, GameTime GameTime, Microsoft.Xna.Framework.Content.ContentManager Content, Vector2 ShootLoc, int[] MapSize)
+        private void TryShoot(Player Player, GameTime GameTime, Microsoft.Xna.Framework.Content.ContentManager Content, Vector2 ShootLoc)
         {
             _bullet = null;
-            ShootLoc = ExtendVector(ShootLoc, Player.Location, 100000); 
+            ShootLoc = VectorTool.ExtendVector(ShootLoc, Player.Location, 100000); 
             _bullet = Shoot.PlayerShoot(Player, GameTime, Content, ShootLoc);
             if (_bullet == null) { return; }
             _bullets.Add(_bullet);
@@ -184,12 +185,13 @@ namespace BombAttackGame
         {
             foreach (Bullet bullet in _bullets.ToList())
             {
-                if (Hit.BulletHit(bullet, _allPlayers, out Player _player))
+                if (Hit.BulletHit(bullet, _allPlayers, out Player PlayerHitted))
                 {
-                    _player.Hit(bullet.Damage);
+                    int Damage = (int)bullet.CalculateDamage();
+                    PlayerHitted.Hit(Damage);
                     _bullets.Remove(bullet);
 
-                    Damage damage = new Damage(bullet.Damage, _player.Location);
+                    Damage damage = new Damage(Damage, PlayerHitted.Location);
                     damage.ShowTime = gameTime.TotalGameTime.TotalMilliseconds;
                     _damages.Add(damage);
                 }
