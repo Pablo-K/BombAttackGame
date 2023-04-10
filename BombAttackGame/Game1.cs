@@ -33,6 +33,8 @@ namespace BombAttackGame
 
         private int[] _mapSize = new int[2];
 
+        private Color _mainColor;
+
         private int _teamMateAmount;
         private int _enemyAmount;
         public Game1()
@@ -46,6 +48,8 @@ namespace BombAttackGame
         {
             _mapSize[0] = 1000;
             _mapSize[1] = 1000;
+
+            _mainColor = Color.Tomato;
 
             Window.AllowUserResizing = true;
 
@@ -107,22 +111,22 @@ namespace BombAttackGame
             Bullet.Tick(gameTime, _allPlayers, _bullets, _damages);
             MainSpeed.Tick(gameTime, _mainSpeed, _mapSize);
             Damage.Tick(gameTime, _damages);
-            Player.Tick(_allPlayers, _mainSpeed, gameTime);
+            Player.Tick(_allPlayers, _mainSpeed, gameTime, _mainColor, Content, _bullets, _mapSize);
 
             base.Update(gameTime);
         }
         
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(_mainColor);
 
             _spriteBatch.Begin();
 
-            foreach (var player in _allPlayers) { _spriteBatch.Draw(player.Texture, player.Location, Color.CornflowerBlue); }
-            foreach (var bullet in _bullets) { _spriteBatch.Draw(bullet.Texture, bullet.Location, Color.CornflowerBlue); }
-            foreach (var damage in _damages) { _spriteBatch.DrawString(_damageF, damage.Amount.ToString(), damage.Location, Color.Red); }
-            _spriteBatch.DrawString(_hpF, _player.Health.ToString(), HudVector.HpVector(_mapSize), Color.Red);
-            if(!_mainSpeed.IsDead) _spriteBatch.Draw(_mainSpeed.Texture, _mainSpeed.Location, Color.CornflowerBlue);
+            foreach (var player in _allPlayers) { _spriteBatch.Draw(player.Texture, player.Location, player.Color); }
+            foreach (var bullet in _bullets) { _spriteBatch.Draw(bullet.Texture, bullet.Location, _mainColor); }
+            foreach (var damage in _damages) { _spriteBatch.DrawString(_damageF, damage.Amount.ToString(), damage.Location, Color.Yellow); }
+            _spriteBatch.DrawString(_hpF, _player.Health.ToString(), HudVector.HpVector(_mapSize), Color.Green);
+            if(!_mainSpeed.IsDead) _spriteBatch.Draw(_mainSpeed.Texture, _mainSpeed.Location, _mainColor);
 
             _spriteBatch.End();
 

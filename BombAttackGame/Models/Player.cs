@@ -6,6 +6,7 @@ using BombAttackGame.Vector;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -14,6 +15,7 @@ namespace BombAttackGame.Models
 {
     public enum Team
     {
+        None,
         Player,
         TeamMate,
         Enemy
@@ -32,15 +34,23 @@ namespace BombAttackGame.Models
         public bool OnMainSpeed { get; set; }
         public double ShotTime { get; set; }
         public double ShotLatency { get; set; }
+        public double EnemyShotLatency { get; set; }
+        public double TeamMateShotLatency { get; set; }
         public double MainSpeedStartTime { get; set; }
         public double MainSpeedEndTime { get; set; }
+        public double MovingTime { get; set; }
+        public double MovingEndTime { get; set; }
+        public Color Color { get; set; }
 
         public Player() { 
         
             this.Direction = Direction.Right;
             this.Speed = 2;
             this.ShotLatency = 100;
+            this.EnemyShotLatency = 1000;
+            this.TeamMateShotLatency = 1000;
             this.Health = 100;
+            this.MovingTime = 1000;
             this.OnMainSpeed = false;
         }
         public void Hit(int Damage)
@@ -65,6 +75,8 @@ namespace BombAttackGame.Models
             Player.Texture = Content.Load<Texture2D>(Texture);
             Player.Team = Team;
             Player.Location = Spawn.GenerateRandomSpawnPoint(MapSize, Player.Texture);
+            if (Team == Team.Enemy) Player.ShotLatency = Player.EnemyShotLatency;
+            if (Team == Team.TeamMate) Player.ShotLatency = Player.TeamMateShotLatency;
             return Player;
         }
         public static List<Player> AddPlayers(Team Team, ContentManager Content, int Amount, int[] MapSize)
@@ -77,20 +89,24 @@ namespace BombAttackGame.Models
                 Player.Texture = Content.Load<Texture2D>(Texture);
                 Player.Team = Team;
                 Player.Location = Spawn.GenerateRandomSpawnPoint(MapSize, Player.Texture);
-                Player.Collision = VectorTool.Collision(Player.Location, Player.Texture);
+                if (Team == Team.Enemy) Player.ShotLatency = Player.EnemyShotLatency;
+                if (Team == Team.TeamMate) Player.ShotLatency = Player.TeamMateShotLatency;
                 Players.Add(Player); 
             }
             return Players;
         }
-        public static void Tick(List<Player> Players, MainSpeed MainSpeed, GameTime GameTime)
+        public static void Tick(List<Player> Players, MainSpeed MainSpeed, GameTime GameTime, Color Color, ContentManager Content, List<Bullet> Bullets, int[] MapSize)
         {
             foreach (var player in Players.ToList())
             {
                 if(CheckIfDead(player)) Players.Remove(player);
                 UpdateCollision(player);
+                UpdateColor(player, Color);
                 if (VectorTool.IsOnObject(player.Collision, MainSpeed.Collision))
                 { MainSpeed.PickedBonus(player,MainSpeed, GameTime); }
                 if(player.OnMainSpeed) MainSpeedTime(player, GameTime, MainSpeed);
+                Player.PlayerShoot(player, GameTime, Content, Players, Bullets);
+                Player.PlayerMove(player, MapSize, GameTime);
             }
         }
         private static bool CheckIfDead(Player Player)
@@ -110,6 +126,46 @@ namespace BombAttackGame.Models
                 Player.ShotLatency *= MainSpeed.ShootingSpeed;
                 Player.OnMainSpeed = false;
             } 
+        }
+        public static void UpdateColor(Player Player, Color Color)
+        {
+            if (Player.OnMainSpeed)
+            {
+                Player.Color = Color.GreenYellow;
+            }
+            else
+            {
+                Player.Color = Color;
+            }
+        }
+        public static void PlayerShoot(Player Player, GameTime GameTime, ContentManager Content, List<Player> Players, List<Bullet> Bullets)
+        {
+            foreach (Player player in Players)
+            {
+                if (!(Player.Team == Team.TeamMate && player.Team == Team.TeamMate))
+                {
+                    if (!(Player.Team == Team.Enemy && player.Team == Team.Enemy))
+                    {
+                        if (Player.Team == Team.Enemy && (player.Team == Team.TeamMate || player.Team == Team.Player)) Player.TryShoot(Player, GameTime, Content, player.Location, Bullets);
+                        if (Player.Team == Team.TeamMate && player.Team == Team.Enemy) Player.TryShoot(Player, GameTime, Content, player.Location, Bullets);
+                    }
+                }
+            }
+        }
+        public static void PlayerMove(Player Player, int[] MapSize, GameTime GameTime)
+        {
+            if (Player.Team == Team.Player) return;
+            if (Player.Direction == Direction.None) return;
+            if (GameTime.TotalGameTime.TotalMilliseconds >= Player.MovingEndTime)
+            {
+                Random random = new Random();
+                Player.Direction = (Direction)random.Next(-1, 4);
+                Player.MovingEndTime = GameTime.TotalGameTime.TotalMilliseconds + Player.MovingTime;
+                Move.PlayerMove(Player, Player.Direction, MapSize);
+                return;
+            }
+            Move.PlayerMove(Player,Player.Direction, MapSize);
+
         }
     }
 }
