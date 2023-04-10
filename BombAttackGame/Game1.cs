@@ -1,16 +1,13 @@
-﻿using BombAttackGame.Enums;
+﻿using BombAttackGame.Bonuses;
+using BombAttackGame.Enums;
 using BombAttackGame.Events;
 using BombAttackGame.HUD;
-using BombAttackGame.Interfaces;
 using BombAttackGame.Models;
 using BombAttackGame.Vector;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 
 namespace BombAttackGame
 {
@@ -19,7 +16,7 @@ namespace BombAttackGame
         private SpriteFont _hpF;
         private SpriteFont _damageF;
 
-        private Texture2D _wall;
+        private MainSpeed _mainSpeed;
 
         private Player _player;
 
@@ -69,18 +66,18 @@ namespace BombAttackGame
             _hpF = Content.Load<SpriteFont>("hp");
             _damageF = Content.Load<SpriteFont>("damage");
 
-            _wall = Content.Load<Texture2D>("wall");
+            _mainSpeed = new MainSpeed();
+            _mainSpeed.Texture = Content.Load<Texture2D>("mainSpeed");
+            _mainSpeed.Location = Spawn.GenerateRandomSpawnPoint(_mapSize, _mainSpeed.Texture);
+            _mainSpeed.Collision = VectorTool.Collision(_mainSpeed.Location, _mainSpeed.Texture);
+            _mainSpeed.IsDead = false;
 
             _allPlayers = new List<Player>();
 
             _bullets = new List<Bullet>();
             _damages = new List<Damage>();
 
-            _player = new Player();
-            _player.Texture = Content.Load<Texture2D>("player");
-            _player.Team = Team.Player;
-            _player.Location = Spawn.GenerateRandomSpawnPoint(_mapSize, _player.Texture);
-
+            _player = Player.AddPlayer(Team.Player,Content,_mapSize);
             _allPlayers.Add(_player);
 
             _allPlayers.AddRange(Player.AddPlayers(Team.TeamMate, Content, _teamMateAmount, _mapSize));
@@ -108,8 +105,9 @@ namespace BombAttackGame
             if (mstate.LeftButton == ButtonState.Pressed) { Player.TryShoot(_player, gameTime, Content, _mousePosition, _bullets); }
 
             Bullet.Tick(gameTime, _allPlayers, _bullets, _damages);
+            MainSpeed.Tick(gameTime, _mainSpeed, _mapSize);
             Damage.Tick(gameTime, _damages);
-            Player.Tick(_allPlayers);
+            Player.Tick(_allPlayers, _mainSpeed, gameTime);
 
             base.Update(gameTime);
         }
@@ -124,6 +122,7 @@ namespace BombAttackGame
             foreach (var bullet in _bullets) { _spriteBatch.Draw(bullet.Texture, bullet.Location, Color.CornflowerBlue); }
             foreach (var damage in _damages) { _spriteBatch.DrawString(_damageF, damage.Amount.ToString(), damage.Location, Color.Red); }
             _spriteBatch.DrawString(_hpF, _player.Health.ToString(), HudVector.HpVector(_mapSize), Color.Red);
+            if(!_mainSpeed.IsDead) _spriteBatch.Draw(_mainSpeed.Texture, _mainSpeed.Location, Color.CornflowerBlue);
 
             _spriteBatch.End();
 

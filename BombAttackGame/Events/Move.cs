@@ -1,8 +1,6 @@
 ﻿using BombAttackGame.Enums;
 using BombAttackGame.Models;
 using Microsoft.Xna.Framework;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace BombAttackGame.Events
 {
@@ -15,22 +13,22 @@ namespace BombAttackGame.Events
             int height = mapSize[1];
             if (direction == Direction.Left)
             {
-                player.Location = new Vector2(player.Location.X - player.Speed, player.Location.Y);
+                player.Location = new Vector2(player.Location.X - (int)player.Speed, player.Location.Y);
                 player.Direction = Direction.Left;
             }
             if (direction == Direction.Right)
             {
-                player.Location = new Vector2(player.Location.X + player.Speed, player.Location.Y);
+                player.Location = new Vector2(player.Location.X + (int)player.Speed, player.Location.Y);
                 player.Direction = Direction.Right;
             }
             if (direction == Direction.Down)
             {
-                player.Location = new Vector2(player.Location.X, player.Location.Y + player.Speed);
+                player.Location = new Vector2(player.Location.X, player.Location.Y + (int)player.Speed);
                 player.Direction = Direction.Down;
             }
             if (direction == Direction.Up)
             {
-                player.Location = new Vector2(player.Location.X, player.Location.Y - player.Speed);
+                player.Location = new Vector2(player.Location.X, player.Location.Y - (int)player.Speed);
                 player.Direction = Direction.Up;
             }
             if(player.Location.X < 0 || player.Location.Y < 0 || player.Location.X+player.Texture.Width > width || player.Location.Y+player.Texture.Height > height)

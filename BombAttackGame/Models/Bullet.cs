@@ -27,13 +27,13 @@ namespace BombAttackGame.Models
         {
             this.Location = new Vector2(location.X, location.Y);
             this.StartLocation = new Vector2(location.X, location.Y);
-            this.Speed = 3;
+            this.Speed = 5;
             this.Damage = 25;
             this.Owner = owner;
             this.Point = point;
             this.MaxDistance = 120000;
             this.TeamDamage = 0.5;
-            this.EnemyDamage = 5;
+            this.EnemyDamage = 1;
             this.OtherDamage = 1;
         }
         public int CalculateDamage(Player Player)
@@ -41,32 +41,23 @@ namespace BombAttackGame.Models
             switch (DistanceTravelled)
             {
                 case > 80000:
-                    Convert.ToInt32(Damage = Damage * 0.1);
-                    break;
+                    Convert.ToInt32(Damage = Damage * 0.1); break;
                 case > 55000:
-                    Convert.ToInt32(Damage = Damage * 0.2);
-                    break;
+                    Convert.ToInt32(Damage = Damage * 0.2); break;
                 case > 40000:
-                    Convert.ToInt32(Damage = Damage * 0.3);
-                    break;
+                    Convert.ToInt32(Damage = Damage * 0.3); break;
                 case > 30000:
-                    Convert.ToInt32(Damage = Damage * 0.4);
-                    break;
+                    Convert.ToInt32(Damage = Damage * 0.4); break;
                 case > 20000:
-                    Convert.ToInt32(Damage = Damage * 0.5);
-                    break;
+                    Convert.ToInt32(Damage = Damage * 0.5); break;
                 case > 15000:
-                    Convert.ToInt32(Damage = Damage * 0.6);
-                    break;
+                    Convert.ToInt32(Damage = Damage * 0.6); break;
                 case > 10000:
-                    Convert.ToInt32(Damage = Damage * 0.7);
-                    break;
+                    Convert.ToInt32(Damage = Damage * 0.7); break;
                 case > 8000:
-                    Convert.ToInt32(Damage = Damage * 0.8);
-                    break;
+                    Convert.ToInt32(Damage = Damage * 0.8); break;
                 case > 5000:
-                    Convert.ToInt32(Damage = Damage * 0.9);
-                    break;
+                    Convert.ToInt32(Damage = Damage * 0.9); break;
             }
             if (Player.Team == Owner.Team) return (int)(Damage * TeamDamage);
             if (Player.Team == Team.Enemy && (Owner.Team == Team.TeamMate || Owner.Team == Team.Player)) return (int)(Damage * EnemyDamage);
