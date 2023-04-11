@@ -42,8 +42,9 @@ namespace BombAttackGame.Models
         public double MovingEndTime { get; set; }
         public Color Color { get; set; }
 
-        public Player() { 
-        
+        public Player()
+        {
+
             this.Direction = Direction.Right;
             this.Speed = 2;
             this.ShotLatency = 100;
@@ -61,7 +62,7 @@ namespace BombAttackGame.Models
         public static void TryShoot(Player Player, GameTime GameTime, Microsoft.Xna.Framework.Content.ContentManager Content, Vector2 ShootLoc, List<Bullet> Bullets)
         {
             Bullet Bullet = null;
-            ShootLoc = VectorTool.ExtendVector(ShootLoc, Player.Location, 100000); 
+            ShootLoc = VectorTool.ExtendVector(ShootLoc, Player.Location, 100000);
             Bullet = Shoot.PlayerShoot(Player, GameTime, Content, ShootLoc);
             if (Bullet == null) { return; }
             Bullets.Add(Bullet);
@@ -91,7 +92,7 @@ namespace BombAttackGame.Models
                 Player.Location = Spawn.GenerateRandomSpawnPoint(MapSize, Player.Texture);
                 if (Team == Team.Enemy) Player.ShotLatency = Player.EnemyShotLatency;
                 if (Team == Team.TeamMate) Player.ShotLatency = Player.TeamMateShotLatency;
-                Players.Add(Player); 
+                Players.Add(Player);
             }
             return Players;
         }
@@ -99,12 +100,12 @@ namespace BombAttackGame.Models
         {
             foreach (var player in Players.ToList())
             {
-                if(CheckIfDead(player)) Players.Remove(player);
+                if (CheckIfDead(player)) Players.Remove(player);
                 UpdateCollision(player);
                 UpdateColor(player, Color);
                 if (VectorTool.IsOnObject(player.Collision, MainSpeed.Collision))
-                { MainSpeed.PickedBonus(player,MainSpeed, GameTime); }
-                if(player.OnMainSpeed) MainSpeedTime(player, GameTime, MainSpeed);
+                { MainSpeed.PickedBonus(player, MainSpeed, GameTime); }
+                if (player.OnMainSpeed) MainSpeedTime(player, GameTime, MainSpeed);
                 Player.PlayerShoot(player, GameTime, Content, Players, Bullets);
                 Player.PlayerMove(player, MapSize, GameTime);
             }
@@ -113,19 +114,19 @@ namespace BombAttackGame.Models
         {
             if (Player.Health <= 0) return true;
             return false;
-        } 
+        }
         public static void UpdateCollision(Player Player)
         {
             Player.Collision = VectorTool.Collision(Player.Location, Player.Texture);
         }
         public static void MainSpeedTime(Player Player, GameTime GameTime, MainSpeed MainSpeed)
         {
-            if(Player.MainSpeedEndTime <= GameTime.TotalGameTime.TotalMilliseconds && Player.OnMainSpeed)
+            if (Player.MainSpeedEndTime <= GameTime.TotalGameTime.TotalMilliseconds && Player.OnMainSpeed)
             {
                 Player.Speed /= MainSpeed.WalkSpeed;
                 Player.ShotLatency *= MainSpeed.ShootingSpeed;
                 Player.OnMainSpeed = false;
-            } 
+            }
         }
         public static void UpdateColor(Player Player, Color Color)
         {
@@ -140,14 +141,28 @@ namespace BombAttackGame.Models
         }
         public static void PlayerShoot(Player Player, GameTime GameTime, ContentManager Content, List<Player> Players, List<Bullet> Bullets)
         {
-            foreach (Player player in Players)
+            List<Player> PlayersRandom = new List<Player>();
+            PlayersRandom.AddRange(Players);
+            int n = PlayersRandom.Count;
+            Random rng = new Random();
+            while (n > 1)
             {
-                if (!(Player.Team == Team.TeamMate && player.Team == Team.TeamMate))
+                n--;
+                int k = rng.Next(n + 1);
+                Player value = PlayersRandom[k];
+                PlayersRandom[k] = PlayersRandom[n];
+                PlayersRandom[n] = value;
+            }
+            {
+                foreach (Player player in PlayersRandom)
                 {
-                    if (!(Player.Team == Team.Enemy && player.Team == Team.Enemy))
+                    if (!(Player.Team == Team.TeamMate && player.Team == Team.TeamMate))
                     {
-                        if (Player.Team == Team.Enemy && (player.Team == Team.TeamMate || player.Team == Team.Player)) Player.TryShoot(Player, GameTime, Content, player.Location, Bullets);
-                        if (Player.Team == Team.TeamMate && player.Team == Team.Enemy) Player.TryShoot(Player, GameTime, Content, player.Location, Bullets);
+                        if (!(Player.Team == Team.Enemy && player.Team == Team.Enemy))
+                        {
+                            if (Player.Team == Team.Enemy && (player.Team == Team.TeamMate || player.Team == Team.Player)) Player.TryShoot(Player, GameTime, Content, player.Location, Bullets);
+                            if (Player.Team == Team.TeamMate && player.Team == Team.Enemy) Player.TryShoot(Player, GameTime, Content, player.Location, Bullets);
+                        }
                     }
                 }
             }
@@ -164,7 +179,7 @@ namespace BombAttackGame.Models
                 Move.PlayerMove(Player, Player.Direction, MapSize);
                 return;
             }
-            Move.PlayerMove(Player,Player.Direction, MapSize);
+            Move.PlayerMove(Player, Player.Direction, MapSize);
 
         }
     }

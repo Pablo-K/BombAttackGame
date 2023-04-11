@@ -15,28 +15,19 @@ namespace BombAttackGame
     {
         private SpriteFont _hpF;
         private SpriteFont _damageF;
-
         private MainSpeed _mainSpeed;
-
         private Player _player;
-
         private List<Player> _allPlayers;
-
         private List<Damage> _damages;
-
         private List<Bullet> _bullets;
-
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-
         private Vector2 _mousePosition;
-
-        private int[] _mapSize = new int[2];
-
         private Color _mainColor;
-
+        private int[] _mapSize = new int[2];
         private int _teamMateAmount;
         private int _enemyAmount;
+
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
