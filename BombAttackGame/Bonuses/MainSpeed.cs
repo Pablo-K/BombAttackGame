@@ -1,4 +1,5 @@
-﻿using BombAttackGame.Events;
+﻿using BombAttackGame.Collisions;
+using BombAttackGame.Events;
 using BombAttackGame.Models;
 using BombAttackGame.Vector;
 using Microsoft.Xna.Framework;
@@ -35,10 +36,10 @@ namespace BombAttackGame.Bonuses
             this.SpawnEndTime = 16000;
             this.FinallySpawnTime = 0;
         }
-        public static void Tick(GameTime GameTime, MainSpeed MainSpeed, int[] MapSize)
+        public static void Tick(GameTime GameTime, MainSpeed MainSpeed, int[] MapSize, Collision Collision)
         {
             UpdateCollision(MainSpeed);
-            if (MainSpeed.IsDead) SpawnRandomly(GameTime, MainSpeed, MapSize);
+            if (MainSpeed.IsDead) SpawnRandomly(GameTime, MainSpeed, MapSize, Collision);
         }
         private static void UpdateCollision(MainSpeed MainSpeed)
         {
@@ -58,12 +59,12 @@ namespace BombAttackGame.Bonuses
             Player.OnMainSpeed = true;
             MainSpeed.Kill(MainSpeed);
         }
-        public static void SpawnRandomly(GameTime GameTime, MainSpeed MainSpeed, int[] MapSize)
+        public static void SpawnRandomly(GameTime GameTime, MainSpeed MainSpeed, int[] MapSize, Collision Collision)
         {
             if(GameTime.TotalGameTime.TotalMilliseconds >= MainSpeed.FinallySpawnTime && MainSpeed.FinallySpawnTime != 0)
             {
                 MainSpeed.IsDead = false;
-                MainSpeed.Location = Spawn.GenerateRandomSpawnPoint(MapSize, MainSpeed.Texture);
+                MainSpeed.Location = Spawn.GenerateRandomSpawnPoint(MapSize, MainSpeed.Texture, Collision);
                 MainSpeed.FinallySpawnTime = 0;
             }
             if (MainSpeed.FinallySpawnTime != 0) return;

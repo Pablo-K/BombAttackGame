@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using BombAttackGame.Collisions;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -10,10 +11,14 @@ namespace BombAttackGame.Events
 {
     internal class Spawn
     {
-        public static Vector2 GenerateRandomSpawnPoint(int[] mapSize, Texture2D texture)
+        public static Vector2 GenerateRandomSpawnPoint(int[] MapSize, Texture2D Texture, Collision Collision)
         {
             Random random = new Random();
-            return new Vector2(random.Next(mapSize[0] - texture.Width), random.Next(mapSize[1] - texture.Height));
+            while (true)
+            {
+                Vector2 Location = new Vector2(random.Next(0, MapSize[0]), random.Next(0, MapSize[1]));
+                if (!Collision.CheckCollision(Location)) return Location;
+            }
         }
     }
 }

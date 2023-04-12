@@ -1,4 +1,5 @@
 ﻿using BombAttackGame.Bonuses;
+using BombAttackGame.Collisions;
 using BombAttackGame.Enums;
 using BombAttackGame.Events;
 using BombAttackGame.Interfaces;
@@ -22,7 +23,10 @@ namespace BombAttackGame.Models
     }
     internal class Player
     {
+        GameServiceContainer _container = new GameServiceContainer();
         public Vector2 Location { get; set; }
+        public Vector2 OldLocation { get; set; }
+        public Vector2 ShootLocation { get; set; }
         public List<Vector2> Collision { get; set; }
         public Direction Direction { get; set; }
         public Team Team { get; set; }
@@ -41,11 +45,13 @@ namespace BombAttackGame.Models
         public double MovingTime { get; set; }
         public double MovingEndTime { get; set; }
         public Color Color { get; set; }
+        public Event Event { get; set; }
 
-        public Player()
+        public Player(Texture2D Texture)
         {
-
+            this.Texture = Texture;
             this.Direction = Direction.Right;
+            this.Color = Color.Red;
             this.Speed = 2;
             this.ShotLatency = 100;
             this.EnemyShotLatency = 1000;
@@ -54,70 +60,93 @@ namespace BombAttackGame.Models
             this.MovingTime = 1000;
             this.OnMainSpeed = false;
         }
+        public void PlayerMove(Direction direction)
+        {
+            OldLocation = Location;
+            if (direction == Direction.Left)
+            {
+                Location = new Vector2(Location.X - (int)Speed, Location.Y);
+                Direction = Direction.Left;
+            }
+            if (direction == Direction.Right)
+            {
+                Location = new Vector2(Location.X + (int)Speed, Location.Y);
+                Direction = Direction.Right;
+            }
+            if (direction == Direction.Down)
+            {
+                Location = new Vector2(Location.X, Location.Y + (int)Speed);
+                Direction = Direction.Down;
+            }
+            if (direction == Direction.Up)
+            {
+                Location = new Vector2(Location.X, Location.Y - (int)Speed);
+                Direction = Direction.Up;
+            }
+            Event = Event.Move;
+        }
         public void Hit(int Damage)
         {
             Health -= Damage;
         }
 
-        public static void TryShoot(Player Player, GameTime GameTime, Microsoft.Xna.Framework.Content.ContentManager Content, Vector2 ShootLoc, List<Bullet> Bullets)
+        public void TryShoot(Vector2 ShootLocation)
         {
-            Bullet Bullet = null;
-            ShootLoc = VectorTool.ExtendVector(ShootLoc, Player.Location, 100000);
-            Bullet = Shoot.PlayerShoot(Player, GameTime, Content, ShootLoc);
-            if (Bullet == null) { return; }
-            Bullets.Add(Bullet);
-            Bullet.Direction = ShootLoc - Player.Location;
-            Bullet.Direction.Normalize();
+            //Bullet Bullet = null;
+            //ShootLoc = VectorTool.ExtendVector(ShootLoc, Location, 100000);
+            //Bullet = Shoot.PlayerShoot(GameTime, Content, ShootLoc);
+            //if (Bullet == null) { return; }
+            //Bullets.Add(Bullet);
+            //Bullet.Direction = ShootLoc - Player.Location;
+            //Bullet.Direction.Normalize();
+            this.ShootLocation = ShootLocation;
+            this.Event = Event.TryShoot;
         }
-        public static Player AddPlayer(Team Team, ContentManager Content, int[] MapSize)
+        public static Player AddPlayer(Team Team, ContentManager Content, int[] MapSize, Collision Collision)
         {
-            string Texture = Team.ToString();
-            Player Player = new Player();
-            Player.Texture = Content.Load<Texture2D>(Texture);
+            Texture2D Texture = Content.Load<Texture2D>(Team.ToString());
+            Player Player = new Player(Texture);
             Player.Team = Team;
-            Player.Location = Spawn.GenerateRandomSpawnPoint(MapSize, Player.Texture);
+            Player.Location = Spawn.GenerateRandomSpawnPoint(MapSize, Player.Texture, Collision);
             if (Team == Team.Enemy) Player.ShotLatency = Player.EnemyShotLatency;
             if (Team == Team.TeamMate) Player.ShotLatency = Player.TeamMateShotLatency;
             return Player;
         }
-        public static List<Player> AddPlayers(Team Team, ContentManager Content, int Amount, int[] MapSize)
+        public static List<Player> AddPlayers(Team Team, ContentManager Content, int Amount, int[] MapSize, Collision Collision)
         {
             List<Player> Players = new List<Player>();
-            string Texture = Team.ToString();
+            Texture2D Texture = Content.Load<Texture2D>(Team.ToString());
             for (int i = 0; i < Amount; i++)
             {
-                Player Player = new Player();
-                Player.Texture = Content.Load<Texture2D>(Texture);
+                Player Player = new Player(Texture);
                 Player.Team = Team;
-                Player.Location = Spawn.GenerateRandomSpawnPoint(MapSize, Player.Texture);
+                Player.Location = Spawn.GenerateRandomSpawnPoint(MapSize, Player.Texture, Collision);
                 if (Team == Team.Enemy) Player.ShotLatency = Player.EnemyShotLatency;
                 if (Team == Team.TeamMate) Player.ShotLatency = Player.TeamMateShotLatency;
                 Players.Add(Player);
             }
             return Players;
         }
-        public static void Tick(List<Player> Players, MainSpeed MainSpeed, GameTime GameTime, Color Color, ContentManager Content, List<Bullet> Bullets, int[] MapSize)
+        public void Tick()
         {
-            foreach (var player in Players.ToList())
-            {
-                if (CheckIfDead(player)) Players.Remove(player);
-                UpdateCollision(player);
-                UpdateColor(player, Color);
-                if (VectorTool.IsOnObject(player.Collision, MainSpeed.Collision))
-                { MainSpeed.PickedBonus(player, MainSpeed, GameTime); }
-                if (player.OnMainSpeed) MainSpeedTime(player, GameTime, MainSpeed);
-                Player.PlayerShoot(player, GameTime, Content, Players, Bullets);
-                Player.PlayerMove(player, MapSize, GameTime);
-            }
+            //if (CheckIfDead(player)) Players.Remove(player);
+            UpdateCollision();
+            UpdateColor(Color);
+            this.Event = Event.None;
+            //if (VectorTool.IsOnObject(player.Collision, MainSpeed.Collision))
+            //{ MainSpeed.PickedBonus(player, MainSpeed, GameTime); }
+            //if (player.OnMainSpeed) MainSpeedTime(player, GameTime, MainSpeed);
+            //PlayerShoot(player, GameTime, Content, Players, Bullets);
+            //PlayerMove();
         }
         private static bool CheckIfDead(Player Player)
         {
             if (Player.Health <= 0) return true;
             return false;
         }
-        public static void UpdateCollision(Player Player)
+        public void UpdateCollision()
         {
-            Player.Collision = VectorTool.Collision(Player.Location, Player.Texture);
+            Collision = VectorTool.Collision(Location, Texture);
         }
         public static void MainSpeedTime(Player Player, GameTime GameTime, MainSpeed MainSpeed)
         {
@@ -128,59 +157,58 @@ namespace BombAttackGame.Models
                 Player.OnMainSpeed = false;
             }
         }
-        public static void UpdateColor(Player Player, Color Color)
+        public void UpdateColor(Color Color)
         {
-            if (Player.OnMainSpeed)
+            if (OnMainSpeed)
             {
-                Player.Color = Color.GreenYellow;
+                this.Color = Color.GreenYellow;
             }
             else
             {
-                Player.Color = Color;
+                this.Color = Color;
             }
         }
         public static void PlayerShoot(Player Player, GameTime GameTime, ContentManager Content, List<Player> Players, List<Bullet> Bullets)
         {
-            List<Player> PlayersRandom = new List<Player>();
-            PlayersRandom.AddRange(Players);
-            int n = PlayersRandom.Count;
-            Random rng = new Random();
-            while (n > 1)
-            {
-                n--;
-                int k = rng.Next(n + 1);
-                Player value = PlayersRandom[k];
-                PlayersRandom[k] = PlayersRandom[n];
-                PlayersRandom[n] = value;
-            }
-            {
-                foreach (Player player in PlayersRandom)
-                {
-                    if (!(Player.Team == Team.TeamMate && player.Team == Team.TeamMate))
-                    {
-                        if (!(Player.Team == Team.Enemy && player.Team == Team.Enemy))
-                        {
-                            if (Player.Team == Team.Enemy && (player.Team == Team.TeamMate || player.Team == Team.Player)) Player.TryShoot(Player, GameTime, Content, player.Location, Bullets);
-                            if (Player.Team == Team.TeamMate && player.Team == Team.Enemy) Player.TryShoot(Player, GameTime, Content, player.Location, Bullets);
-                        }
-                    }
-                }
-            }
+            //List<Player> PlayersRandom = new List<Player>();
+            //PlayersRandom.AddRange(Players);
+            //int n = PlayersRandom.Count;
+            //Random rng = new Random();
+            //while (n > 1)
+            //{
+            //    n--;
+            //    int k = rng.Next(n + 1);
+            //    Player value = PlayersRandom[k];
+            //    PlayersRandom[k] = PlayersRandom[n];
+            //    PlayersRandom[n] = value;
+            //}
+            //{
+            //    foreach (Player player in PlayersRandom)
+            //    {
+            //        if (!(Player.Team == Team.TeamMate && player.Team == Team.TeamMate))
+            //        {
+            //            if (!(Player.Team == Team.Enemy && player.Team == Team.Enemy))
+            //            {
+            //                if (Player.Team == Team.Enemy && (player.Team == Team.TeamMate || player.Team == Team.Player)) Player.TryShoot(Player, GameTime, Content, player.Location, Bullets);
+            //                if (Player.Team == Team.TeamMate && player.Team == Team.Enemy) Player.TryShoot(Player, GameTime, Content, player.Location, Bullets);
+            //            }
+            //        }
+            //    }
+            //}
         }
-        public static void PlayerMove(Player Player, int[] MapSize, GameTime GameTime)
+        public void BotMove(Player Player, Collision Collision, GameTime GameTime)
         {
-            if (Player.Team == Team.Player) return;
-            if (Player.Direction == Direction.None) return;
-            if (GameTime.TotalGameTime.TotalMilliseconds >= Player.MovingEndTime)
-            {
-                Random random = new Random();
-                Player.Direction = (Direction)random.Next(-1, 4);
-                Player.MovingEndTime = GameTime.TotalGameTime.TotalMilliseconds + Player.MovingTime;
-                Move.PlayerMove(Player, Player.Direction, MapSize);
-                return;
-            }
-            Move.PlayerMove(Player, Player.Direction, MapSize);
-
+            //if (Player.Team == Team.Player) return;
+            //if (Player.Direction == Direction.None) return;
+            //if (GameTime.TotalGameTime.TotalMilliseconds >= Player.MovingEndTime)
+            //{
+            //    Random random = new Random();
+            //    Player.Direction = (Direction)random.Next(-1, 4);
+            //    Player.MovingEndTime = GameTime.TotalGameTime.TotalMilliseconds + Player.MovingTime;
+            //    PlayerMove(Player, Player.Direction, Collision);
+            //    return;
+            //}
+            //PlayerMove(Player, Player.Direction, Collision);
         }
     }
 }

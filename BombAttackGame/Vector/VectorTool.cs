@@ -29,6 +29,18 @@ namespace BombAttackGame.Vector
             }
             return Collision;
         }
+        public static HashSet<Vector2> CollisionH(Vector2 Location, Texture2D Texture)
+        {
+            HashSet<Vector2> Collision = new HashSet<Vector2>();
+            for(int i = 0; i < Texture.Width; i++)
+            {
+                for(int j = 0; j < Texture.Height; j++)
+                {
+                    Collision.Add(new Vector2(Location.X + (float)i,Location.Y + (float)j));
+                }
+            }
+            return Collision;
+        }
         public static bool IsOnObject(List<Vector2> Collistion1, List<Vector2> Collision2)
         {
             if (Collistion1.Intersect(Collision2).Any())
