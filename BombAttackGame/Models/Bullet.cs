@@ -1,16 +1,23 @@
-﻿using BombAttackGame.Events;
+﻿using BombAttackGame.Enums;
+using BombAttackGame.Events;
+using BombAttackGame.Interfaces;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
+using System.Runtime.CompilerServices;
 
 namespace BombAttackGame.Models
 {
-    internal class Bullet 
+    internal class Bullet : IGameObject 
     {
         public Vector2 Location { get; set; }
         public Texture2D Texture { get; set; }
+        public Color Color { get; set; }
+        public bool IsDead { get; set; }
         public int Speed { get; set; }
         public float Distance { get; set; }
         public float DistanceTravelled { get; set; }
@@ -23,6 +30,10 @@ namespace BombAttackGame.Models
         public Vector2 StartLocation { get; set; }
         public Vector2 Direction { get; set; }
         public Vector2 Point { get; set; }
+        public Rectangle Rectangle { get; set; }
+        public Event Event { get; set; }
+        public IGameObject ObjectHitted { get; set; }
+        public int DamageDealt { get; set; }
         public Bullet(Vector2 location, Player owner, Vector2 point)
         {
             this.Location = new Vector2(location.X, location.Y);
@@ -35,10 +46,13 @@ namespace BombAttackGame.Models
             this.TeamDamage = 0.5;
             this.EnemyDamage = 1;
             this.OtherDamage = 1;
+            this.IsDead = false;
+            this.Color = Color.AliceBlue;
+            this.Event = Event.None;
         }
-        public int CalculateDamage(Player Player)
+        public int CalculateDamage()
         {
-            switch (DistanceTravelled)
+            switch (this.DistanceTravelled)
             {
                 case > 80000:
                     Convert.ToInt32(Damage = Damage * 0.1); break;
@@ -59,45 +73,55 @@ namespace BombAttackGame.Models
                 case > 5000:
                     Convert.ToInt32(Damage = Damage * 0.9); break;
             }
-            if (Player.Team == Owner.Team) return (int)(Damage * TeamDamage);
-            if (Player.Team == Team.Enemy && (Owner.Team == Team.TeamMate || Owner.Team == Team.Player)) return (int)(Damage * EnemyDamage);
-            if (Player.Team == Team.TeamMate && Owner.Team == Team.Player) return (int)(Damage * TeamDamage);
             return (int)Damage;
         }
-
-        private static void BulletsHit(GameTime GameTime, List<Player> AllPlayers, List<Bullet> Bullets, List<Damage> Damages)
+        public void UpdateRectangle()
         {
-            foreach (Bullet bullet in Bullets.ToList())
-            {
-                if (Hit.BulletHit(bullet, AllPlayers, out Player PlayerHitted))
-                {
-                    int Damage = (int)bullet.CalculateDamage(PlayerHitted);
-                    PlayerHitted.Hit(Damage);
-                    Bullets.Remove(bullet);
+            this.Rectangle = new Rectangle((int)Location.X, (int)Location.Y, Texture.Width, Texture.Height);
+        }
 
-                    Damage damage = new Damage((int)Damage, PlayerHitted.Location);
-                    damage.ShowTime = GameTime.TotalGameTime.TotalMilliseconds;
-                    Damages.Add(damage);
+        //private static void BulletsHit(GameTime GameTime, List<IGameObject> GameObjects, List<IGameSprite> GameSprites, ContentManager Content)
+        //{
+        //    foreach (Bullet bullet in GameObjects.OfType<Bullet>().ToList())
+        //    {
+        //        if (Hit.BulletHit(bullet, GameObjects, out Player PlayerHitted))
+        //        {
+        //            int Damage = (int)bullet.CalculateDamage(PlayerHitted);
+        //            PlayerHitted.Hit(Damage);
+        //            GameObjects.Remove(bullet);
+
+        //            Damage damage = new Damage((int)Damage, PlayerHitted.Location);
+        //            damage.Font = Content.Load<SpriteFont>("damage");
+        //            damage.ShowTime = GameTime.TotalGameTime.TotalMilliseconds;
+        //            GameSprites.Add(damage);
+        //        }
+        //    }
+        //}
+        public void Tick(GameTime GameTime, List<IGameObject> GameObjects)
+        {
+            Move();
+            UpdateRectangle();
+            BulletHitted(GameObjects);
+        }
+        private void Move()
+        {
+            var speed = this.Speed * (1 / this.Distance);
+            float Length = 0;
+            this.Location = Vector2.Lerp(this.Location, this.Point, speed);
+            Length += Vector2.Distance(this.Location, this.StartLocation);
+            this.DistanceTravelled += Length;
+        }
+        private void BulletHitted(List<IGameObject> GameObjects)
+        {
+            foreach (IGameObject obj in GameObjects.OfType<Player>().Where(x => x.IsDead == false))
+            {
+                if (Hit.InHitbox(this,obj as Player))
+                {
+                    this.Event = Event.ObjectHitted;
+                    this.ObjectHitted = obj;
+                    this.DamageDealt = CalculateDamage();
                 }
             }
-        }
-        public static void Tick(GameTime GameTime, List<Player> AllPlayers, List<Bullet> Bullets, List<Damage> Damages)
-        {
-            foreach (Bullet bullet in Bullets.ToList())
-            {
-                if(bullet.DistanceTravelled >= bullet.MaxDistance)
-                { Bullets.Remove(bullet); }
-                Move(bullet);
-            }
-            BulletsHit(GameTime, AllPlayers, Bullets, Damages);
-        }
-        private static void Move(Bullet Bullet)
-        {
-            var speed = Bullet.Speed * (1 / Bullet.Distance);
-            float Length = 0;
-            Bullet.Location = Vector2.Lerp(Bullet.Location, Bullet.Point, speed);
-            Length += Vector2.Distance(Bullet.Location, Bullet.StartLocation);
-            Bullet.DistanceTravelled += Length;
         }
     }
 }

@@ -1,16 +1,12 @@
 ﻿using BombAttackGame.Bonuses;
 using BombAttackGame.Collisions;
 using BombAttackGame.Enums;
-using BombAttackGame.Events;
 using BombAttackGame.Interfaces;
 using BombAttackGame.Vector;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace BombAttackGame.Models
 {
@@ -21,13 +17,12 @@ namespace BombAttackGame.Models
         TeamMate,
         Enemy
     }
-    internal class Player
+    internal class Player : IGameObject
     {
         GameServiceContainer _container = new GameServiceContainer();
         public Vector2 Location { get; set; }
         public Vector2 OldLocation { get; set; }
         public Vector2 ShootLocation { get; set; }
-        public List<Vector2> Collision { get; set; }
         public Direction Direction { get; set; }
         public Team Team { get; set; }
         public int Health { get; set; }
@@ -46,6 +41,7 @@ namespace BombAttackGame.Models
         public double MovingEndTime { get; set; }
         public Color Color { get; set; }
         public Event Event { get; set; }
+        public Rectangle Rectangle { get; set; }
 
         public Player(Texture2D Texture)
         {
@@ -88,50 +84,22 @@ namespace BombAttackGame.Models
         public void Hit(int Damage)
         {
             Health -= Damage;
+            if (Health <= 0)
+            {
+                this.IsDead = true;
+            }
         }
 
         public void TryShoot(Vector2 ShootLocation)
         {
-            //Bullet Bullet = null;
-            //ShootLoc = VectorTool.ExtendVector(ShootLoc, Location, 100000);
-            //Bullet = Shoot.PlayerShoot(GameTime, Content, ShootLoc);
-            //if (Bullet == null) { return; }
-            //Bullets.Add(Bullet);
-            //Bullet.Direction = ShootLoc - Player.Location;
-            //Bullet.Direction.Normalize();
             this.ShootLocation = ShootLocation;
             this.Event = Event.TryShoot;
         }
-        public static Player AddPlayer(Team Team, ContentManager Content, int[] MapSize, Collision Collision)
+        public void Tick(GameTime GameTime, List<IGameObject> GameObjects)
         {
-            Texture2D Texture = Content.Load<Texture2D>(Team.ToString());
-            Player Player = new Player(Texture);
-            Player.Team = Team;
-            Player.Location = Spawn.GenerateRandomSpawnPoint(MapSize, Player.Texture, Collision);
-            if (Team == Team.Enemy) Player.ShotLatency = Player.EnemyShotLatency;
-            if (Team == Team.TeamMate) Player.ShotLatency = Player.TeamMateShotLatency;
-            return Player;
-        }
-        public static List<Player> AddPlayers(Team Team, ContentManager Content, int Amount, int[] MapSize, Collision Collision)
-        {
-            List<Player> Players = new List<Player>();
-            Texture2D Texture = Content.Load<Texture2D>(Team.ToString());
-            for (int i = 0; i < Amount; i++)
-            {
-                Player Player = new Player(Texture);
-                Player.Team = Team;
-                Player.Location = Spawn.GenerateRandomSpawnPoint(MapSize, Player.Texture, Collision);
-                if (Team == Team.Enemy) Player.ShotLatency = Player.EnemyShotLatency;
-                if (Team == Team.TeamMate) Player.ShotLatency = Player.TeamMateShotLatency;
-                Players.Add(Player);
-            }
-            return Players;
-        }
-        public void Tick()
-        {
-            //if (CheckIfDead(player)) Players.Remove(player);
-            UpdateCollision();
+            UpdateRectangle();
             UpdateColor(Color);
+            CheckIfDead();
             this.Event = Event.None;
             //if (VectorTool.IsOnObject(player.Collision, MainSpeed.Collision))
             //{ MainSpeed.PickedBonus(player, MainSpeed, GameTime); }
@@ -139,14 +107,14 @@ namespace BombAttackGame.Models
             //PlayerShoot(player, GameTime, Content, Players, Bullets);
             //PlayerMove();
         }
-        private static bool CheckIfDead(Player Player)
+        private bool CheckIfDead()
         {
-            if (Player.Health <= 0) return true;
+            if (this.Health <= 0) return true;
             return false;
         }
-        public void UpdateCollision()
+        public void UpdateRectangle()
         {
-            Collision = VectorTool.Collision(Location, Texture);
+            this.Rectangle = new Rectangle((int)Location.X, (int)Location.Y, Texture.Width, Texture.Height);
         }
         public static void MainSpeedTime(Player Player, GameTime GameTime, MainSpeed MainSpeed)
         {

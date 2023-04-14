@@ -17,7 +17,8 @@ namespace BombAttackGame.Events
             while (true)
             {
                 Vector2 Location = new Vector2(random.Next(0, MapSize[0]), random.Next(0, MapSize[1]));
-                if (!Collision.CheckCollision(Location)) return Location;
+                return Location;
+                //if (!Collision.CheckCollision(Location)) return Location;
             }
         }
     }

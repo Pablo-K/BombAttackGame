@@ -1,19 +1,19 @@
 ﻿using BombAttackGame.Collisions;
 using BombAttackGame.Events;
+using BombAttackGame.Interfaces;
 using BombAttackGame.Models;
 using BombAttackGame.Vector;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace BombAttackGame.Bonuses
 {
-    internal class MainSpeed
+    internal class MainSpeed : IGameObject
     {
         public Vector2 Location { get; set; }
-        public List<Vector2> Collision { get; set; }
+        public Color Color { get; set; }
         public Texture2D Texture { get; set; }
         public double WalkSpeed { get; set; }
         public double ShootSpeed { get; set; }
@@ -24,10 +24,12 @@ namespace BombAttackGame.Bonuses
         public double NextSpawnTime { get; set; }
         public double FinallySpawnTime { get; set; }
         public bool IsDead { get; set; }
+        public Rectangle Rectangle { get; set; }
 
         public MainSpeed()
         {
             this.WalkSpeed = 2;
+            this.Color = Color.Tomato;
             this.ShootSpeed = 2;
             this.ShootingSpeed = 2;
             this.IsDead = true;
@@ -36,14 +38,14 @@ namespace BombAttackGame.Bonuses
             this.SpawnEndTime = 16000;
             this.FinallySpawnTime = 0;
         }
-        public static void Tick(GameTime GameTime, MainSpeed MainSpeed, int[] MapSize, Collision Collision)
+        public void Tick(GameTime GameTime, MainSpeed MainSpeed, int[] MapSize, Collision Collision)
         {
             UpdateCollision(MainSpeed);
             if (MainSpeed.IsDead) SpawnRandomly(GameTime, MainSpeed, MapSize, Collision);
         }
         private static void UpdateCollision(MainSpeed MainSpeed)
         {
-            MainSpeed.Collision = VectorTool.Collision(MainSpeed.Location, MainSpeed.Texture);
+            //MainSpeed.Collision = VectorTool.Collision(MainSpeed.Location, MainSpeed.Texture);
         }
         public static void Kill(MainSpeed MainSpeed)
         {

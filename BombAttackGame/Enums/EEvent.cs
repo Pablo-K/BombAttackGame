@@ -11,6 +11,7 @@ namespace BombAttackGame.Enums
         None,
         Move,
         TryShoot,
+        ObjectHitted,
         Shoot
     }
 }
