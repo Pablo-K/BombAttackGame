@@ -6,6 +6,7 @@ using BombAttackGame.Vector;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 
 namespace BombAttackGame.Models
@@ -119,47 +120,19 @@ namespace BombAttackGame.Models
                 this.Color = Color;
             }
         }
-        public static void PlayerShoot(Player Player, GameTime GameTime, ContentManager Content, List<Player> Players, List<Bullet> Bullets)
-        {
-            //List<Player> PlayersRandom = new List<Player>();
-            //PlayersRandom.AddRange(Players);
-            //int n = PlayersRandom.Count;
-            //Random rng = new Random();
-            //while (n > 1)
-            //{
-            //    n--;
-            //    int k = rng.Next(n + 1);
-            //    Player value = PlayersRandom[k];
-            //    PlayersRandom[k] = PlayersRandom[n];
-            //    PlayersRandom[n] = value;
-            //}
-            //{
-            //    foreach (Player player in PlayersRandom)
-            //    {
-            //        if (!(Player.Team == Team.TeamMate && player.Team == Team.TeamMate))
-            //        {
-            //            if (!(Player.Team == Team.Enemy && player.Team == Team.Enemy))
-            //            {
-            //                if (Player.Team == Team.Enemy && (player.Team == Team.TeamMate || player.Team == Team.Player)) Player.TryShoot(Player, GameTime, Content, player.Location, Bullets);
-            //                if (Player.Team == Team.TeamMate && player.Team == Team.Enemy) Player.TryShoot(Player, GameTime, Content, player.Location, Bullets);
-            //            }
-            //        }
-            //    }
-            //}
-        }
         public void BotMove(Player Player, Collision Collision, GameTime GameTime)
         {
-            //if (Player.Team == Team.Player) return;
-            //if (Player.Direction == Direction.None) return;
-            //if (GameTime.TotalGameTime.TotalMilliseconds >= Player.MovingEndTime)
-            //{
-            //    Random random = new Random();
-            //    Player.Direction = (Direction)random.Next(-1, 4);
-            //    Player.MovingEndTime = GameTime.TotalGameTime.TotalMilliseconds + Player.MovingTime;
-            //    PlayerMove(Player, Player.Direction, Collision);
-            //    return;
-            //}
-            //PlayerMove(Player, Player.Direction, Collision);
+            if (Player.Team == Team.Player) return;
+            if (Player.Direction == Direction.None) return;
+            if (GameTime.TotalGameTime.TotalMilliseconds >= Player.MovingEndTime)
+            {
+                Random random = new Random();
+                Player.Direction = (Direction)random.Next(-1, 9);
+                Player.MovingEndTime = GameTime.TotalGameTime.TotalMilliseconds + Player.MovingTime;
+                PlayerMove(Player.Direction);
+                return;
+            }
+            PlayerMove(Player.Direction);
         }
     }
 }

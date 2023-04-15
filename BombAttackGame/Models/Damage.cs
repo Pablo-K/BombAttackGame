@@ -14,12 +14,11 @@ namespace BombAttackGame.Models
         public Color Color { get; set; }
         public double ShowTime { get; set; }
         public double ShowingTime { get; set; }
-        public Damage() { }
-        public Damage(int amount, Vector2 location)
+        public Damage(int Text, Vector2 Location)
         {
-            this.Text = amount.ToString();
-            this.Location = new Vector2(location.X, location.Y - 15);
-            ShowingTime = 100;
+            this.Text = Text.ToString();
+            this.Location = new Vector2(Location.X, Location.Y - 15);
+            this.ShowingTime = 100;
             this.Color = Color.White;
         }
         public void Tick(GameTime GameTime, List<IGameSprite> GameSprites)

@@ -1,12 +1,9 @@
-﻿using BombAttackGame.Bonuses;
-using BombAttackGame.Collisions;
-using BombAttackGame.Enums;
+﻿using BombAttackGame.Enums;
 using BombAttackGame.Events;
 using BombAttackGame.Global;
 using BombAttackGame.HUD;
 using BombAttackGame.Interfaces;
 using BombAttackGame.Models;
-using BombAttackGame.Vector;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -29,6 +26,7 @@ namespace BombAttackGame
         private int _enemyAmount;
         private SpriteBatch _map1;
         private Texture2D _wall;
+        private SpriteFont _damageF;
         private List<Rectangle> _mapCollision;
         private bool isempty;
         public List<IGameObject> _gameObjects { get; private set; }
@@ -72,6 +70,7 @@ namespace BombAttackGame
 
             _hpF = Content.Load<SpriteFont>("hp");
             _wall = Content.Load<Texture2D>("wall");
+            _damageF = Content.Load<SpriteFont>("damage");
 
             _gameObjects.Add(GameObject.AddMainSpeed(_mapSize, Content, _mapCollision));
 
@@ -112,10 +111,11 @@ namespace BombAttackGame
 
             UpdateCollision();
 
-            CheckAllBulletsEvent();
+            CheckAllBulletsEvent(gameTime);
             CheckAllPlayersEvent();
 
             foreach (IGameObject GameObject in _gameObjects.OfType<Bullet>().ToList()) { GameObject.Tick(gameTime, _gameObjects); }
+            foreach (IGameSprite GameSprite in _gameSprites.ToList()) { GameSprite.Tick(gameTime, _gameSprites); } 
 
             base.Update(gameTime);
         }
@@ -201,7 +201,7 @@ namespace BombAttackGame
             }
             CheckBullet(Bullet);
         }
-        private void CheckAllBulletsEvent()
+        private void CheckAllBulletsEvent(GameTime GameTime)
         {
             foreach (var bullet in _gameObjects.OfType<Bullet>().ToList())
             {
@@ -210,7 +210,10 @@ namespace BombAttackGame
                     case Event.None:
                         break;
                     case Event.ObjectHitted:
-                        if (bullet.ObjectHitted.GetType() == typeof(Player)) { DealDamage.DealDamageToPlayer(bullet.ObjectHitted as Player, bullet); RemoveBullet(bullet); };
+                        if (bullet.ObjectHitted.GetType() == typeof(Player)) { 
+                            DealDamage.DealDamageToPlayer(bullet.ObjectHitted as Player, bullet); 
+                            CreateDamage(bullet, GameTime); 
+                            RemoveBullet(bullet); };
                         break;
                 }
             }
@@ -224,12 +227,13 @@ namespace BombAttackGame
         {
             _gameObjects.Remove(Bullet);
         }
-        //private void CheckCollision()
-        //{
-        //    foreach (IGameObject gameObject in _gameObjects)
-        //    {
-        //        if (_collision.GameObjectCollision.Intersect()
-        //    }
-        //}
+        private void CreateDamage(Bullet Bullet, GameTime GameTime)
+        {
+            Damage Damage = new Damage(Bullet.DamageDealt, Bullet.Location);
+            Damage.Font = _damageF;
+            Damage.Location = Bullet.Location;
+            Damage.ShowTime = GameTime.TotalGameTime.TotalMilliseconds;
+            _gameSprites.Add(Damage);
+        }
     }
 }
