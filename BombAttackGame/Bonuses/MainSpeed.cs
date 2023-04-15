@@ -38,10 +38,9 @@ namespace BombAttackGame.Bonuses
             this.SpawnEndTime = 16000;
             this.FinallySpawnTime = 0;
         }
-        public void Tick(GameTime GameTime, MainSpeed MainSpeed, int[] MapSize, Collision Collision)
+        public void Tick(GameTime GameTime, MainSpeed MainSpeed, int[] MapSize)
         {
             UpdateCollision(MainSpeed);
-            if (MainSpeed.IsDead) SpawnRandomly(GameTime, MainSpeed, MapSize, Collision);
         }
         private static void UpdateCollision(MainSpeed MainSpeed)
         {
@@ -61,7 +60,7 @@ namespace BombAttackGame.Bonuses
             Player.OnMainSpeed = true;
             MainSpeed.Kill(MainSpeed);
         }
-        public static void SpawnRandomly(GameTime GameTime, MainSpeed MainSpeed, int[] MapSize, Collision Collision)
+        public static void SpawnRandomly(GameTime GameTime, MainSpeed MainSpeed, int[] MapSize, List<Rectangle> Collision)
         {
             if(GameTime.TotalGameTime.TotalMilliseconds >= MainSpeed.FinallySpawnTime && MainSpeed.FinallySpawnTime != 0)
             {

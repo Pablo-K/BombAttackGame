@@ -12,6 +12,10 @@ namespace BombAttackGame.Enums
         Right,
         Up,
         Down,
+        UpLeft,
+        DownLeft,
+        DownRight,
+        UpRight,
         None
     }
 }

@@ -2,6 +2,7 @@
 using BombAttackGame.Collisions;
 using BombAttackGame.Events;
 using BombAttackGame.Vector;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ namespace BombAttackGame.Models
 {
     internal class GameObject
     {
-        public static Player AddPlayer(Team Team, ContentManager Content, int[] MapSize, Collision Collision)
+        public static Player AddPlayer(Team Team, ContentManager Content, int[] MapSize, List<Rectangle> Collision)
         {
             Texture2D Texture = Content.Load<Texture2D>(Team.ToString());
             Player Player = new Player(Texture);
@@ -21,7 +22,7 @@ namespace BombAttackGame.Models
             return Player;
         }
 
-        public static List<Player> AddPlayers(Team Team, ContentManager Content, int Amount, int[] MapSize, Collision Collision)
+        public static List<Player> AddPlayers(Team Team, ContentManager Content, int Amount, int[] MapSize, List<Rectangle> Collision)
         {
             List<Player> Players = new List<Player>();
             Texture2D Texture = Content.Load<Texture2D>(Team.ToString());
@@ -36,7 +37,7 @@ namespace BombAttackGame.Models
             }
             return Players;
         }
-        public static MainSpeed AddMainSpeed(int[] MapSize, ContentManager Content, Collision Collision)
+        public static MainSpeed AddMainSpeed(int[] MapSize, ContentManager Content, List<Rectangle> Collision)
         {
             MainSpeed MainSpeed = new MainSpeed();
             MainSpeed.Texture = Content.Load<Texture2D>("mainSpeed");

@@ -28,10 +28,8 @@ namespace BombAttackGame
         private int _teamMateAmount;
         private int _enemyAmount;
         private SpriteBatch _map1;
-        private List<Vector2> _map1Collisions;
         private Texture2D _wall;
-        private Collision _collision;
-        private List<Vector2> MapCol;
+        private List<Rectangle> _mapCollision;
         private bool isempty;
         public List<IGameObject> _gameObjects { get; private set; }
         public List<IGameSprite> _gameSprites { get; private set; }
@@ -47,7 +45,6 @@ namespace BombAttackGame
         {
             _gameObjects = new List<IGameObject>();
             _gameSprites = new List<IGameSprite>();
-            _collision = new Collision();
 
             _mapSize[0] = 1000;
             _mapSize[1] = 1000;
@@ -70,22 +67,19 @@ namespace BombAttackGame
 
         protected override void LoadContent()
         {
-            MapCol = new List<Vector2>();
-
+            _mapCollision = new List<Rectangle>();
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            _map1Collisions = new List<Vector2>();
 
             _hpF = Content.Load<SpriteFont>("hp");
             _wall = Content.Load<Texture2D>("wall");
 
-            _gameObjects.Add(GameObject.AddMainSpeed(_mapSize, Content, _collision));
+            _gameObjects.Add(GameObject.AddMainSpeed(_mapSize, Content, _mapCollision));
 
-            _player = GameObject.AddPlayer(Team.Player, Content, _mapSize, _collision);
+            _player = GameObject.AddPlayer(Team.Player, Content, _mapSize, _mapCollision);
             _gameObjects.Add(_player);
 
-            _gameObjects.AddRange(GameObject.AddPlayers(Team.TeamMate, Content, _teamMateAmount, _mapSize, _collision));
-            _gameObjects.AddRange(GameObject.AddPlayers(Team.Enemy, Content, _enemyAmount, _mapSize, _collision));
+            _gameObjects.AddRange(GameObject.AddPlayers(Team.TeamMate, Content, _teamMateAmount, _mapSize, _mapCollision));
+            _gameObjects.AddRange(GameObject.AddPlayers(Team.Enemy, Content, _enemyAmount, _mapSize, _mapCollision));
 
         }
 
@@ -96,7 +90,7 @@ namespace BombAttackGame
             _mapSize[0] = Window.ClientBounds.Width;
             _mapSize[1] = Window.ClientBounds.Height;
 
-            _eventProcessor.Update(_collision, gameTime, _gameObjects, Content);
+            _eventProcessor.Update(_mapCollision, gameTime, _gameObjects, Content);
             _gameObjects.AddRange(_eventProcessor.GameObjects.OfType<Bullet>().Except(_gameObjects.OfType<Bullet>()));
 
             var kstate = Keyboard.GetState();
@@ -104,10 +98,15 @@ namespace BombAttackGame
 
             _mousePosition = mstate.Position.ToVector2();
 
+            foreach (IGameObject GameObject in _gameObjects.OfType<Player>().ToList()) { GameObject.Tick(gameTime, _gameObjects); }
             if (kstate.IsKeyDown(Keys.A)) { _player.PlayerMove(Direction.Left); }
             if (kstate.IsKeyDown(Keys.S)) { _player.PlayerMove(Direction.Down); }
             if (kstate.IsKeyDown(Keys.D)) { _player.PlayerMove(Direction.Right); }
             if (kstate.IsKeyDown(Keys.W)) { _player.PlayerMove(Direction.Up); }
+            if (kstate.IsKeyDown(Keys.A) && kstate.IsKeyDown(Keys.W)) { _player.PlayerMove(Direction.UpLeft); }
+            if (kstate.IsKeyDown(Keys.A) && kstate.IsKeyDown(Keys.S)) { _player.PlayerMove(Direction.DownLeft); }
+            if (kstate.IsKeyDown(Keys.D) && kstate.IsKeyDown(Keys.W)) { _player.PlayerMove(Direction.UpRight); }
+            if (kstate.IsKeyDown(Keys.D) && kstate.IsKeyDown(Keys.S)) { _player.PlayerMove(Direction.DownRight); }
 
             if (mstate.LeftButton == ButtonState.Pressed) { _player.TryShoot(_mousePosition); }
 
@@ -116,7 +115,6 @@ namespace BombAttackGame
             CheckAllBulletsEvent();
             CheckAllPlayersEvent();
 
-            foreach (IGameObject GameObject in _gameObjects.OfType<Player>().ToList()) { GameObject.Tick(gameTime, _gameObjects); }
             foreach (IGameObject GameObject in _gameObjects.OfType<Bullet>().ToList()) { GameObject.Tick(gameTime, _gameObjects); }
 
             base.Update(gameTime);
@@ -141,15 +139,10 @@ namespace BombAttackGame
         }
         private void UpdateCollision()
         {
-            foreach(var gameObject in _gameObjects)
-            {
-                if(! _collision.GameObjectCollision.Contains(gameObject)) 
-                    _collision.AddCollision(gameObject);
-            }
         }
         private SpriteBatch Map1(SpriteBatch SpriteBatch)
         {
-            isempty = MapCol.Count <= 0;
+            isempty = _mapCollision.Count <= 0; 
             for (int i = 0; i < 1000; i += 20)
             {
                 DrawWall(SpriteBatch, new Vector2(0, i));
@@ -158,12 +151,10 @@ namespace BombAttackGame
                 DrawWall(SpriteBatch, new Vector2(i, 980));
                 if (isempty)
                 {
-                    //MapCol = MapCol.Except(_map1Collisions).ToList();
-                    //MapCol.AddRange(VectorTool.Collision(new Vector2(0,i+1), _wall));
-                    //MapCol.AddRange(VectorTool.Collision(new Vector2(980,i+1), _wall));
-                    //MapCol.AddRange(VectorTool.Collision(new Vector2(i,1), _wall));
-                    //MapCol.AddRange(VectorTool.Collision(new Vector2(i,981), _wall));
-                    //_map1Collisions.AddRange(MapCol);
+                    _mapCollision.Add(new Rectangle(0,i,20,20));
+                    _mapCollision.Add(new Rectangle(980,i,20,20));
+                    _mapCollision.Add(new Rectangle(i,0,20,20));
+                    _mapCollision.Add(new Rectangle(i,980,20,20));
                 }
             }
             isempty = false;
@@ -189,20 +180,23 @@ namespace BombAttackGame
             Bullet = null;
             foreach (var player in _gameObjects.OfType<Player>())
             {
-                switch (player.Event)
+                for (int i = 0; i <player.Event.Count; i++)
                 {
-                    case Event.None:
-                        break;
-                    case Event.Move:
-                        _eventProcessor.Move(player);
-                        break;
-                    case Event.TryShoot:
-                        _eventProcessor.TryShoot(player, out Bullet);
-                        break;
-                    case Event.Shoot:
-                        break;
-                    default:
-                        break;
+                    switch (player.Event[i])
+                    {
+                        case Event.None:
+                            break;
+                        case Event.Move:
+                            _eventProcessor.Move(player);
+                            break;
+                        case Event.TryShoot:
+                            _eventProcessor.TryShoot(player, out Bullet);
+                            break;
+                        case Event.Shoot:
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
             CheckBullet(Bullet);
@@ -218,7 +212,6 @@ namespace BombAttackGame
                     case Event.ObjectHitted:
                         if (bullet.ObjectHitted.GetType() == typeof(Player)) { DealDamage.DealDamageToPlayer(bullet.ObjectHitted as Player, bullet); RemoveBullet(bullet); };
                         break;
-                        
                 }
             }
         }

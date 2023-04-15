@@ -21,7 +21,7 @@ namespace BombAttackGame.Models
     {
         GameServiceContainer _container = new GameServiceContainer();
         public Vector2 Location { get; set; }
-        public Vector2 OldLocation { get; set; }
+        public List<Vector2> OldLocation { get; set; }
         public Vector2 ShootLocation { get; set; }
         public Direction Direction { get; set; }
         public Team Team { get; set; }
@@ -40,7 +40,7 @@ namespace BombAttackGame.Models
         public double MovingTime { get; set; }
         public double MovingEndTime { get; set; }
         public Color Color { get; set; }
-        public Event Event { get; set; }
+        public List<Event> Event { get; set; }
         public Rectangle Rectangle { get; set; }
 
         public Player(Texture2D Texture)
@@ -55,31 +55,14 @@ namespace BombAttackGame.Models
             this.Health = 100;
             this.MovingTime = 1000;
             this.OnMainSpeed = false;
+            this.OldLocation = new List<Vector2>();
+            this.Event = new List<Event>();
         }
         public void PlayerMove(Direction direction)
         {
-            OldLocation = Location;
-            if (direction == Direction.Left)
-            {
-                Location = new Vector2(Location.X - (int)Speed, Location.Y);
-                Direction = Direction.Left;
-            }
-            if (direction == Direction.Right)
-            {
-                Location = new Vector2(Location.X + (int)Speed, Location.Y);
-                Direction = Direction.Right;
-            }
-            if (direction == Direction.Down)
-            {
-                Location = new Vector2(Location.X, Location.Y + (int)Speed);
-                Direction = Direction.Down;
-            }
-            if (direction == Direction.Up)
-            {
-                Location = new Vector2(Location.X, Location.Y - (int)Speed);
-                Direction = Direction.Up;
-            }
-            Event = Event.Move;
+            OldLocation.Add(Location);
+            this.Direction = direction;
+            if(!this.Event.Contains(Enums.Event.Move)) { Event.Add(Enums.Event.Move); }
         }
         public void Hit(int Damage)
         {
@@ -93,14 +76,14 @@ namespace BombAttackGame.Models
         public void TryShoot(Vector2 ShootLocation)
         {
             this.ShootLocation = ShootLocation;
-            this.Event = Event.TryShoot;
+            if(!this.Event.Contains(Enums.Event.TryShoot)) { this.Event.Add(Enums.Event.TryShoot); }
         }
         public void Tick(GameTime GameTime, List<IGameObject> GameObjects)
         {
             UpdateRectangle();
             UpdateColor(Color);
             CheckIfDead();
-            this.Event = Event.None;
+            this.Event.Clear();
             //if (VectorTool.IsOnObject(player.Collision, MainSpeed.Collision))
             //{ MainSpeed.PickedBonus(player, MainSpeed, GameTime); }
             //if (player.OnMainSpeed) MainSpeedTime(player, GameTime, MainSpeed);
