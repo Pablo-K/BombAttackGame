@@ -3,6 +3,7 @@ using BombAttackGame.Events;
 using BombAttackGame.Global;
 using BombAttackGame.HUD;
 using BombAttackGame.Interfaces;
+using BombAttackGame.Map;
 using BombAttackGame.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -128,7 +129,7 @@ namespace BombAttackGame
 
             _spriteBatch.Begin();
 
-            Map1(_spriteBatch);
+            MapManager.Map1(_spriteBatch, _wall);
 
             foreach (var gameObject in _gameObjects) { if (!gameObject.IsDead) { _spriteBatch.Draw(gameObject.Texture, gameObject.Location, gameObject.Color); } }
             foreach (var gameSprite in _gameSprites) { _spriteBatch.DrawString(gameSprite.Font, gameSprite.Text, gameSprite.Location, gameSprite.Color); }
@@ -155,71 +156,6 @@ namespace BombAttackGame
         private void AddCollisionWall(Vector2 Vector)
         {
             _mapCollision.Add(new Rectangle((int)Vector.X, (int)Vector.Y, 20, 20));
-        }
-        private SpriteBatch Map1(SpriteBatch SpriteBatch)
-        {
-            for (int i = 0; i < 1000; i += 20)
-            {
-                DrawWall(SpriteBatch, new Vector2(0, i));
-                DrawWall(SpriteBatch, new Vector2(980, i));
-                DrawWall(SpriteBatch, new Vector2(i, 0));
-                DrawWall(SpriteBatch, new Vector2(i, 980));
-            }
-            for (int i = 100; i < 1000; i+= 20)
-            {
-                DrawWall(SpriteBatch, new Vector2(20, i));
-            }
-            for (int i = 100; i < 1000; i+= 20)
-            {
-                DrawWall(SpriteBatch, new Vector2(40, i));
-            }
-            for (int i = 360; i < 1000; i+= 20)
-            {
-                DrawWall(SpriteBatch, new Vector2(60, i));
-            }
-            for (int i = 360; i < 1000; i+= 20)
-            {
-                DrawWall(SpriteBatch, new Vector2(80, i));
-            }
-            for (int i = 360; i < 1000; i+= 20)
-            {
-                DrawWall(SpriteBatch, new Vector2(100, i));
-            }
-            for (int i = 360; i < 1000; i+= 20)
-            {
-                if (i != 780 && i != 800 && i != 820) DrawWall(SpriteBatch, new Vector2(120, i));
-            }
-            for (int i = 360; i < 1000; i+= 20)
-            {
-                if (i != 780 && i != 800 && i != 820) DrawWall(SpriteBatch, new Vector2(140, i));
-            }
-            for (int i = 360; i < 1000; i+= 20)
-            {
-                if (i != 780 && i != 800 && i != 820) DrawWall(SpriteBatch, new Vector2(160, i));
-            }
-            for (int i = 360; i < 1000; i+= 20)
-            {
-                if (i != 780 && i != 800 && i != 820 && i != 840) DrawWall(SpriteBatch, new Vector2(180, i));
-            }
-            for (int i = 880; i < 1000; i+= 20)
-            {
-                DrawWall(SpriteBatch, new Vector2(200, i));
-            }
-            return SpriteBatch;
-        }
-        private SpriteBatch DrawWall(SpriteBatch SpriteBatch, Vector2 Position)
-        {
-            SpriteBatch.Draw(
-                texture: _wall,
-                position: Position,
-                sourceRectangle: null,
-                color: Color.BlanchedAlmond,
-                rotation: 0f,
-                origin: Vector2.Zero,
-                scale: new Vector2(1, 1),
-                effects: SpriteEffects.None,
-                layerDepth: 0f);
-            return SpriteBatch;
         }
         private void CheckAllPlayersEvent()
         {
