@@ -29,11 +29,6 @@ namespace BombAttackGame.Vector
             }
             return Collision;
         }
-        public static Rectangle Rectangle(Vector2 Location, Texture2D Texture)
-        {
-            Rectangle rectangle = new Rectangle((int)Location.X, (int)Location.Y, Texture.Width, Texture.Height);
-            return rectangle;
-        }
         public static bool IsOnObject(List<Vector2> Collistion1, List<Vector2> Collision2)
         {
             if (Collistion1.Intersect(Collision2).Any())

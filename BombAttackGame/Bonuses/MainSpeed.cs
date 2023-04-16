@@ -53,11 +53,11 @@ namespace BombAttackGame.Bonuses
         }
         public static void PickedBonus(Player Player, MainSpeed MainSpeed, GameTime GameTime)
         {
-            if (Player.OnMainSpeed) return;
-            Player.Speed *= MainSpeed.WalkSpeed;
-            Player.ShotLatency /= MainSpeed.ShootingSpeed;
-            Player.MainSpeedEndTime = GameTime.TotalGameTime.TotalMilliseconds + MainSpeed.BonusTime;
-            Player.OnMainSpeed = true;
+            //if (Player.OnMainSpeed) return;
+            //Player.Speed *= MainSpeed.WalkSpeed;
+            //Player.ShotLatency /= MainSpeed.ShootingSpeed;
+            //Player.MainSpeedEndTime = GameTime.TotalGameTime.TotalMilliseconds + MainSpeed.BonusTime;
+            //Player.OnMainSpeed = true;
             MainSpeed.Kill(MainSpeed);
         }
         public static void SpawnRandomly(GameTime GameTime, MainSpeed MainSpeed, int[] MapSize, List<Rectangle> Collision)

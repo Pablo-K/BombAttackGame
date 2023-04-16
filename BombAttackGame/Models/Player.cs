@@ -14,34 +14,32 @@ namespace BombAttackGame.Models
     public enum Team
     {
         None,
-        Player,
         TeamMate,
         Enemy
     }
     internal class Player : IGameObject
     {
-        GameServiceContainer _container = new GameServiceContainer();
         public Vector2 Location { get; set; }
         public List<Vector2> OldLocation { get; set; }
         public Vector2 ShootLocation { get; set; }
         public Direction Direction { get; set; }
         public Team Team { get; set; }
-        public int Health { get; set; }
+        public int Health { get; private set; }
         public double Speed { get; set; }
         public Texture2D Texture { get; set; }
         public bool IsDead { get; set; }
         public bool IsAttacked { get; set; }
-        public bool OnMainSpeed { get; set; }
+        public bool OnMainSpeed { get; private set; }
         public double ShotTime { get; set; }
         public double ShotLatency { get; set; }
-        public double EnemyShotLatency { get; set; }
-        public double TeamMateShotLatency { get; set; }
-        public double MainSpeedStartTime { get; set; }
-        public double MainSpeedEndTime { get; set; }
-        public double MovingTime { get; set; }
-        public double MovingEndTime { get; set; }
+        public double EnemyShotLatency { get; private set; }
+        public double TeamMateShotLatency { get; private set; }
+        public double MainSpeedStartTime { get; private set; }
+        public double MainSpeedEndTime { get;  private set; }
+        private double MovingTime { get; set; }
+        private double MovingEndTime { get; set; }
         public Color Color { get; set; }
-        public List<Event> Event { get; set; }
+        public Queue<Event> Event { get; private set; }
         public Rectangle Rectangle { get; set; }
 
         public Player(Texture2D Texture)
@@ -52,18 +50,18 @@ namespace BombAttackGame.Models
             this.Speed = 2;
             this.ShotLatency = 100;
             this.EnemyShotLatency = 1000;
-            this.TeamMateShotLatency = 1000;
+            this.TeamMateShotLatency = 400;
             this.Health = 100;
             this.MovingTime = 1000;
             this.OnMainSpeed = false;
             this.OldLocation = new List<Vector2>();
-            this.Event = new List<Event>();
+            this.Event = new Queue<Event>();
         }
         public void PlayerMove(Direction direction)
         {
             OldLocation.Add(Location);
             this.Direction = direction;
-            if(!this.Event.Contains(Enums.Event.Move)) { Event.Add(Enums.Event.Move); }
+            if(!this.Event.Contains(Enums.Event.Move)) { Event.Enqueue(Enums.Event.Move); }
         }
         public void Hit(int Damage)
         {
@@ -77,14 +75,13 @@ namespace BombAttackGame.Models
         public void TryShoot(Vector2 ShootLocation)
         {
             this.ShootLocation = ShootLocation;
-            if(!this.Event.Contains(Enums.Event.TryShoot)) { this.Event.Add(Enums.Event.TryShoot); }
+            if(!this.Event.Contains(Enums.Event.TryShoot)) { this.Event.Enqueue(Enums.Event.TryShoot); }
         }
         public void Tick(GameTime GameTime, List<IGameObject> GameObjects)
         {
             UpdateRectangle();
             UpdateColor(Color);
             CheckIfDead();
-            this.Event.Clear();
             //if (VectorTool.IsOnObject(player.Collision, MainSpeed.Collision))
             //{ MainSpeed.PickedBonus(player, MainSpeed, GameTime); }
             //if (player.OnMainSpeed) MainSpeedTime(player, GameTime, MainSpeed);
@@ -122,7 +119,7 @@ namespace BombAttackGame.Models
         }
         public void BotMove(Player Player, Collision Collision, GameTime GameTime)
         {
-            if (Player.Team == Team.Player) return;
+            if (Player.Team == Team.TeamMate) return;
             if (Player.Direction == Direction.None) return;
             if (GameTime.TotalGameTime.TotalMilliseconds >= Player.MovingEndTime)
             {

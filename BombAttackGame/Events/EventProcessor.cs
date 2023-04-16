@@ -85,6 +85,14 @@ namespace BombAttackGame.Events
                     break;
             }
         }
+        public void Move(Bullet Bullet)
+        {
+            var speed = Bullet.Speed * (1 / Bullet.Distance);
+            float Length = 0;
+            Bullet.Location = Vector2.Lerp(Bullet.Location, Bullet.Point, speed);
+            Length += Vector2.Distance(Bullet.Location, Bullet.StartLocation);
+            Bullet.DistanceTravelled += Length;
+        }
         public void TryShoot(Player player, out Bullet Bullet)
         {
             Bullet = null;

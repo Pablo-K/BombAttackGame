@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,7 +19,12 @@ namespace BombAttackGame.Events
             {
                 Vector2 Location = new Vector2(random.Next(0, MapSize[0]), random.Next(0, MapSize[1]));
                 Rectangle rectangle = new Rectangle((int)Location.X, (int)Location.Y, Texture.Width, Texture.Height);
-                return Location;
+                foreach (Rectangle r in Collision)
+                {
+                    if (rectangle.Intersects(r)) 
+                        return new Vector2();
+                    return Location;
+                }
             }
         }
     }

@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Net.Mime;
 using System.Runtime.CompilerServices;
@@ -22,7 +23,7 @@ namespace BombAttackGame.Models
         public float Distance { get; set; }
         public float DistanceTravelled { get; set; }
         public float MaxDistance { get; set; }
-        public double Damage { get; set; }
+        public int Damage { get; set; }
         public double TeamDamage { get; set; }
         public double EnemyDamage { get; set; }
         public double OtherDamage { get; set; }
@@ -31,7 +32,7 @@ namespace BombAttackGame.Models
         public Vector2 Direction { get; set; }
         public Vector2 Point { get; set; }
         public Rectangle Rectangle { get; set; }
-        public Event Event { get; set; }
+        public Queue<Event> Event { get; set; }
         public IGameObject ObjectHitted { get; set; }
         public int DamageDealt { get; set; }
         public Bullet(Vector2 location, Player owner, Vector2 point)
@@ -48,30 +49,36 @@ namespace BombAttackGame.Models
             this.OtherDamage = 1;
             this.IsDead = false;
             this.Color = Color.AliceBlue;
-            this.Event = Event.None;
+            this.Event = new Queue<Event>();
         }
-        public int CalculateDamage()
+        public int CalculateDamage(IGameObject GameObject)
         {
             switch (this.DistanceTravelled)
             {
                 case > 80000:
-                    Convert.ToInt32(Damage = Damage * 0.1); break;
+                    Damage = (int)(Damage * 0.1); break;
                 case > 55000:
-                    Convert.ToInt32(Damage = Damage * 0.2); break;
+                    Damage = (int)(Damage * 0.2); break;
                 case > 40000:
-                    Convert.ToInt32(Damage = Damage * 0.3); break;
+                    Damage = (int)(Damage * 0.3); break;
                 case > 30000:
-                    Convert.ToInt32(Damage = Damage * 0.4); break;
+                    Damage = (int)(Damage * 0.4); break;
                 case > 20000:
-                    Convert.ToInt32(Damage = Damage * 0.5); break;
+                    Damage = (int)(Damage * 0.5); break;
                 case > 15000:
-                    Convert.ToInt32(Damage = Damage * 0.6); break;
+                    Damage = (int)(Damage * 0.6); break;
                 case > 10000:
-                    Convert.ToInt32(Damage = Damage * 0.7); break;
+                    Damage = (int)(Damage * 0.7); break;
                 case > 8000:
-                    Convert.ToInt32(Damage = Damage * 0.8); break;
+                    Damage = (int)(Damage * 0.8); break;
                 case > 5000:
-                    Convert.ToInt32(Damage = Damage * 0.9); break;
+                    Damage = (int)(Damage * 0.9); break;
+            }
+            if(GameObject is Player)
+            {
+                Player Player = GameObject as Player;
+                if (Player.Team == this.Owner.Team) Damage = (int)(Damage * this.TeamDamage);
+                if (Player.Team != this.Owner.Team) Damage = (int)(Damage * this.EnemyDamage);
             }
             return (int)Damage;
         }
@@ -80,36 +87,16 @@ namespace BombAttackGame.Models
             this.Rectangle = new Rectangle((int)Location.X, (int)Location.Y, Texture.Width, Texture.Height);
         }
 
-        //private static void BulletsHit(GameTime GameTime, List<IGameObject> GameObjects, List<IGameSprite> GameSprites, ContentManager Content)
-        //{
-        //    foreach (Bullet bullet in GameObjects.OfType<Bullet>().ToList())
-        //    {
-        //        if (Hit.BulletHit(bullet, GameObjects, out Player PlayerHitted))
-        //        {
-        //            int Damage = (int)bullet.CalculateDamage(PlayerHitted);
-        //            PlayerHitted.Hit(Damage);
-        //            GameObjects.Remove(bullet);
-
-        //            Damage damage = new Damage((int)Damage, PlayerHitted.Location);
-        //            damage.Font = Content.Load<SpriteFont>("damage");
-        //            damage.ShowTime = GameTime.TotalGameTime.TotalMilliseconds;
-        //            GameSprites.Add(damage);
-        //        }
-        //    }
-        //}
         public void Tick(GameTime GameTime, List<IGameObject> GameObjects)
         {
             Move();
             UpdateRectangle();
             BulletHitted(GameObjects);
+            DistanceDelete();
         }
         private void Move()
         {
-            var speed = this.Speed * (1 / this.Distance);
-            float Length = 0;
-            this.Location = Vector2.Lerp(this.Location, this.Point, speed);
-            Length += Vector2.Distance(this.Location, this.StartLocation);
-            this.DistanceTravelled += Length;
+            Event.Enqueue(Enums.Event.Move);
         }
         private void BulletHitted(List<IGameObject> GameObjects)
         {
@@ -117,11 +104,15 @@ namespace BombAttackGame.Models
             {
                 if (Hit.InHitbox(this,obj as Player))
                 {
-                    this.Event = Event.ObjectHitted;
+                    this.Event.Enqueue(Enums.Event.ObjectHitted);
                     this.ObjectHitted = obj;
-                    this.DamageDealt = CalculateDamage();
+                    this.DamageDealt = CalculateDamage(obj);
                 }
             }
+        }
+        private void DistanceDelete()
+        {
+            if (this.DistanceTravelled >= this.MaxDistance) this.Event.Enqueue(Enums.Event.Delete);
         }
     }
 }

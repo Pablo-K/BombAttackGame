@@ -12,6 +12,7 @@ namespace BombAttackGame.Enums
         Move,
         TryShoot,
         ObjectHitted,
-        Shoot
+        Shoot,
+        Delete
     }
 }
