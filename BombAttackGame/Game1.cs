@@ -16,6 +16,7 @@ namespace BombAttackGame
 {
     public class Game1 : Game
     {
+        private MapManager _mapManager;
         private EventProcessor _eventProcessor;
         private SpriteFont _hpF;
         private Player _player;
@@ -75,6 +76,7 @@ namespace BombAttackGame
             _wall = Content.Load<Texture2D>("wall");
             _damageF = Content.Load<SpriteFont>("damage");
 
+            _mapManager = new MapManager(_spriteBatch,_wall);
             _gameObjects.Add(GameObject.AddMainSpeed(_mapSize, Content, _mapCollision));
 
             _player = GameObject.AddPlayer(Team.TeamMate, Content, _mapSize, _mapCollision);
@@ -129,10 +131,10 @@ namespace BombAttackGame
 
             _spriteBatch.Begin();
 
-            MapManager.Map1(_spriteBatch, _wall);
-
             foreach (var gameObject in _gameObjects) { if (!gameObject.IsDead) { _spriteBatch.Draw(gameObject.Texture, gameObject.Location, gameObject.Color); } }
             foreach (var gameSprite in _gameSprites) { _spriteBatch.DrawString(gameSprite.Font, gameSprite.Text, gameSprite.Location, gameSprite.Color); }
+            for (int i = 0; i < _mapManager.MapMirageVector.Count; i++)
+            { _spriteBatch.Draw(_mapManager.Wall, _mapManager.MapMirageVector[i], Color.Red); }
 
             _spriteBatch.DrawString(_hpF, _player.Health.ToString(), HudVector.HpVector(_mapSize), Color.Green);
 
