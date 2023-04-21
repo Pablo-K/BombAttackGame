@@ -102,7 +102,7 @@ namespace BombAttackGame.Models
         {
             foreach (IGameObject obj in GameObjects.OfType<Player>().Where(x => x.IsDead == false))
             {
-                if (Hit.InHitbox(this,obj as Player))
+                if (Hit.InHitBox(this, obj as Player))
                 {
                     this.Event.Enqueue(Enums.Event.ObjectHitted);
                     this.ObjectHitted = obj;

@@ -69,7 +69,6 @@ namespace BombAttackGame
         protected override void LoadContent()
         {
             _mapCollision = new List<Rectangle>();
-            CreateMapCollision();
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             _hpF = Content.Load<SpriteFont>("hp");
@@ -77,6 +76,8 @@ namespace BombAttackGame
             _damageF = Content.Load<SpriteFont>("damage");
 
             _mapManager = new MapManager(_spriteBatch,_wall);
+            CreateMapCollision();
+
             _gameObjects.Add(GameObject.AddMainSpeed(_mapSize, Content, _mapCollision));
 
             _player = GameObject.AddPlayer(Team.TeamMate, Content, _mapSize, _mapCollision);
@@ -133,8 +134,8 @@ namespace BombAttackGame
 
             foreach (var gameObject in _gameObjects) { if (!gameObject.IsDead) { _spriteBatch.Draw(gameObject.Texture, gameObject.Location, gameObject.Color); } }
             foreach (var gameSprite in _gameSprites) { _spriteBatch.DrawString(gameSprite.Font, gameSprite.Text, gameSprite.Location, gameSprite.Color); }
-            for (int i = 0; i < _mapManager.MapMirageVector.Count; i++)
-            { _spriteBatch.Draw(_mapManager.Wall, _mapManager.MapMirageVector[i], Color.Red); }
+            for (int i = 0; i < _mapManager.Mirage.WallVector.Count; i++)
+            { _spriteBatch.Draw(MapManager.Wall, _mapManager.Mirage.WallVector[i], Color.Red); }
 
             _spriteBatch.DrawString(_hpF, _player.Health.ToString(), HudVector.HpVector(_mapSize), Color.Green);
 
@@ -147,17 +148,15 @@ namespace BombAttackGame
         }
         private void CreateMapCollision()
         {
-            for (int i = 0; i < 1000; i += 20)
-            {
-                AddCollisionWall(new Vector2(0, i));
-                AddCollisionWall(new Vector2(980, i));
-                AddCollisionWall(new Vector2(i, 0));
-                AddCollisionWall(new Vector2(i, 980));
-            }
+            AddCollisions(_mapManager.Mirage.Rectangle);
         }
         private void AddCollisionWall(Vector2 Vector)
         {
             _mapCollision.Add(new Rectangle((int)Vector.X, (int)Vector.Y, 20, 20));
+        }
+        private void AddCollisions(List<Rectangle> Collision)
+        {
+            _mapCollision.AddRange(Collision);
         }
         private void CheckAllPlayersEvent()
         {
@@ -197,12 +196,16 @@ namespace BombAttackGame
                             _eventProcessor.Move(bullet);
                             break;
                         case Event.ObjectHitted:
-                            if (bullet.ObjectHitted.GetType() == typeof(Player))
+                            if (bullet.ObjectHitted?.GetType() == typeof(Player))
                             {
                                 DealDamage.DealDamageToPlayer(bullet.ObjectHitted as Player, bullet.DamageDealt);
                                 CreateDamage(bullet, GameTime);
                                 RemoveBullet(bullet);
-                            };
+                            }
+                            else
+                            {
+                                RemoveBullet(bullet);
+                            }
                             break;
                         case Event.Delete:
                             DeleteObject(bullet);

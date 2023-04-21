@@ -1,12 +1,7 @@
-﻿using BombAttackGame.Collisions;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BombAttackGame.Events
 {
@@ -18,13 +13,26 @@ namespace BombAttackGame.Events
             while (true)
             {
                 Vector2 Location = new Vector2(random.Next(0, MapSize[0]), random.Next(0, MapSize[1]));
-                Rectangle rectangle = new Rectangle((int)Location.X, (int)Location.Y, Texture.Width, Texture.Height);
                 foreach (Rectangle r in Collision)
                 {
-                    if (rectangle.Intersects(r)) 
+                    if (InHitBox(new Vector2(Location.X, Location.Y), Texture, r))
                         return new Vector2();
                     return Location;
                 }
+            }
+        }
+        private static bool InHitBox(Vector2 Location, Texture2D Texture, Rectangle Rectangle)
+        {
+            Vector2 positionDifference = Location - new Vector2(Rectangle.X, Rectangle.Y);
+            if (positionDifference.X < 0 || positionDifference.Y < 0 ||
+    positionDifference.X + 20 > Texture.Width ||
+    positionDifference.Y + 20 > Texture.Height)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
             }
         }
     }

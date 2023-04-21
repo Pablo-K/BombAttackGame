@@ -1,12 +1,10 @@
-﻿using BombAttackGame.Collisions;
-using BombAttackGame.Enums;
+﻿using BombAttackGame.Enums;
 using BombAttackGame.Interfaces;
 using BombAttackGame.Models;
 using BombAttackGame.Vector;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace BombAttackGame.Events
 {
@@ -92,6 +90,7 @@ namespace BombAttackGame.Events
             Bullet.Location = Vector2.Lerp(Bullet.Location, Bullet.Point, speed);
             Length += Vector2.Distance(Bullet.Location, Bullet.StartLocation);
             Bullet.DistanceTravelled += Length;
+            foreach (var rec in MapCollision) { if (Bullet.Rectangle.Intersects(rec)) Bullet.Event.Enqueue(Event.ObjectHitted); }
         }
         public void TryShoot(Player player, out Bullet Bullet)
         {
