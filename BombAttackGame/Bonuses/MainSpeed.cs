@@ -60,21 +60,5 @@ namespace BombAttackGame.Bonuses
             //Player.OnMainSpeed = true;
             MainSpeed.Kill(MainSpeed);
         }
-        public static void SpawnRandomly(GameTime GameTime, MainSpeed MainSpeed, int[] MapSize, List<Rectangle> Collision)
-        {
-            if(GameTime.TotalGameTime.TotalMilliseconds >= MainSpeed.FinallySpawnTime && MainSpeed.FinallySpawnTime != 0)
-            {
-                MainSpeed.IsDead = false;
-                MainSpeed.Location = Spawn.GenerateRandomSpawnPoint(MapSize, MainSpeed.Texture, Collision);
-                MainSpeed.FinallySpawnTime = 0;
-            }
-            if (MainSpeed.FinallySpawnTime != 0) return;
-            Random random = new Random();
-            int StartSec = Convert.ToInt32(MainSpeed.SpawnStartTime / 1000);
-            int EndSec = Convert.ToInt32(MainSpeed.SpawnEndTime / 1000);
-            int FinallySec = random.Next(StartSec,EndSec);
-            double FinnalyMil = random.NextDouble();
-            MainSpeed.FinallySpawnTime = GameTime.TotalGameTime.TotalMilliseconds + FinallySec*1000 + FinnalyMil;
-        }
     }
 }

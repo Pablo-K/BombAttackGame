@@ -1,38 +1,29 @@
-﻿using Microsoft.Xna.Framework;
+﻿using BombAttackGame.Enums;
+using BombAttackGame.Map;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BombAttackGame.Events
 {
     internal class Spawn
     {
-        public static Vector2 GenerateRandomSpawnPoint(int[] MapSize, Texture2D Texture, List<Rectangle> Collision)
+        public static Vector2 ChooseRandomSpawnPoint(int[] MapSize, MapManager Map, Team Team)
         {
             Random random = new Random();
-            while (true)
+            if(Team == Team.TeamMate)
             {
-                Vector2 Location = new Vector2(random.Next(0, MapSize[0]), random.Next(0, MapSize[1]));
-                foreach (Rectangle r in Collision)
-                {
-                    if (InHitBox(new Vector2(Location.X, Location.Y), Texture, r))
-                        return new Vector2();
-                    return Location;
-                }
+                return Map.Mirage.SpawnPoints.ElementAt(random.Next(0, Map.Mirage.SpawnPoints.Count/2));
             }
-        }
-        private static bool InHitBox(Vector2 Location, Texture2D Texture, Rectangle Rectangle)
-        {
-            Vector2 positionDifference = Location - new Vector2(Rectangle.X, Rectangle.Y);
-            if (positionDifference.X < 0 || positionDifference.Y < 0 ||
-    positionDifference.X + 20 > Texture.Width ||
-    positionDifference.Y + 20 > Texture.Height)
+            if(Team == Team.Enemy)
             {
-                return false;
+                return Map.Mirage.SpawnPoints.ElementAt(random.Next(Map.Mirage.SpawnPoints.Count/2+1, Map.Mirage.SpawnPoints.Count));
             }
             else
             {
-                return true;
+                return Map.Mirage.SpawnPoints.ElementAt(random.Next(-1, 10));
             }
         }
     }

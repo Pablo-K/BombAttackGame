@@ -78,13 +78,13 @@ namespace BombAttackGame
             _mapManager = new MapManager(_spriteBatch,_wall);
             CreateMapCollision();
 
-            _gameObjects.Add(GameObject.AddMainSpeed(_mapSize, Content, _mapCollision));
+            _gameObjects.Add(GameObject.AddMainSpeed(_mapSize, Content, Team.None, _mapManager));
 
-            _player = GameObject.AddPlayer(Team.TeamMate, Content, _mapSize, _mapCollision);
+            _player = GameObject.AddPlayer(Team.TeamMate, Content, _mapSize, _mapManager);
             _gameObjects.Add(_player);
 
-            _gameObjects.AddRange(GameObject.AddPlayers(Team.TeamMate, Content, _teamMateAmount, _mapSize, _mapCollision));
-            _gameObjects.AddRange(GameObject.AddPlayers(Team.Enemy, Content, _enemyAmount, _mapSize, _mapCollision));
+            _gameObjects.AddRange(GameObject.AddPlayers(Team.TeamMate, Content, _teamMateAmount, _mapSize, _mapManager));
+            _gameObjects.AddRange(GameObject.AddPlayers(Team.Enemy, Content, _enemyAmount, _mapSize, _mapManager));
 
         }
 

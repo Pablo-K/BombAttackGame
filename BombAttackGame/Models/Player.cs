@@ -11,13 +11,7 @@ using System.Collections.Generic;
 
 namespace BombAttackGame.Models
 {
-    public enum Team
-    {
-        None,
-        TeamMate,
-        Enemy
-    }
-    internal class Player : IGameObject
+       internal class Player : IGameObject
     {
         public Vector2 Location { get; set; }
         public List<Vector2> OldLocation { get; set; }

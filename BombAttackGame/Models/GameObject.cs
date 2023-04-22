@@ -1,8 +1,7 @@
 ﻿using BombAttackGame.Bonuses;
-using BombAttackGame.Collisions;
+using BombAttackGame.Enums;
 using BombAttackGame.Events;
-using BombAttackGame.Vector;
-using Microsoft.Xna.Framework;
+using BombAttackGame.Map;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
@@ -11,18 +10,18 @@ namespace BombAttackGame.Models
 {
     internal class GameObject
     {
-        public static Player AddPlayer(Team Team, ContentManager Content, int[] MapSize, List<Rectangle> Collision)
+        public static Player AddPlayer(Team Team, ContentManager Content, int[] MapSize, MapManager Map)
         {
             Texture2D Texture = Content.Load<Texture2D>(Team.ToString());
             Player Player = new Player(Texture);
             Player.Team = Team;
-            Player.Location = Spawn.GenerateRandomSpawnPoint(MapSize, Player.Texture, Collision);
+            Player.Location = Spawn.ChooseRandomSpawnPoint(MapSize, Map, Team);
             if (Team == Team.Enemy) Player.ShotLatency = Player.EnemyShotLatency;
             if (Team == Team.TeamMate) Player.ShotLatency = Player.TeamMateShotLatency;
             return Player;
         }
 
-        public static List<Player> AddPlayers(Team Team, ContentManager Content, int Amount, int[] MapSize, List<Rectangle> Collision)
+        public static List<Player> AddPlayers(Team Team, ContentManager Content, int Amount, int[] MapSize, MapManager Map)
         {
             List<Player> Players = new List<Player>();
             Texture2D Texture = Content.Load<Texture2D>(Team.ToString());
@@ -30,18 +29,18 @@ namespace BombAttackGame.Models
             {
                 Player Player = new Player(Texture);
                 Player.Team = Team;
-                Player.Location = Spawn.GenerateRandomSpawnPoint(MapSize, Player.Texture, Collision);
+                Player.Location = Spawn.ChooseRandomSpawnPoint(MapSize, Map, Team);
                 if (Team == Team.Enemy) Player.ShotLatency = Player.EnemyShotLatency;
                 if (Team == Team.TeamMate) Player.ShotLatency = Player.TeamMateShotLatency;
                 Players.Add(Player);
             }
             return Players;
         }
-        public static MainSpeed AddMainSpeed(int[] MapSize, ContentManager Content, List<Rectangle> Collision)
+        public static MainSpeed AddMainSpeed(int[] MapSize, ContentManager Content, Team Team, MapManager Map)
         {
             MainSpeed MainSpeed = new MainSpeed();
             MainSpeed.Texture = Content.Load<Texture2D>("mainSpeed");
-            MainSpeed.Location = Spawn.GenerateRandomSpawnPoint(MapSize, MainSpeed.Texture, Collision);
+            MainSpeed.Location = Spawn.ChooseRandomSpawnPoint(MapSize, Map, Team);
             //MainSpeed.Rectangle = VectorTool.Collision(MainSpeed.Location, MainSpeed.Texture);
             MainSpeed.IsDead = false;
             return MainSpeed;
