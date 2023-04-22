@@ -56,7 +56,7 @@ namespace BombAttackGame.Map
             {
                 for (int j = 0; j < MapStructure[i].Length; j++)
                 {
-                    if(Model.Contains("w")) if (MapStructure[i][j] == 'w') Map.Add(new Vector2(j * MapManager.Wall.Height, i * MapManager.Wall.Width));
+                    if(Model.Contains("w") && (MapStructure[i][j] == 'w')) Map.Add(new Vector2(j * MapManager.Wall.Height, i * MapManager.Wall.Width));
                 }
             }
             return Map;

@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BombAttackGame.Models
 {
@@ -27,13 +28,14 @@ namespace BombAttackGame.Models
         public double EnemyShotLatency { get; private set; }
         public double TeamMateShotLatency { get; private set; }
         public double MainSpeedStartTime { get; private set; }
-        public double MainSpeedEndTime { get;  private set; }
+        public double MainSpeedEndTime { get; private set; }
         private double MovingTime { get; set; }
         private double MovingEndTime { get; set; }
         public Color Color { get; set; }
         public Queue<Event> Event { get; private set; }
         public Rectangle Rectangle { get; set; }
         public bool IsVisible { get; set; }
+        public bool Human { get; set; }
 
         public Player(Texture2D Texture)
         {
@@ -50,13 +52,14 @@ namespace BombAttackGame.Models
             this.OldLocation = new List<Vector2>();
             this.Event = new Queue<Event>();
             this.IsVisible = false;
+            this.Human = false;
 
         }
         public void PlayerMove(Direction direction)
         {
             OldLocation.Add(Location);
             this.Direction = direction;
-            if(!this.Event.Contains(Enums.Event.Move)) { Event.Enqueue(Enums.Event.Move); }
+            if (!this.Event.Contains(Enums.Event.Move)) { Event.Enqueue(Enums.Event.Move); }
         }
         public void Hit(int Damage)
         {
@@ -70,13 +73,14 @@ namespace BombAttackGame.Models
         public void TryShoot(Vector2 ShootLocation)
         {
             this.ShootLocation = ShootLocation;
-            if(!this.Event.Contains(Enums.Event.TryShoot)) { this.Event.Enqueue(Enums.Event.TryShoot); }
+            if (!this.Event.Contains(Enums.Event.TryShoot)) { this.Event.Enqueue(Enums.Event.TryShoot); }
         }
         public void Tick(GameTime GameTime, List<IGameObject> GameObjects)
         {
             UpdateRectangle();
             UpdateColor(Color);
             CheckIfDead();
+            BotMove(GameTime);
             //if (VectorTool.IsOnObject(player.Collision, MainSpeed.Collision))
             //{ MainSpeed.PickedBonus(player, MainSpeed, GameTime); }
             //if (player.OnMainSpeed) MainSpeedTime(player, GameTime, MainSpeed);
@@ -112,19 +116,21 @@ namespace BombAttackGame.Models
                 this.Color = Color;
             }
         }
-        public void BotMove(Player Player, Collision Collision, GameTime GameTime)
+        public void BotMove(GameTime GameTime)
         {
-            if (Player.Team == Team.TeamMate) return;
-            if (Player.Direction == Direction.None) return;
-            if (GameTime.TotalGameTime.TotalMilliseconds >= Player.MovingEndTime)
+            if (this.Human) return;
+            if (GameTime.TotalGameTime.TotalMilliseconds >= MovingEndTime)
             {
                 Random random = new Random();
-                Player.Direction = (Direction)random.Next(-1, 9);
-                Player.MovingEndTime = GameTime.TotalGameTime.TotalMilliseconds + Player.MovingTime;
-                PlayerMove(Player.Direction);
+                int x = random.Next(0,8);
+                var Dir = (Direction)x;
+                MovingEndTime = GameTime.TotalGameTime.TotalMilliseconds + MovingTime;
+                //if (Dir == Direction.Up || Dir == Direction.Down) losuj();
+                PlayerMove(Dir);
                 return;
             }
-            PlayerMove(Player.Direction);
+            PlayerMove(Direction);
         }
-    }
+     }
+
 }

@@ -10,6 +10,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace BombAttackGame
 {
@@ -26,11 +28,9 @@ namespace BombAttackGame
         private int[] _mapSize = new int[2];
         private int _teamMateAmount;
         private int _enemyAmount;
-        private SpriteBatch _map1;
         private Texture2D _wall;
         private SpriteFont _damageF;
         private List<Rectangle> _mapCollision;
-        private bool isempty;
         public List<IGameObject> _gameObjects { get; private set; }
         public List<IGameSprite> _gameSprites { get; private set; }
 
@@ -82,6 +82,7 @@ namespace BombAttackGame
             _player = GameObject.AddPlayer(Team.TeamMate, Content, _mapSize, _mapManager);
             _gameObjects.Add(_player);
             _player.IsVisible = true;
+            _player.Human = true;
 
             _gameObjects.AddRange(GameObject.AddPlayers(Team.TeamMate, Content, _teamMateAmount, _mapSize, _mapManager));
             _gameObjects.AddRange(GameObject.AddPlayers(Team.Enemy, Content, _enemyAmount, _mapSize, _mapManager));
@@ -212,21 +213,21 @@ namespace BombAttackGame
         }
         private void UpdateObjectsVisibility()
         {
-            List<IGameObject> player = new List<IGameObject>
-            {
-                _player
-            };
+            List<IGameObject> player = new List<IGameObject> { _player };
             foreach (var obj in _gameObjects.Except(player))
             {
                 bool intersects = CheckLineIntersection(_player.Location, obj.Location);
                 obj.IsVisible = !intersects;
+                //obj.IsVisible = true;
             }
         }
 
         private bool CheckLineIntersection(Vector2 player, Vector2 player2)
         {
-            player.Y = player.Y + 1;
-            player.X = player.X + 1;
+            player.Y++;
+            player.X++;
+            player2.X++;
+            player2.Y++;
             foreach (var rect in _mapManager.Mirage.Rectangle)
             {
                 Vector2 topLeft = new Vector2(rect.Left, rect.Top);
