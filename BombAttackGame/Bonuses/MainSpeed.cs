@@ -1,12 +1,7 @@
-﻿using BombAttackGame.Collisions;
-using BombAttackGame.Events;
-using BombAttackGame.Interfaces;
+﻿using BombAttackGame.Interfaces;
 using BombAttackGame.Models;
-using BombAttackGame.Vector;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
 
 namespace BombAttackGame.Bonuses
 {

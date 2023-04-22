@@ -2,18 +2,14 @@
 using BombAttackGame.Collisions;
 using BombAttackGame.Enums;
 using BombAttackGame.Interfaces;
-using BombAttackGame.Vector;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 
 namespace BombAttackGame.Models
 {
-       internal class Player : IGameObject
+    internal class Player : IGameObject
     {
         public Vector2 Location { get; set; }
         public List<Vector2> OldLocation { get; set; }

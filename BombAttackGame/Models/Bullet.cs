@@ -2,14 +2,9 @@
 using BombAttackGame.Events;
 using BombAttackGame.Interfaces;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Net.Mime;
-using System.Runtime.CompilerServices;
 
 namespace BombAttackGame.Models
 {
