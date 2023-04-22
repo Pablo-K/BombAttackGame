@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace BombAttackGame
@@ -131,8 +132,7 @@ namespace BombAttackGame
             GraphicsDevice.Clear(_mainColor);
 
             _spriteBatch.Begin();
-
-            foreach (var gameObject in _gameObjects) { if (!gameObject.IsDead) { _spriteBatch.Draw(gameObject.Texture, gameObject.Location, gameObject.Color); } }
+            foreach (var gameObject in _gameObjects) { if (!gameObject.IsDead && gameObject.IsVisible) { _spriteBatch.Draw(gameObject.Texture, gameObject.Location, gameObject.Color); } }
             foreach (var gameSprite in _gameSprites) { _spriteBatch.DrawString(gameSprite.Font, gameSprite.Text, gameSprite.Location, gameSprite.Color); }
             for (int i = 0; i < _mapManager.Mirage.WallVector.Count; i++)
             { _spriteBatch.Draw(MapManager.Wall, _mapManager.Mirage.WallVector[i], Color.Red); }

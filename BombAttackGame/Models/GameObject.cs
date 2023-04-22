@@ -2,9 +2,11 @@
 using BombAttackGame.Enums;
 using BombAttackGame.Events;
 using BombAttackGame.Map;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
+using System.Data.Common;
 
 namespace BombAttackGame.Models
 {
@@ -16,6 +18,7 @@ namespace BombAttackGame.Models
             Player Player = new Player(Texture);
             Player.Team = Team;
             Player.Location = Spawn.ChooseRandomSpawnPoint(MapSize, Map, Team);
+            Player.Viewport = new Rectangle((int)Player.Location.X, (int)Player.Location.Y, Player.Texture.Width, Player.Texture.Height);
             if (Team == Team.Enemy) Player.ShotLatency = Player.EnemyShotLatency;
             if (Team == Team.TeamMate) Player.ShotLatency = Player.TeamMateShotLatency;
             return Player;
@@ -30,6 +33,7 @@ namespace BombAttackGame.Models
                 Player Player = new Player(Texture);
                 Player.Team = Team;
                 Player.Location = Spawn.ChooseRandomSpawnPoint(MapSize, Map, Team);
+                Player.Viewport = new Rectangle((int)Player.Location.X, (int)Player.Location.Y, Player.Texture.Width, Player.Texture.Height);
                 if (Team == Team.Enemy) Player.ShotLatency = Player.EnemyShotLatency;
                 if (Team == Team.TeamMate) Player.ShotLatency = Player.TeamMateShotLatency;
                 Players.Add(Player);
@@ -40,8 +44,7 @@ namespace BombAttackGame.Models
         {
             MainSpeed MainSpeed = new MainSpeed();
             MainSpeed.Texture = Content.Load<Texture2D>("mainSpeed");
-            MainSpeed.Location = Spawn.ChooseRandomSpawnPoint(MapSize, Map, Team);
-            //MainSpeed.Rectangle = VectorTool.Collision(MainSpeed.Location, MainSpeed.Texture);
+            MainSpeed.Location = Spawn.ChooseBonusRandomSpawnPoint(MapSize, Map, Team);
             MainSpeed.IsDead = false;
             return MainSpeed;
         }

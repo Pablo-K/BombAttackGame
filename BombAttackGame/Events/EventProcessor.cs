@@ -28,60 +28,66 @@ namespace BombAttackGame.Events
                 case Direction.Left:
                     Location = new Vector2(player.Location.X - (int)player.Speed, player.Location.Y);
                     Rectangle = new Rectangle((int)Location.X, (int)Location.Y, player.Texture.Width, player.Texture.Height);
-                    foreach (var rec in MapCollision) { if (Rectangle.Intersects(rec)) return; }
+                    if(InRectangle(Rectangle)) return;
                     player.Location = Location;
                     player.Direction = Direction.Left;
                     break;
                 case Direction.Right:
                     Location = new Vector2(player.Location.X + (int)player.Speed, player.Location.Y);
                     Rectangle = new Rectangle((int)Location.X, (int)Location.Y, player.Texture.Width, player.Texture.Height);
-                    foreach (var rec in MapCollision) { if (Rectangle.Intersects(rec)) return; }
+                    if(InRectangle(Rectangle)) return;
                     player.Location = Location;
                     player.Direction = Direction.Right;
                     break;
                 case Direction.Up:
                     Location = new Vector2(player.Location.X, player.Location.Y - (int)player.Speed);
                     Rectangle = new Rectangle((int)Location.X, (int)Location.Y, player.Texture.Width, player.Texture.Height);
-                    foreach (var rec in MapCollision) { if (Rectangle.Intersects(rec)) return; }
+                    if(InRectangle(Rectangle)) return;
                     player.Location = Location;
                     player.Direction = Direction.Up;
                     break;
                 case Direction.Down:
                     Location = new Vector2(player.Location.X, player.Location.Y + (int)player.Speed);
                     Rectangle = new Rectangle((int)Location.X, (int)Location.Y, player.Texture.Width, player.Texture.Height);
-                    foreach (var rec in MapCollision) { if (Rectangle.Intersects(rec)) return; }
+                    if(InRectangle(Rectangle)) return;
                     player.Location = Location;
                     player.Direction = Direction.Down;
                     break;
                 case Direction.UpLeft:
                     Location = new Vector2(player.Location.X - (int)player.Speed, player.Location.Y - (int)player.Speed);
                     Rectangle = new Rectangle((int)Location.X, (int)Location.Y, player.Texture.Width, player.Texture.Height);
-                    foreach (var rec in MapCollision) { if (Rectangle.Intersects(rec)) return; }
+                    if(InRectangle(Rectangle)) return;
                     player.Location = Location;
                     player.Direction = Direction.Up;
                     break;
                 case Direction.DownLeft:
                     Location = new Vector2(player.Location.X - (int)player.Speed, player.Location.Y + (int)player.Speed);
                     Rectangle = new Rectangle((int)Location.X, (int)Location.Y, player.Texture.Width, player.Texture.Height);
-                    foreach (var rec in MapCollision) { if (Rectangle.Intersects(rec)) return; }
+                    if(InRectangle(Rectangle)) return;
                     player.Location = Location;
                     player.Direction = Direction.Up;
                     break;
                 case Direction.DownRight:
                     Location = new Vector2(player.Location.X + (int)player.Speed, player.Location.Y + (int)player.Speed);
                     Rectangle = new Rectangle((int)Location.X, (int)Location.Y, player.Texture.Width, player.Texture.Height);
-                    foreach (var rec in MapCollision) { if (Rectangle.Intersects(rec)) return; }
+                    if(InRectangle(Rectangle)) return;
                     player.Location = Location;
                     player.Direction = Direction.Up;
                     break;
                 case Direction.UpRight:
                     Location = new Vector2(player.Location.X + (int)player.Speed, player.Location.Y - (int)player.Speed);
                     Rectangle = new Rectangle((int)Location.X, (int)Location.Y, player.Texture.Width, player.Texture.Height);
-                    foreach (var rec in MapCollision) { if (Rectangle.Intersects(rec)) return; }
+                    if(InRectangle(Rectangle)) return;
                     player.Location = Location;
                     player.Direction = Direction.Up;
                     break;
             }
+        }
+        private bool InRectangle(Rectangle rect)
+        {
+            foreach (var rec in MapCollision) { if (rect.Intersects(rec)) return true; }
+            return false;
+
         }
         public void Move(Bullet Bullet)
         {

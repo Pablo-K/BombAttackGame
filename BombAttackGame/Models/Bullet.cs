@@ -35,6 +35,8 @@ namespace BombAttackGame.Models
         public Queue<Event> Event { get; set; }
         public IGameObject ObjectHitted { get; set; }
         public int DamageDealt { get; set; }
+        public bool IsVisible { get; set; }
+        public Rectangle Viewport { get; set; }
         public Bullet(Vector2 location, Player owner, Vector2 point)
         {
             this.Location = new Vector2(location.X, location.Y);
@@ -50,6 +52,7 @@ namespace BombAttackGame.Models
             this.IsDead = false;
             this.Color = Color.AliceBlue;
             this.Event = new Queue<Event>();
+            this.IsVisible = false;
         }
         public int CalculateDamage(IGameObject GameObject)
         {
@@ -82,6 +85,24 @@ namespace BombAttackGame.Models
             }
             return (int)Damage;
         }
+        private void UpdateViewPort()
+        {
+            this.Viewport = new Rectangle((int)this.Location.X, (int)this.Location.Y, this.Texture.Width, this.Texture.Height);
+        }
+        private void UpdateVisibility(List<IGameObject> GameObjects)
+        {
+            foreach (var obj in GameObjects)
+            {
+                if (Viewport.Intersects(obj.Rectangle))
+                {
+                    obj.IsVisible = true;
+                }
+                else
+                {
+                    obj.IsVisible = false;
+                }
+            }
+        }
         public void UpdateRectangle()
         {
             this.Rectangle = new Rectangle((int)Location.X, (int)Location.Y, Texture.Width, Texture.Height);
@@ -93,6 +114,8 @@ namespace BombAttackGame.Models
             UpdateRectangle();
             BulletHitted(GameObjects);
             DistanceDelete();
+            UpdateViewPort();
+            UpdateVisibility(GameObjects);
         }
         private void Move()
         {

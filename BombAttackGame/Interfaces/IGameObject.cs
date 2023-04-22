@@ -16,5 +16,6 @@ namespace BombAttackGame.Interfaces
         public Color Color { get; set;}
         public void Tick(GameTime GameTime, List<IGameObject> GameObjects) { }
         public Rectangle Rectangle { get; set;}
+        public bool IsVisible { get; set;}
     }
 }

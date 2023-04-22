@@ -10,12 +10,22 @@ namespace BombAttackGame.Map
         public List<Vector2> WallVector { get; set; }
         public List<Rectangle> Rectangle { get; set; }
         public List<Vector2> SpawnPoints { get; set; }
+        public List<Vector2> BonusSpawnPoints { get; set; }
         public Mirage()
         {
             this.Structure = MapManager.JsonToChar(File.ReadAllText("Map/Mirage.json"));
             this.WallVector = MapManager.MapConverter(this.Structure, "w");
             this.Rectangle = new List<Rectangle>();
             this.Rectangle.AddRange(MapManager.WallRectangle(this.WallVector));
+            this.BonusSpawnPoints = new List<Vector2>
+            {
+                new Vector2(100,100),
+                new Vector2(120,140),
+                new Vector2(140,160),
+                new Vector2(180,200),
+                new Vector2(200,220),
+                new Vector2(240,260),
+            };
             this.SpawnPoints = new List<Vector2>
             {
                 new Vector2(160, 760), 
