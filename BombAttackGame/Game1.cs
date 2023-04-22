@@ -8,9 +8,9 @@ using BombAttackGame.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Drawing.Drawing2D;
 using System.Linq;
 
 namespace BombAttackGame
@@ -83,10 +83,11 @@ namespace BombAttackGame
 
             _player = GameObject.AddPlayer(Team.TeamMate, Content, _mapSize, _mapManager);
             _gameObjects.Add(_player);
+            _player.IsVisible = true;
 
             _gameObjects.AddRange(GameObject.AddPlayers(Team.TeamMate, Content, _teamMateAmount, _mapSize, _mapManager));
             _gameObjects.AddRange(GameObject.AddPlayers(Team.Enemy, Content, _enemyAmount, _mapSize, _mapManager));
-
+            
         }
 
         protected override void Update(GameTime gameTime)
@@ -120,6 +121,7 @@ namespace BombAttackGame
 
             CheckAllBulletsEvent(gameTime);
             CheckAllPlayersEvent();
+            UpdateObjectsVisibility();
 
             foreach (IGameObject GameObject in _gameObjects.OfType<Bullet>().ToList()) { GameObject.Tick(gameTime, _gameObjects); }
             foreach (IGameSprite GameSprite in _gameSprites.ToList()) { GameSprite.Tick(gameTime, _gameSprites); }
@@ -149,10 +151,6 @@ namespace BombAttackGame
         private void CreateMapCollision()
         {
             AddCollisions(_mapManager.Mirage.Rectangle);
-        }
-        private void AddCollisionWall(Vector2 Vector)
-        {
-            _mapCollision.Add(new Rectangle((int)Vector.X, (int)Vector.Y, 20, 20));
         }
         private void AddCollisions(List<Rectangle> Collision)
         {
@@ -213,6 +211,56 @@ namespace BombAttackGame
 
                     }
             }
+        }
+        private void UpdateObjectsVisibility()
+        {
+            List<IGameObject> player = new List<IGameObject>
+            {
+                _player
+            };
+            foreach (var obj in _gameObjects.Except(player))
+            {
+                bool intersects = CheckLineIntersection(_player.Location, obj.Location);
+                obj.IsVisible = !intersects;
+            }
+        }
+
+        private bool CheckLineIntersection(Vector2 player, Vector2 player2)
+        {
+            player.Y = player.Y + 1;
+            player.X = player.X + 1;
+            foreach (var rect in _mapManager.Mirage.Rectangle)
+            {
+                Vector2 topLeft = new Vector2(rect.Left, rect.Top);
+                Vector2 topRight = new Vector2(rect.Right, rect.Top);
+                Vector2 bottomLeft = new Vector2(rect.Left, rect.Bottom);
+                Vector2 bottomRight = new Vector2(rect.Right, rect.Bottom);
+
+                if (LineIntersectsLine(player, player2, topLeft, topRight))
+                    return true;
+                if (LineIntersectsLine(player, player2, topRight, bottomRight))
+                    return true;
+                if (LineIntersectsLine(player, player2, bottomRight, bottomLeft))
+                    return true;
+                if (LineIntersectsLine(player, player2, bottomLeft, topLeft))
+                    return true;
+            }
+
+            return false;
+        }
+        private bool LineIntersectsLine(Vector2 line1Start, Vector2 line1End, Vector2 line2Start, Vector2 line2End)
+        {
+            float denominator = ((line2End.Y - line2Start.Y) * (line1End.X - line1Start.X)) - ((line2End.X - line2Start.X) * (line1End.Y - line1Start.Y));
+            if (denominator == 0)
+                return false;
+
+            float ua = (((line2End.X - line2Start.X) * (line1Start.Y - line2Start.Y)) - ((line2End.Y - line2Start.Y) * (line1Start.X - line2Start.X))) / denominator;
+            float ub = (((line1End.X - line1Start.X) * (line1Start.Y - line2Start.Y)) - ((line1End.Y - line1Start.Y) * (line1Start.X - line2Start.X))) / denominator;
+
+            if (ua < 0 || ua > 1 || ub < 0 || ub > 1)
+                return false;
+
+            return true;
         }
 
         private void DeleteObject(IGameObject GameObject)

@@ -26,7 +26,6 @@ namespace BombAttackGame.Bonuses
         public bool IsDead { get; set; }
         public Rectangle Rectangle { get; set; }
         public bool IsVisible { get; set; }
-        public Rectangle Viewport { get; set; }
 
         public MainSpeed()
         {
@@ -44,24 +43,6 @@ namespace BombAttackGame.Bonuses
         public void Tick(GameTime GameTime, MainSpeed MainSpeed, int[] MapSize)
         {
             UpdateCollision(MainSpeed);
-            UpdateViewPort();
-        }private void UpdateViewPort()
-        {
-            this.Viewport = new Rectangle((int)this.Location.X, (int)this.Location.Y, this.Texture.Width, this.Texture.Height);
-        }
-        private void UpdateVisibility(List<IGameObject> GameObjects)
-        {
-            foreach (var obj in GameObjects)
-            {
-                if (Viewport.Intersects(obj.Rectangle))
-                {
-                    obj.IsVisible = true;
-                }
-                else
-                {
-                    obj.IsVisible = false;
-                }
-            }
         }
 
         private static void UpdateCollision(MainSpeed MainSpeed)

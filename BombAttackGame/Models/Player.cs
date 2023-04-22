@@ -37,7 +37,6 @@ namespace BombAttackGame.Models
         public Color Color { get; set; }
         public Queue<Event> Event { get; private set; }
         public Rectangle Rectangle { get; set; }
-        public Rectangle Viewport { get; set; }
         public bool IsVisible { get; set; }
 
         public Player(Texture2D Texture)
@@ -82,31 +81,11 @@ namespace BombAttackGame.Models
             UpdateRectangle();
             UpdateColor(Color);
             CheckIfDead();
-            UpdateViewPort();
-            UpdateVisibility(GameObjects);
             //if (VectorTool.IsOnObject(player.Collision, MainSpeed.Collision))
             //{ MainSpeed.PickedBonus(player, MainSpeed, GameTime); }
             //if (player.OnMainSpeed) MainSpeedTime(player, GameTime, MainSpeed);
             //PlayerShoot(player, GameTime, Content, Players, Bullets);
             //PlayerMove();
-        }
-        private void UpdateViewPort()
-        {
-            this.Viewport = new Rectangle((int)this.Location.X, (int)this.Location.Y, this.Texture.Width, this.Texture.Height);
-        }
-        private void UpdateVisibility(List<IGameObject> GameObjects)
-        {
-            foreach (var obj in GameObjects)
-            {
-                if (Viewport.Intersects(obj.Rectangle))
-                {
-                    obj.IsVisible = true;
-                }
-                else
-                {
-                    obj.IsVisible = false;
-                }
-            }
         }
         private bool CheckIfDead()
         {
