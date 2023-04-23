@@ -81,7 +81,6 @@ namespace BombAttackGame
 
             _player = GameObject.AddPlayer(Team.TeamMate, Content, _mapSize, _mapManager);
             _gameObjects.Add(_player);
-            _player.IsVisible = true;
             _player.Human = true;
 
             _gameObjects.AddRange(GameObject.AddPlayers(Team.TeamMate, Content, _teamMateAmount, _mapSize, _mapManager));
@@ -104,7 +103,7 @@ namespace BombAttackGame
 
             _mousePosition = mstate.Position.ToVector2();
 
-            foreach (IGameObject GameObject in _gameObjects.OfType<Player>().ToList()) { GameObject.Tick(gameTime, _gameObjects); }
+            foreach (IGameObject GameObject in _gameObjects.OfType<Player>().ToList()) { GameObject.Tick(gameTime, _gameObjects, _mapManager.Mirage.Rectangle); }
             if (kstate.IsKeyDown(Keys.A)) { _player.PlayerMove(Direction.Left); }
             if (kstate.IsKeyDown(Keys.S)) { _player.PlayerMove(Direction.Down); }
             if (kstate.IsKeyDown(Keys.D)) { _player.PlayerMove(Direction.Right); }
@@ -120,9 +119,8 @@ namespace BombAttackGame
 
             CheckAllBulletsEvent(gameTime);
             CheckAllPlayersEvent();
-            UpdateObjectsVisibility();
 
-            foreach (IGameObject GameObject in _gameObjects.OfType<Bullet>().ToList()) { GameObject.Tick(gameTime, _gameObjects); }
+            foreach (IGameObject GameObject in _gameObjects.OfType<Bullet>().ToList()) { GameObject.Tick(gameTime, _gameObjects, _mapManager.Mirage.Rectangle); }
             foreach (IGameSprite GameSprite in _gameSprites.ToList()) { GameSprite.Tick(gameTime, _gameSprites); }
 
             base.Update(gameTime);
@@ -133,7 +131,7 @@ namespace BombAttackGame
             GraphicsDevice.Clear(_mainColor);
 
             _spriteBatch.Begin();
-            foreach (var gameObject in _gameObjects) { if (!gameObject.IsDead && gameObject.IsVisible) { _spriteBatch.Draw(gameObject.Texture, gameObject.Location, gameObject.Color); } }
+            foreach (var gameObject in _gameObjects) { if (!gameObject.IsDead && _player.VisibleObjects.Contains(gameObject)) { _spriteBatch.Draw(gameObject.Texture, gameObject.Location, gameObject.Color); } }
             foreach (var gameSprite in _gameSprites) { _spriteBatch.DrawString(gameSprite.Font, gameSprite.Text, gameSprite.Location, gameSprite.Color); }
             for (int i = 0; i < _mapManager.Mirage.WallVector.Count; i++)
             { _spriteBatch.Draw(MapManager.Wall, _mapManager.Mirage.WallVector[i], Color.Red); }
@@ -211,56 +209,7 @@ namespace BombAttackGame
                     }
             }
         }
-        private void UpdateObjectsVisibility()
-        {
-            List<IGameObject> player = new List<IGameObject> { _player };
-            foreach (var obj in _gameObjects.Except(player))
-            {
-                bool intersects = CheckLineIntersection(_player.Location, obj.Location);
-                obj.IsVisible = !intersects;
-                //obj.IsVisible = true;
-            }
-        }
 
-        private bool CheckLineIntersection(Vector2 player, Vector2 player2)
-        {
-            player.Y++;
-            player.X++;
-            player2.X++;
-            player2.Y++;
-            foreach (var rect in _mapManager.Mirage.Rectangle)
-            {
-                Vector2 topLeft = new Vector2(rect.Left, rect.Top);
-                Vector2 topRight = new Vector2(rect.Right, rect.Top);
-                Vector2 bottomLeft = new Vector2(rect.Left, rect.Bottom);
-                Vector2 bottomRight = new Vector2(rect.Right, rect.Bottom);
-
-                if (LineIntersectsLine(player, player2, topLeft, topRight))
-                    return true;
-                if (LineIntersectsLine(player, player2, topRight, bottomRight))
-                    return true;
-                if (LineIntersectsLine(player, player2, bottomRight, bottomLeft))
-                    return true;
-                if (LineIntersectsLine(player, player2, bottomLeft, topLeft))
-                    return true;
-            }
-
-            return false;
-        }
-        private bool LineIntersectsLine(Vector2 line1Start, Vector2 line1End, Vector2 line2Start, Vector2 line2End)
-        {
-            float denominator = ((line2End.Y - line2Start.Y) * (line1End.X - line1Start.X)) - ((line2End.X - line2Start.X) * (line1End.Y - line1Start.Y));
-            if (denominator == 0)
-                return false;
-
-            float ua = (((line2End.X - line2Start.X) * (line1Start.Y - line2Start.Y)) - ((line2End.Y - line2Start.Y) * (line1Start.X - line2Start.X))) / denominator;
-            float ub = (((line1End.X - line1Start.X) * (line1Start.Y - line2Start.Y)) - ((line1End.Y - line1Start.Y) * (line1Start.X - line2Start.X))) / denominator;
-
-            if (ua < 0 || ua > 1 || ub < 0 || ub > 1)
-                return false;
-
-            return true;
-        }
 
         private void DeleteObject(IGameObject GameObject)
         {

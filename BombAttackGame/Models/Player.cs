@@ -2,6 +2,7 @@
 using BombAttackGame.Collisions;
 using BombAttackGame.Enums;
 using BombAttackGame.Interfaces;
+using BombAttackGame.Vector;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -34,8 +35,8 @@ namespace BombAttackGame.Models
         public Color Color { get; set; }
         public Queue<Event> Event { get; private set; }
         public Rectangle Rectangle { get; set; }
-        public bool IsVisible { get; set; }
         public bool Human { get; set; }
+        public List<IGameObject> VisibleObjects { get; set; }
 
         public Player(Texture2D Texture)
         {
@@ -51,9 +52,8 @@ namespace BombAttackGame.Models
             this.OnMainSpeed = false;
             this.OldLocation = new List<Vector2>();
             this.Event = new Queue<Event>();
-            this.IsVisible = false;
             this.Human = false;
-
+            this.VisibleObjects = new List<IGameObject>();
         }
         public void PlayerMove(Direction direction)
         {
@@ -75,17 +75,33 @@ namespace BombAttackGame.Models
             this.ShootLocation = ShootLocation;
             if (!this.Event.Contains(Enums.Event.TryShoot)) { this.Event.Enqueue(Enums.Event.TryShoot); }
         }
-        public void Tick(GameTime GameTime, List<IGameObject> GameObjects)
+        public void Tick(GameTime GameTime, List<IGameObject> GameObjects, List<Rectangle> MapRectangle)
         {
             UpdateRectangle();
             UpdateColor(Color);
             CheckIfDead();
             BotMove(GameTime);
+            UpdateObjectsVisibility(GameObjects, MapRectangle);
             //if (VectorTool.IsOnObject(player.Collision, MainSpeed.Collision))
             //{ MainSpeed.PickedBonus(player, MainSpeed, GameTime); }
             //if (player.OnMainSpeed) MainSpeedTime(player, GameTime, MainSpeed);
             //PlayerShoot(player, GameTime, Content, Players, Bullets);
             //PlayerMove();
+        }
+        private void UpdateObjectsVisibility(List<IGameObject> GameObjects, List<Rectangle> MapRectangle)
+        {
+            foreach (var obj in GameObjects)
+            {
+                bool intersects = VectorTool.CheckLineIntersection(this.Location, obj.Location, MapRectangle);
+                if (!intersects)
+                {
+                    if (!this.VisibleObjects.Contains(obj)) this.VisibleObjects.Add(obj);
+                }
+                else
+                {
+                    if (this.VisibleObjects.Contains(obj)) this.VisibleObjects.Remove(obj);
+                }
+            }
         }
         private bool CheckIfDead()
         {

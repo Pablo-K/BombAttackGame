@@ -10,8 +10,7 @@ namespace BombAttackGame.Interfaces
         public Texture2D Texture { get; set;}
         public bool IsDead { get; set;}
         public Color Color { get; set;}
-        public void Tick(GameTime GameTime, List<IGameObject> GameObjects) { }
+        public void Tick(GameTime GameTime, List<IGameObject> GameObjects, List<Rectangle> MapRectangle) { }
         public Rectangle Rectangle { get; set;}
-        public bool IsVisible { get; set;}
     }
 }

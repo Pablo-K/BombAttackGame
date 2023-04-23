@@ -30,7 +30,6 @@ namespace BombAttackGame.Models
         public Queue<Event> Event { get; set; }
         public IGameObject ObjectHitted { get; set; }
         public int DamageDealt { get; set; }
-        public bool IsVisible { get; set; }
         public Bullet(Vector2 location, Player owner, Vector2 point)
         {
             this.Location = new Vector2(location.X, location.Y);
@@ -46,7 +45,6 @@ namespace BombAttackGame.Models
             this.IsDead = false;
             this.Color = Color.AliceBlue;
             this.Event = new Queue<Event>();
-            this.IsVisible = false;
         }
         public int CalculateDamage(IGameObject GameObject)
         {
@@ -84,7 +82,7 @@ namespace BombAttackGame.Models
             this.Rectangle = new Rectangle((int)Location.X, (int)Location.Y, Texture.Width, Texture.Height);
         }
 
-        public void Tick(GameTime GameTime, List<IGameObject> GameObjects)
+        public void Tick(GameTime GameTime, List<IGameObject> GameObjects, List<Rectangle> MapRectangle)
         {
             Move();
             UpdateRectangle();

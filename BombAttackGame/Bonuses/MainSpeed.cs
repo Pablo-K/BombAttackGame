@@ -20,7 +20,6 @@ namespace BombAttackGame.Bonuses
         public double FinallySpawnTime { get; set; }
         public bool IsDead { get; set; }
         public Rectangle Rectangle { get; set; }
-        public bool IsVisible { get; set; }
 
         public MainSpeed()
         {
@@ -33,7 +32,6 @@ namespace BombAttackGame.Bonuses
             this.SpawnStartTime = 8000;
             this.SpawnEndTime = 16000;
             this.FinallySpawnTime = 0;
-            this.IsVisible = false;
         }
         public void Tick(GameTime GameTime, MainSpeed MainSpeed, int[] MapSize)
         {

@@ -17,25 +17,44 @@ namespace BombAttackGame.Vector
             VectorEnd.Y = xVector.Y + (xVector.Y - xVector2.Y) / pDistance * xDistance;
             return VectorEnd;
         }
-        public static List<Vector2> Collision(Vector2 Location, Texture2D Texture)
+        public static bool CheckLineIntersection(Vector2 player, Vector2 player2, List<Rectangle> Rectangle)
         {
-            List<Vector2> Collision = new List<Vector2>();
-            for(int i = 0; i < Texture.Width; i++)
+            player.Y++;
+            player.X++;
+            player2.X++;
+            player2.Y++;
+            foreach (var rect in Rectangle)
             {
-                for(int j = 0; j < Texture.Height; j++)
-                {
-                    Collision.Add(new Vector2(Location.X + (float)i,Location.Y + (float)j));
-                }
+                Vector2 topLeft = new Vector2(rect.Left, rect.Top);
+                Vector2 topRight = new Vector2(rect.Right, rect.Top);
+                Vector2 bottomLeft = new Vector2(rect.Left, rect.Bottom);
+                Vector2 bottomRight = new Vector2(rect.Right, rect.Bottom);
+
+                if (LineIntersectsLine(player, player2, topLeft, topRight))
+                    return true;
+                if (LineIntersectsLine(player, player2, topRight, bottomRight))
+                    return true;
+                if (LineIntersectsLine(player, player2, bottomRight, bottomLeft))
+                    return true;
+                if (LineIntersectsLine(player, player2, bottomLeft, topLeft))
+                    return true;
             }
-            return Collision;
-        }
-        public static bool IsOnObject(List<Vector2> Collistion1, List<Vector2> Collision2)
-        {
-            if (Collistion1.Intersect(Collision2).Any())
-            {
-                return true;
-            }
+
             return false;
+        }
+        private static bool LineIntersectsLine(Vector2 line1Start, Vector2 line1End, Vector2 line2Start, Vector2 line2End)
+        {
+            float denominator = ((line2End.Y - line2Start.Y) * (line1End.X - line1Start.X)) - ((line2End.X - line2Start.X) * (line1End.Y - line1Start.Y));
+            if (denominator == 0)
+                return false;
+
+            float ua = (((line2End.X - line2Start.X) * (line1Start.Y - line2Start.Y)) - ((line2End.Y - line2Start.Y) * (line1Start.X - line2Start.X))) / denominator;
+            float ub = (((line1End.X - line1Start.X) * (line1Start.Y - line2Start.Y)) - ((line1End.Y - line1Start.Y) * (line1Start.X - line2Start.X))) / denominator;
+
+            if (ua < 0 || ua > 1 || ub < 0 || ub > 1)
+                return false;
+
+            return true;
         }
     }
 }
