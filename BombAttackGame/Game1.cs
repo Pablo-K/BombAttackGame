@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Reflection;
 
 namespace BombAttackGame
 {
@@ -63,6 +64,7 @@ namespace BombAttackGame
             base.Initialize();
 
             _eventProcessor = new EventProcessor(_mapSize);
+            
         }
 
         protected override void LoadContent()
@@ -82,6 +84,7 @@ namespace BombAttackGame
             _player = GameObject.AddPlayer(Team.TeamMate, Content, _mapSize, _mapManager);
             _gameObjects.Add(_player);
             _player.Human = true;
+            _player.Color = Color.Tomato;
 
             _gameObjects.AddRange(GameObject.AddPlayers(Team.TeamMate, Content, _teamMateAmount, _mapSize, _mapManager));
             _gameObjects.AddRange(GameObject.AddPlayers(Team.Enemy, Content, _enemyAmount, _mapSize, _mapManager));
@@ -115,8 +118,6 @@ namespace BombAttackGame
 
             if (mstate.LeftButton == ButtonState.Pressed) { _player.TryShoot(_mousePosition); }
 
-            UpdateCollision();
-
             CheckAllBulletsEvent(gameTime);
             CheckAllPlayersEvent();
 
@@ -141,9 +142,6 @@ namespace BombAttackGame
             _spriteBatch.End();
 
             base.Draw(gameTime);
-        }
-        private void UpdateCollision()
-        {
         }
         private void CreateMapCollision()
         {
@@ -195,35 +193,24 @@ namespace BombAttackGame
                             {
                                 DealDamage.DealDamageToPlayer(bullet.ObjectHitted as Player, bullet.DamageDealt);
                                 CreateDamage(bullet, GameTime);
-                                RemoveBullet(bullet);
+                                _gameObjects = DeleteObject.FromGameObjects(bullet,_gameObjects);
                             }
                             else
                             {
-                                RemoveBullet(bullet);
+                                _gameObjects = DeleteObject.FromGameObjects(bullet,_gameObjects);
                             }
                             break;
                         case Event.Delete:
-                            DeleteObject(bullet);
+                            _gameObjects = DeleteObject.FromGameObjects(bullet,_gameObjects);
                             break;
-
                     }
             }
-        }
-
-
-        private void DeleteObject(IGameObject GameObject)
-        {
-            _gameObjects.Remove(GameObject);
         }
 
         private void CheckBullet(Bullet Bullet)
         {
             if (Bullet is null) return;
             _gameObjects.Add(Bullet);
-        }
-        private void RemoveBullet(Bullet Bullet)
-        {
-            _gameObjects.Remove(Bullet);
         }
         private void CreateDamage(Bullet Bullet, GameTime GameTime)
         {

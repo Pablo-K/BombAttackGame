@@ -42,7 +42,6 @@ namespace BombAttackGame.Models
         {
             this.Texture = Texture;
             this.Direction = Direction.Right;
-            this.Color = Color.Red;
             this.Speed = 2;
             this.ShotLatency = 100;
             this.EnemyShotLatency = 1000;

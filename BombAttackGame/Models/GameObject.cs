@@ -2,6 +2,7 @@
 using BombAttackGame.Enums;
 using BombAttackGame.Events;
 using BombAttackGame.Map;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
@@ -16,8 +17,16 @@ namespace BombAttackGame.Models
             Player Player = new Player(Texture);
             Player.Team = Team;
             Player.Location = Spawn.ChooseRandomSpawnPoint(MapSize, Map, Team);
-            if (Team == Team.Enemy) Player.ShotLatency = Player.EnemyShotLatency;
-            if (Team == Team.TeamMate) Player.ShotLatency = Player.TeamMateShotLatency;
+            if (Team == Team.Enemy)
+            {
+                Player.ShotLatency = Player.EnemyShotLatency;
+                Player.Color = Color.Red;
+            }
+            if (Team == Team.TeamMate)
+            {
+                Player.ShotLatency = Player.TeamMateShotLatency;
+                Player.Color = Color.Green;
+            }
             return Player;
         }
 
@@ -30,8 +39,16 @@ namespace BombAttackGame.Models
                 Player Player = new Player(Texture);
                 Player.Team = Team;
                 Player.Location = Spawn.ChooseRandomSpawnPoint(MapSize, Map, Team);
-                if (Team == Team.Enemy) Player.ShotLatency = Player.EnemyShotLatency;
-                if (Team == Team.TeamMate) Player.ShotLatency = Player.TeamMateShotLatency;
+                if (Team == Team.Enemy)
+                {
+                    Player.ShotLatency = Player.EnemyShotLatency;
+                    Player.Color = Color.Red;
+                }
+                if (Team == Team.TeamMate)
+                {
+                    Player.ShotLatency = Player.TeamMateShotLatency;
+                    Player.Color = Color.Green;
+                }
                 Players.Add(Player);
             }
             return Players;
