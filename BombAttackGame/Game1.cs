@@ -19,6 +19,7 @@ namespace BombAttackGame {
         private readonly List<IGameSprite> _gameSprites;
         private readonly List<IHoldableObject> _holdableObjects;
         private readonly EventProcessor _eventProcessor;
+        private readonly int[] _mapSize = new int[2];
         private GameTime _gameTime;
         private Sheriff _sheriff;
         private MapManager _mapManager;
@@ -27,7 +28,6 @@ namespace BombAttackGame {
         private SpriteBatch _spriteBatch;
         private Vector2 _mousePosition;
         private Color _mainColor;
-        private int[] _mapSize = new int[2];
         private int _teamMateAmount;
         private int _enemyAmount;
         private readonly List<Rectangle> _mapCollision;
@@ -43,7 +43,7 @@ namespace BombAttackGame {
             _gameSprites = new List<IGameSprite>();
             _holdableObjects = new List<IHoldableObject>();
             _mapCollision = new List<Rectangle>();
-            _eventProcessor = new EventProcessor(_mapSize, _gameObjects, _mapCollision);
+            _eventProcessor = new EventProcessor(_gameObjects, _mapCollision);
         }
 
         protected override void Initialize()
@@ -166,8 +166,6 @@ namespace BombAttackGame {
 
         private void CheckAllPlayersEvent()
         {
-            Bullet bullet = null;
-
             foreach (var player in _gameObjects.OfType<Player>().ToList())
             {
                 while (player.Event.TryDequeue(out Event result))
@@ -180,7 +178,7 @@ namespace BombAttackGame {
                             _eventProcessor.Move(player);
                             break;
                         case Event.TryShoot:
-                            _eventProcessor.TryShoot(_gameTime, player, out bullet);
+                            _eventProcessor.TryShoot(_gameTime, player);
                             break;
                         case Event.Shoot:
                             break;
