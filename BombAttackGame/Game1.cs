@@ -30,6 +30,7 @@ namespace BombAttackGame
         private int _teamMateAmount;
         private int _enemyAmount;
         private Texture2D _wall;
+        private Texture2D _sheriff;
         private SpriteFont _damageF;
         private List<Rectangle> _mapCollision;
         public List<IGameObject> _gameObjects { get; private set; }
@@ -74,6 +75,7 @@ namespace BombAttackGame
 
             _hpF = Content.Load<SpriteFont>("hp");
             _wall = Content.Load<Texture2D>("wall");
+            _sheriff = Content.Load<Texture2D>("sheriff");
             _damageF = Content.Load<SpriteFont>("damage");
 
             _mapManager = new MapManager(_spriteBatch,_wall);
@@ -139,6 +141,7 @@ namespace BombAttackGame
 
             _spriteBatch.DrawString(_hpF, _player.Health.ToString(), HudVector.HpVector(_mapSize), Color.Green);
 
+            _spriteBatch.Draw(_sheriff, HudVector.GunVector(_mapSize), Color.FloralWhite);
             _spriteBatch.End();
 
             base.Draw(gameTime);
