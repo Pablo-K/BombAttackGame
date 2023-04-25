@@ -5,14 +5,12 @@ using BombAttackGame.HUD;
 using BombAttackGame.Interfaces;
 using BombAttackGame.Map;
 using BombAttackGame.Models;
+using BombAttackGame.Models.HoldableObjects;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
-using System.Reflection;
 
 namespace BombAttackGame
 {
@@ -29,12 +27,14 @@ namespace BombAttackGame
         private int[] _mapSize = new int[2];
         private int _teamMateAmount;
         private int _enemyAmount;
-        private Texture2D _wall;
-        private Texture2D _sheriff;
+        private Texture2D _wallT;
+        private Texture2D _sheriffT;
         private SpriteFont _damageF;
+        private Sheriff _sheriff;
         private List<Rectangle> _mapCollision;
-        public List<IGameObject> _gameObjects { get; private set; }
-        public List<IGameSprite> _gameSprites { get; private set; }
+        private List<IGameObject> _gameObjects { get; set; }
+        private List<IGameSprite> _gameSprites { get; set; }
+        private List<IHoldableObject> _holdableObjects { get; set; }
 
         public Game1()
         {
@@ -47,6 +47,7 @@ namespace BombAttackGame
         {
             _gameObjects = new List<IGameObject>();
             _gameSprites = new List<IGameSprite>();
+            _holdableObjects = new List<IHoldableObject>();
 
             _mapSize[0] = 1000;
             _mapSize[1] = 1000;
@@ -65,7 +66,6 @@ namespace BombAttackGame
             base.Initialize();
 
             _eventProcessor = new EventProcessor(_mapSize);
-            
         }
 
         protected override void LoadContent()
@@ -74,12 +74,16 @@ namespace BombAttackGame
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             _hpF = Content.Load<SpriteFont>("hp");
-            _wall = Content.Load<Texture2D>("wall");
-            _sheriff = Content.Load<Texture2D>("sheriff");
             _damageF = Content.Load<SpriteFont>("damage");
+            _wallT = Content.Load<Texture2D>("wall");
+            _sheriffT = Content.Load<Texture2D>("sheriff");
+            _sheriff = new Sheriff();
 
-            _mapManager = new MapManager(_spriteBatch,_wall);
+            _mapManager = new MapManager(_spriteBatch,_wallT);
             CreateMapCollision();
+
+
+            _holdableObjects.Add(_sheriff);
 
             _gameObjects.Add(GameObject.AddMainSpeed(_mapSize, Content, Team.None, _mapManager));
 
@@ -90,7 +94,11 @@ namespace BombAttackGame
 
             _gameObjects.AddRange(GameObject.AddPlayers(Team.TeamMate, Content, _teamMateAmount, _mapSize, _mapManager));
             _gameObjects.AddRange(GameObject.AddPlayers(Team.Enemy, Content, _enemyAmount, _mapSize, _mapManager));
-            
+
+            foreach(var player in _gameObjects.OfType<Player>())
+            {
+                player.GiveSheriff(_sheriff);
+            }
         }
 
         protected override void Update(GameTime gameTime)
@@ -118,7 +126,7 @@ namespace BombAttackGame
             if (kstate.IsKeyDown(Keys.D) && kstate.IsKeyDown(Keys.W)) { _player.PlayerMove(Direction.UpRight); }
             if (kstate.IsKeyDown(Keys.D) && kstate.IsKeyDown(Keys.S)) { _player.PlayerMove(Direction.DownRight); }
 
-            if (mstate.LeftButton == ButtonState.Pressed) { _player.TryShoot(_mousePosition); }
+            if (mstate.LeftButton == ButtonState.Pressed) { _player.UseHoldableItem(_mousePosition); }
 
             CheckAllBulletsEvent(gameTime);
             CheckAllPlayersEvent();
@@ -141,7 +149,7 @@ namespace BombAttackGame
 
             _spriteBatch.DrawString(_hpF, _player.Health.ToString(), HudVector.HpVector(_mapSize), Color.Green);
 
-            _spriteBatch.Draw(_sheriff, HudVector.GunVector(_mapSize), Color.FloralWhite);
+            _spriteBatch.Draw(_sheriffT, HudVector.GunVector(_mapSize), Color.FloralWhite);
             _spriteBatch.End();
 
             base.Draw(gameTime);

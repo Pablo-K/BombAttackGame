@@ -1,4 +1,5 @@
-﻿using BombAttackGame.Models;
+﻿using BombAttackGame.Interfaces;
+using BombAttackGame.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -10,12 +11,12 @@ namespace BombAttackGame.Events
         public static Bullet PlayerShoot(Player player, GameTime gameTime, ContentManager content, Vector2 point)
         {
             if (gameTime.TotalGameTime.TotalMilliseconds - player.ShotTime >= player.ShotLatency)
-            {
-                var bullet = new Bullet(player.Location, player, point);
+            { 
+                var gun = player.HoldingObject as IGun;
+                var bullet = new Bullet(player.Location, player, point, gun.Damage);
                 bullet.Texture = content.Load<Texture2D>("bullet");
                 bullet.Distance = Vector2.Distance(bullet.Point, bullet.Location);
                 player.ShotTime = gameTime.TotalGameTime.TotalMilliseconds;
-
                 return bullet;
             }
             return null;

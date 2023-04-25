@@ -2,6 +2,7 @@
 using BombAttackGame.Collisions;
 using BombAttackGame.Enums;
 using BombAttackGame.Interfaces;
+using BombAttackGame.Models.HoldableObjects;
 using BombAttackGame.Vector;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -24,10 +25,9 @@ namespace BombAttackGame.Models
         public bool IsDead { get; set; }
         public bool IsAttacked { get; set; }
         public bool OnMainSpeed { get; private set; }
+        public bool Human { get; set; }
         public double ShotTime { get; set; }
         public double ShotLatency { get; set; }
-        public double EnemyShotLatency { get; private set; }
-        public double TeamMateShotLatency { get; private set; }
         public double MainSpeedStartTime { get; private set; }
         public double MainSpeedEndTime { get; private set; }
         private double MovingTime { get; set; }
@@ -35,17 +35,14 @@ namespace BombAttackGame.Models
         public Color Color { get; set; }
         public Queue<Event> Event { get; private set; }
         public Rectangle Rectangle { get; set; }
-        public bool Human { get; set; }
         public List<IGameObject> VisibleObjects { get; set; }
+        public IHoldableObject HoldingObject { get; set; }
 
         public Player(Texture2D Texture)
         {
             this.Texture = Texture;
             this.Direction = Direction.Right;
             this.Speed = 2;
-            this.ShotLatency = 100;
-            this.EnemyShotLatency = 1000;
-            this.TeamMateShotLatency = 400;
             this.Health = 100;
             this.MovingTime = 1000;
             this.OnMainSpeed = false;
@@ -53,6 +50,11 @@ namespace BombAttackGame.Models
             this.Event = new Queue<Event>();
             this.Human = false;
             this.VisibleObjects = new List<IGameObject>();
+        }
+        public void GiveSheriff(Sheriff Sheriff)
+        {
+            this.HoldingObject = Sheriff;
+            this.ShotLatency = Sheriff.Speed;
         }
         public void PlayerMove(Direction direction)
         {
@@ -69,10 +71,16 @@ namespace BombAttackGame.Models
             }
         }
 
-        public void TryShoot(Vector2 ShootLocation)
+        public void UseHoldableItem(Vector2 ShootLocation)
         {
-            this.ShootLocation = ShootLocation;
-            if (!this.Event.Contains(Enums.Event.TryShoot)) { this.Event.Enqueue(Enums.Event.TryShoot); }
+            if (this.HoldingObject != null)
+            {
+                if (this.HoldingObject.GetType() == typeof(Sheriff))
+                {
+                    this.ShootLocation = ShootLocation;
+                    if (!this.Event.Contains(Enums.Event.TryShoot)) { this.Event.Enqueue(Enums.Event.TryShoot); }
+                }
+            }
         }
         public void Tick(GameTime GameTime, List<IGameObject> GameObjects, List<Rectangle> MapRectangle)
         {
@@ -81,11 +89,6 @@ namespace BombAttackGame.Models
             CheckIfDead();
             BotMove(GameTime);
             UpdateObjectsVisibility(GameObjects, MapRectangle);
-            //if (VectorTool.IsOnObject(player.Collision, MainSpeed.Collision))
-            //{ MainSpeed.PickedBonus(player, MainSpeed, GameTime); }
-            //if (player.OnMainSpeed) MainSpeedTime(player, GameTime, MainSpeed);
-            //PlayerShoot(player, GameTime, Content, Players, Bullets);
-            //PlayerMove();
         }
         private void UpdateObjectsVisibility(List<IGameObject> GameObjects, List<Rectangle> MapRectangle)
         {
@@ -137,15 +140,14 @@ namespace BombAttackGame.Models
             if (GameTime.TotalGameTime.TotalMilliseconds >= MovingEndTime)
             {
                 Random random = new Random();
-                int x = random.Next(0,8);
+                int x = random.Next(0, 8);
                 var Dir = (Direction)x;
                 MovingEndTime = GameTime.TotalGameTime.TotalMilliseconds + MovingTime;
-                //if (Dir == Direction.Up || Dir == Direction.Down) losuj();
                 PlayerMove(Dir);
                 return;
             }
             PlayerMove(Direction);
         }
-     }
+    }
 
 }
