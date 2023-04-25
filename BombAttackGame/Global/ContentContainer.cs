@@ -11,6 +11,7 @@ namespace BombAttackGame.Global {
   public static class ContentContainer {
 
     private static ContentManager _contentManager;
+
     private static SpriteFont _hpFont;
     private static SpriteFont _damageFont;
     private static Texture2D _wallTexture;
@@ -28,19 +29,15 @@ namespace BombAttackGame.Global {
     public static Texture2D MainSpeedTexture => _mainSpeedTexture ??= _contentManager.Load<Texture2D>("mainSpeed");
 
     public static void Initialize(ContentManager contentManager) {
-
       _contentManager = contentManager;
-
     }
 
     public static Texture2D PlayerTexture(Team team) {
-
       return team switch {
-        Team.TeamMate => (_teamMateTexture ??= _contentManager.Load<Texture2D>(team.ToString())),
-        Team.Enemy => (_enemyTexture ??= _contentManager.Load<Texture2D>(team.ToString())),
+        Team.TeamMate => _teamMateTexture ??= _contentManager.Load<Texture2D>(team.ToString()),
+        Team.Enemy => _enemyTexture ??= _contentManager.Load<Texture2D>(team.ToString()),
         _ => null
       };
-
     }
 
   }
