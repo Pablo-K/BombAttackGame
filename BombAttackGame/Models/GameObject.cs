@@ -19,12 +19,10 @@ namespace BombAttackGame.Models
             Player.Location = Spawn.ChooseRandomSpawnPoint(MapSize, Map, Team);
             if (Team == Team.Enemy)
             {
-                Player.ShotLatency = Player.EnemyShotLatency;
                 Player.Color = Color.Red;
             }
             if (Team == Team.TeamMate)
             {
-                Player.ShotLatency = Player.TeamMateShotLatency;
                 Player.Color = Color.Green;
             }
             return Player;
@@ -40,12 +38,10 @@ namespace BombAttackGame.Models
                 Player.Location = Spawn.ChooseRandomSpawnPoint(MapSize, Map, Team);
                 if (Team == Team.Enemy)
                 {
-                    Player.ShotLatency = Player.EnemyShotLatency;
                     Player.Color = Color.Red;
                 }
                 if (Team == Team.TeamMate)
                 {
-                    Player.ShotLatency = Player.TeamMateShotLatency;
                     Player.Color = Color.Green;
                 }
                 Players.Add(Player);

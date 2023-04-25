@@ -5,6 +5,7 @@ using BombAttackGame.HUD;
 using BombAttackGame.Interfaces;
 using BombAttackGame.Map;
 using BombAttackGame.Models;
+using BombAttackGame.Models.HoldableObjects;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -27,6 +28,9 @@ namespace BombAttackGame {
         private int _teamMateAmount;
         private int _enemyAmount;
         private List<Rectangle> _mapCollision;
+        private List<IGameObject> _gameObjects { get; set; }
+        private List<IGameSprite> _gameSprites { get; set; }
+        private List<IHoldableObject> _holdableObjects { get; set; }
 
         public Game1()
         {
@@ -39,6 +43,7 @@ namespace BombAttackGame {
         {
             _gameObjects = new List<IGameObject>();
             _gameSprites = new List<IGameSprite>();
+            _holdableObjects = new List<IHoldableObject>();
 
             _mapSize[0] = 1000;
             _mapSize[1] = 1000;
@@ -57,7 +62,6 @@ namespace BombAttackGame {
             base.Initialize();
 
             _eventProcessor = new EventProcessor(_mapSize);
-            
         }
 
         protected override void LoadContent()
@@ -70,16 +74,23 @@ namespace BombAttackGame {
             _mapManager = new MapManager(_spriteBatch);
             CreateMapCollision();
 
-            _gameObjects.Add(GameObject.AddMainSpeed(_mapSize, Team.None, _mapManager));
+
+            _holdableObjects.Add(_sheriff);
+
+            _gameObjects.Add(GameObject.AddMainSpeed(_mapSize, Content, Team.None, _mapManager));
 
             _player = GameObject.AddPlayer(Team.TeamMate, _mapSize, _mapManager);
             _gameObjects.Add(_player);
             _player.IsHuman = true;
             _player.Color = Color.Tomato;
 
-            _gameObjects.AddRange(GameObject.AddPlayers(Team.TeamMate, _teamMateAmount, _mapSize, _mapManager));
-            _gameObjects.AddRange(GameObject.AddPlayers(Team.Enemy, _enemyAmount, _mapSize, _mapManager));
-            
+            _gameObjects.AddRange(GameObject.AddPlayers(Team.TeamMate, Content, _teamMateAmount, _mapSize, _mapManager));
+            _gameObjects.AddRange(GameObject.AddPlayers(Team.Enemy, Content, _enemyAmount, _mapSize, _mapManager));
+
+            foreach(var player in _gameObjects.OfType<Player>())
+            {
+                player.GiveSheriff(_sheriff);
+            }
         }
 
         protected override void Update(GameTime gameTime)
@@ -107,7 +118,7 @@ namespace BombAttackGame {
             if (kstate.IsKeyDown(Keys.D) && kstate.IsKeyDown(Keys.W)) { _player.PlayerMove(Direction.UpRight); }
             if (kstate.IsKeyDown(Keys.D) && kstate.IsKeyDown(Keys.S)) { _player.PlayerMove(Direction.DownRight); }
 
-            if (mstate.LeftButton == ButtonState.Pressed) { _player.TryShoot(_mousePosition); }
+            if (mstate.LeftButton == ButtonState.Pressed) { _player.UseHoldableItem(_mousePosition); }
 
             CheckAllBulletsEvent(gameTime);
             CheckAllPlayersEvent();

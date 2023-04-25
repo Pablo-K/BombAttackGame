@@ -30,13 +30,13 @@ namespace BombAttackGame.Models
         public Queue<Event> Event { get; set; }
         public IGameObject ObjectHitted { get; set; }
         public int DamageDealt { get; set; }
-        public Bullet(Vector2 location, Player owner, Vector2 point)
+        public Bullet(Vector2 location, Player owner, Vector2 point, int damage)
         {
             this.Location = new Vector2(location.X, location.Y);
             this.StartLocation = new Vector2(location.X, location.Y);
             this.Speed = 5;
-            this.Damage = 25;
             this.Owner = owner;
+            this.Damage = damage;
             this.Point = point;
             this.MaxDistance = 120000;
             this.TeamDamage = 0.5;
