@@ -15,12 +15,13 @@ using System.Linq;
 namespace BombAttackGame {
   public class Game1 : Game
     {
-        private List<IGameObject> _gameObjects;
-        private List<IGameSprite> _gameSprites;
-        private List<IHoldableObject> _holdableObjects;
+        private readonly List<IGameObject> _gameObjects;
+        private readonly List<IGameSprite> _gameSprites;
+        private readonly List<IHoldableObject> _holdableObjects;
+        private readonly EventProcessor _eventProcessor;
+        private GameTime _gameTime;
         private Sheriff _sheriff;
         private MapManager _mapManager;
-        private EventProcessor _eventProcessor;
         private Player _player;
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
@@ -29,27 +30,28 @@ namespace BombAttackGame {
         private int[] _mapSize = new int[2];
         private int _teamMateAmount;
         private int _enemyAmount;
-        private List<Rectangle> _mapCollision;
+        private readonly List<Rectangle> _mapCollision;
 
         public Game1()
         {
+            base.Content.RootDirectory = "Content";
+            base.IsMouseVisible = true;
+            _mapSize[0] = 1000;
+            _mapSize[1] = 1000;
             _graphics = new GraphicsDeviceManager(this);
-            Content.RootDirectory = "Content";
-            IsMouseVisible = true;
+            _gameObjects = new List<IGameObject>();
+            _gameSprites = new List<IGameSprite>();
+            _holdableObjects = new List<IHoldableObject>();
+            _mapCollision = new List<Rectangle>();
+            _eventProcessor = new EventProcessor(_mapSize, _gameObjects, _mapCollision);
         }
 
         protected override void Initialize()
         {
-            _gameObjects = new List<IGameObject>();
-            _gameSprites = new List<IGameSprite>();
-            _holdableObjects = new List<IHoldableObject>();
-
-            _mapSize[0] = 1000;
-            _mapSize[1] = 1000;
 
             _mainColor = Color.Tomato;
 
-            Window.AllowUserResizing = false;
+            base.Window.AllowUserResizing = false;
 
             _graphics.PreferredBackBufferWidth = _mapSize[0];
             _graphics.PreferredBackBufferHeight = _mapSize[1];
@@ -60,12 +62,10 @@ namespace BombAttackGame {
 
             base.Initialize();
 
-            _eventProcessor = new EventProcessor(_mapSize);
         }
 
         protected override void LoadContent()
         {
-            _mapCollision = new List<Rectangle>();
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             ContentContainer.Initialize(base.Content);
@@ -95,13 +95,15 @@ namespace BombAttackGame {
 
         protected override void Update(GameTime gameTime)
         {
+
+            _gameTime = gameTime;
+
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape)) Exit();
 
             _mapSize[0] = Window.ClientBounds.Width;
             _mapSize[1] = Window.ClientBounds.Height;
 
-            _eventProcessor.Update(_mapCollision, gameTime, _gameObjects, Content);
-            _gameObjects.AddRange(_eventProcessor.GameObjects.OfType<Bullet>().Except(_gameObjects.OfType<Bullet>()));
+            //_gameObjects.AddRange(_eventProcessor.GameObjects.OfType<Bullet>().Except(_gameObjects.OfType<Bullet>()));
 
             var kstate = Keyboard.GetState();
             var mstate = Mouse.GetState();
@@ -122,8 +124,12 @@ namespace BombAttackGame {
 
             CheckAllBulletsEvent(gameTime);
             CheckAllPlayersEvent();
+            //TODO -> _eventProcessor.ProcessEvents();
 
-            foreach (IGameObject GameObject in _gameObjects.OfType<Bullet>().ToList()) { GameObject.Tick(gameTime, _gameObjects, _mapManager.Mirage.Rectangle); }
+            foreach (IGameObject gameObject in _gameObjects.OfType<Bullet>().ToList())
+            {
+                gameObject.Tick(gameTime, _gameObjects, _mapManager.Mirage.Rectangle);
+            }
 
             foreach (IGameSprite GameSprite in _gameSprites.ToList()) { GameSprite.Tick(gameTime, _gameSprites); }
 
@@ -147,19 +153,22 @@ namespace BombAttackGame {
 
             base.Draw(gameTime);
         }
+
         private void CreateMapCollision()
         {
             AddCollisions(_mapManager.Mirage.Rectangle);
         }
+
         private void AddCollisions(List<Rectangle> Collision)
         {
             _mapCollision.AddRange(Collision);
         }
+
         private void CheckAllPlayersEvent()
         {
-            Bullet Bullet;
-            Bullet = null;
-            foreach (var player in _gameObjects.OfType<Player>())
+            Bullet bullet = null;
+
+            foreach (var player in _gameObjects.OfType<Player>().ToList())
             {
                 while (player.Event.TryDequeue(out Event result))
                 {
@@ -171,7 +180,7 @@ namespace BombAttackGame {
                             _eventProcessor.Move(player);
                             break;
                         case Event.TryShoot:
-                            _eventProcessor.TryShoot(player, out Bullet);
+                            _eventProcessor.TryShoot(_gameTime, player, out bullet);
                             break;
                         case Event.Shoot:
                             break;
@@ -180,8 +189,8 @@ namespace BombAttackGame {
                     }
                 }
             }
-            CheckBullet(Bullet);
         }
+
         private void CheckAllBulletsEvent(GameTime GameTime)
         {
             foreach (var bullet in _gameObjects.OfType<Bullet>().ToList())
@@ -211,11 +220,6 @@ namespace BombAttackGame {
             }
         }
 
-        private void CheckBullet(Bullet Bullet)
-        {
-            if (Bullet is null) return;
-            _gameObjects.Add(Bullet);
-        }
         private void CreateDamage(Bullet Bullet, GameTime GameTime)
         {
             Damage Damage = new Damage(Bullet.DamageDealt, Bullet.Location);

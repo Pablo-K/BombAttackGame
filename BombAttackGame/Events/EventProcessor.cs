@@ -10,15 +10,18 @@ namespace BombAttackGame.Events
 {
     internal class EventProcessor
     {
+        private readonly List<IGameObject> _gameObjects;
+        private readonly List<Rectangle> _mapCollisions;
         public int[] MapSize { get; set; }
-        public List<Rectangle> MapCollision { get; set; }
-        public GameTime GameTime { get; set; }
-        public List<IGameObject> GameObjects { get; set; }
         public ContentManager Content { get; set; }
-        public EventProcessor(int[] MapSize)
+
+        public EventProcessor(int[] MapSize, List<IGameObject> gameObjects, List<Rectangle> mapCollisions)
         {
             this.MapSize = MapSize;
+            _gameObjects = gameObjects;
+            _mapCollisions = mapCollisions;
         }
+
         public void Move(Player player)
         {
             Vector2 Location;
@@ -141,7 +144,7 @@ namespace BombAttackGame.Events
         }
         private bool InRectangle(Rectangle rect)
         {
-            foreach (var rec in MapCollision) { if (rect.Intersects(rec)) return true; }
+            foreach (var rec in _mapCollisions) { if (rect.Intersects(rec)) return true; }
             return false;
 
         }
@@ -152,24 +155,19 @@ namespace BombAttackGame.Events
             Bullet.Location = Vector2.Lerp(Bullet.Location, Bullet.Point, speed);
             Length += Vector2.Distance(Bullet.Location, Bullet.StartLocation);
             Bullet.DistanceTravelled += Length;
-            foreach (var rec in MapCollision) { if (Bullet.Rectangle.Intersects(rec)) Bullet.Event.Enqueue(Event.ObjectHitted); }
+            foreach (var rec in _mapCollisions) { if (Bullet.Rectangle.Intersects(rec)) Bullet.Event.Enqueue(Event.ObjectHitted); }
         }
-        public void TryShoot(Player player, out Bullet Bullet)
+        public void TryShoot(GameTime gameTime, Player player, out Bullet bullet)
         {
-            Bullet = null;
+            bullet = null;
             if (player == null) return;
-            var ShootLoc = VectorTool.ExtendVector(player.ShootLocation, player.Location, 100000);
-            Bullet = Shoot.PlayerShoot(player, GameTime, ShootLoc);
-            if (Bullet == null) { return; }
-            Bullet.Direction = ShootLoc - player.Location;
-            Bullet.Direction.Normalize();
+            var shootLoc = VectorTool.ExtendVector(player.ShootLocation, player.Location, 100000);
+            bullet = Shoot.PlayerShoot(player, gameTime, shootLoc);
+            if (bullet == null) { return; }
+            bullet.Direction = shootLoc - player.Location;
+            bullet.Direction.Normalize();
+            _gameObjects.Add(bullet);
         }
-        public void Update(List<Rectangle> MapCollision, GameTime GameTime, List<IGameObject> GameObjects, ContentManager Content)
-        {
-            this.MapCollision = MapCollision;
-            this.GameTime = GameTime;
-            this.GameObjects = GameObjects;
-            this.Content = Content;
-        }
+
     }
 }
