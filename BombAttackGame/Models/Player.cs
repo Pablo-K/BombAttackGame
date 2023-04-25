@@ -1,6 +1,7 @@
 ﻿using BombAttackGame.Bonuses;
 using BombAttackGame.Collisions;
 using BombAttackGame.Enums;
+using BombAttackGame.Global;
 using BombAttackGame.Interfaces;
 using BombAttackGame.Vector;
 using Microsoft.Xna.Framework;
@@ -20,7 +21,6 @@ namespace BombAttackGame.Models
         public Team Team { get; set; }
         public int Health { get; private set; }
         public double Speed { get; set; }
-        public Texture2D Texture { get; set; }
         public bool IsDead { get; set; }
         public bool IsAttacked { get; set; }
         public bool OnMainSpeed { get; private set; }
@@ -35,12 +35,12 @@ namespace BombAttackGame.Models
         public Color Color { get; set; }
         public Queue<Event> Event { get; private set; }
         public Rectangle Rectangle { get; set; }
-        public bool Human { get; set; }
+        public bool IsHuman { get; set; }
         public List<IGameObject> VisibleObjects { get; set; }
+        public Texture2D Texture { get => ContentContainer.PlayerTexture(this.Team); set { } }
 
-        public Player(Texture2D Texture)
+        public Player()
         {
-            this.Texture = Texture;
             this.Direction = Direction.Right;
             this.Speed = 2;
             this.ShotLatency = 100;
@@ -51,7 +51,7 @@ namespace BombAttackGame.Models
             this.OnMainSpeed = false;
             this.OldLocation = new List<Vector2>();
             this.Event = new Queue<Event>();
-            this.Human = false;
+            this.IsHuman = false;
             this.VisibleObjects = new List<IGameObject>();
         }
         public void PlayerMove(Direction direction)
@@ -109,7 +109,7 @@ namespace BombAttackGame.Models
         }
         public void UpdateRectangle()
         {
-            this.Rectangle = new Rectangle((int)Location.X, (int)Location.Y, Texture.Width, Texture.Height);
+            this.Rectangle = new Rectangle((int)Location.X, (int)Location.Y, this.Texture.Width, this.Texture.Height);
         }
         public static void MainSpeedTime(Player Player, GameTime GameTime, MainSpeed MainSpeed)
         {
@@ -133,7 +133,7 @@ namespace BombAttackGame.Models
         }
         public void BotMove(GameTime GameTime)
         {
-            if (this.Human) return;
+            if (this.IsHuman) return;
             if (GameTime.TotalGameTime.TotalMilliseconds >= MovingEndTime)
             {
                 Random random = new Random();

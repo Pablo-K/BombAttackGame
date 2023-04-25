@@ -159,7 +159,7 @@ namespace BombAttackGame.Events
             Bullet = null;
             if (player == null) return;
             var ShootLoc = VectorTool.ExtendVector(player.ShootLocation, player.Location, 100000);
-            Bullet = Shoot.PlayerShoot(player, GameTime, Content, ShootLoc);
+            Bullet = Shoot.PlayerShoot(player, GameTime, ShootLoc);
             if (Bullet == null) { return; }
             Bullet.Direction = ShootLoc - player.Location;
             Bullet.Direction.Normalize();

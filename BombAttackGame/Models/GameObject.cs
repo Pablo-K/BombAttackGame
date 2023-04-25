@@ -1,6 +1,7 @@
 ﻿using BombAttackGame.Bonuses;
 using BombAttackGame.Enums;
 using BombAttackGame.Events;
+using BombAttackGame.Global;
 using BombAttackGame.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -11,10 +12,9 @@ namespace BombAttackGame.Models
 {
     internal class GameObject
     {
-        public static Player AddPlayer(Team Team, ContentManager Content, int[] MapSize, MapManager Map)
+        public static Player AddPlayer(Team Team, int[] MapSize, MapManager Map)
         {
-            Texture2D Texture = Content.Load<Texture2D>(Team.ToString());
-            Player Player = new Player(Texture);
+            Player Player = new Player();
             Player.Team = Team;
             Player.Location = Spawn.ChooseRandomSpawnPoint(MapSize, Map, Team);
             if (Team == Team.Enemy)
@@ -30,13 +30,12 @@ namespace BombAttackGame.Models
             return Player;
         }
 
-        public static List<Player> AddPlayers(Team Team, ContentManager Content, int Amount, int[] MapSize, MapManager Map)
+        public static List<Player> AddPlayers(Team Team, int Amount, int[] MapSize, MapManager Map)
         {
             List<Player> Players = new List<Player>();
-            Texture2D Texture = Content.Load<Texture2D>(Team.ToString());
             for (int i = 0; i < Amount; i++)
             {
-                Player Player = new Player(Texture);
+                Player Player = new Player();
                 Player.Team = Team;
                 Player.Location = Spawn.ChooseRandomSpawnPoint(MapSize, Map, Team);
                 if (Team == Team.Enemy)
@@ -53,13 +52,13 @@ namespace BombAttackGame.Models
             }
             return Players;
         }
-        public static MainSpeed AddMainSpeed(int[] MapSize, ContentManager Content, Team Team, MapManager Map)
+        public static MainSpeed AddMainSpeed(int[] MapSize, Team Team, MapManager Map)
         {
-            MainSpeed MainSpeed = new MainSpeed();
-            MainSpeed.Texture = Content.Load<Texture2D>("mainSpeed");
-            MainSpeed.Location = Spawn.ChooseBonusRandomSpawnPoint(MapSize, Map, Team);
-            MainSpeed.IsDead = false;
-            return MainSpeed;
+            var mainSpeed = new MainSpeed();
+            mainSpeed.Texture = ContentContainer.MainSpeedTexture;
+            mainSpeed.Location = Spawn.ChooseBonusRandomSpawnPoint(MapSize, Map, Team);
+            mainSpeed.IsDead = false;
+            return mainSpeed;
         }
     }
 }

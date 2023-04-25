@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using BombAttackGame.Global;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -7,13 +8,14 @@ namespace BombAttackGame.Map
 {
     internal class MapManager
     {
-        public static Texture2D Wall { get; set; }
+        public static Texture2D Wall => ContentContainer.WallTexture;
         public Mirage Mirage { get; set; }
-        public MapManager(SpriteBatch SpriteBatch, Texture2D Wall)
+
+        public MapManager(SpriteBatch SpriteBatch)
         {
-            MapManager.Wall = Wall;
             this.Mirage = new Mirage();
         }
+
         public SpriteBatch DrawMap(SpriteBatch SpriteBatch, List<Vector2> MapVector)
         {
             for (int i = 0; i < MapVector.Count; i++)

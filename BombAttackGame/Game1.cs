@@ -10,17 +10,14 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
-using System.Reflection;
 
-namespace BombAttackGame
-{
-    public class Game1 : Game
+namespace BombAttackGame {
+  public class Game1 : Game
     {
+        private List<IGameObject> _gameObjects;
+        private List<IGameSprite> _gameSprites;
         private MapManager _mapManager;
         private EventProcessor _eventProcessor;
-        private SpriteFont _hpF;
         private Player _player;
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
@@ -29,12 +26,7 @@ namespace BombAttackGame
         private int[] _mapSize = new int[2];
         private int _teamMateAmount;
         private int _enemyAmount;
-        private Texture2D _wall;
-        private Texture2D _sheriff;
-        private SpriteFont _damageF;
         private List<Rectangle> _mapCollision;
-        public List<IGameObject> _gameObjects { get; private set; }
-        public List<IGameSprite> _gameSprites { get; private set; }
 
         public Game1()
         {
@@ -73,23 +65,20 @@ namespace BombAttackGame
             _mapCollision = new List<Rectangle>();
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            _hpF = Content.Load<SpriteFont>("hp");
-            _wall = Content.Load<Texture2D>("wall");
-            _sheriff = Content.Load<Texture2D>("sheriff");
-            _damageF = Content.Load<SpriteFont>("damage");
+            ContentContainer.Initialize(base.Content);
 
-            _mapManager = new MapManager(_spriteBatch,_wall);
+            _mapManager = new MapManager(_spriteBatch);
             CreateMapCollision();
 
-            _gameObjects.Add(GameObject.AddMainSpeed(_mapSize, Content, Team.None, _mapManager));
+            _gameObjects.Add(GameObject.AddMainSpeed(_mapSize, Team.None, _mapManager));
 
-            _player = GameObject.AddPlayer(Team.TeamMate, Content, _mapSize, _mapManager);
+            _player = GameObject.AddPlayer(Team.TeamMate, _mapSize, _mapManager);
             _gameObjects.Add(_player);
-            _player.Human = true;
+            _player.IsHuman = true;
             _player.Color = Color.Tomato;
 
-            _gameObjects.AddRange(GameObject.AddPlayers(Team.TeamMate, Content, _teamMateAmount, _mapSize, _mapManager));
-            _gameObjects.AddRange(GameObject.AddPlayers(Team.Enemy, Content, _enemyAmount, _mapSize, _mapManager));
+            _gameObjects.AddRange(GameObject.AddPlayers(Team.TeamMate, _teamMateAmount, _mapSize, _mapManager));
+            _gameObjects.AddRange(GameObject.AddPlayers(Team.Enemy, _enemyAmount, _mapSize, _mapManager));
             
         }
 
@@ -124,6 +113,7 @@ namespace BombAttackGame
             CheckAllPlayersEvent();
 
             foreach (IGameObject GameObject in _gameObjects.OfType<Bullet>().ToList()) { GameObject.Tick(gameTime, _gameObjects, _mapManager.Mirage.Rectangle); }
+
             foreach (IGameSprite GameSprite in _gameSprites.ToList()) { GameSprite.Tick(gameTime, _gameSprites); }
 
             base.Update(gameTime);
@@ -139,9 +129,9 @@ namespace BombAttackGame
             for (int i = 0; i < _mapManager.Mirage.WallVector.Count; i++)
             { _spriteBatch.Draw(MapManager.Wall, _mapManager.Mirage.WallVector[i], Color.Red); }
 
-            _spriteBatch.DrawString(_hpF, _player.Health.ToString(), HudVector.HpVector(_mapSize), Color.Green);
+            _spriteBatch.DrawString(ContentContainer.HpFont, _player.Health.ToString(), HudVector.HpVector(_mapSize), Color.Green);
 
-            _spriteBatch.Draw(_sheriff, HudVector.GunVector(_mapSize), Color.FloralWhite);
+            _spriteBatch.Draw(ContentContainer.SheriffTexture, HudVector.GunVector(_mapSize), Color.FloralWhite);
             _spriteBatch.End();
 
             base.Draw(gameTime);
@@ -196,15 +186,15 @@ namespace BombAttackGame
                             {
                                 DealDamage.DealDamageToPlayer(bullet.ObjectHitted as Player, bullet.DamageDealt);
                                 CreateDamage(bullet, GameTime);
-                                _gameObjects = DeleteObject.FromGameObjects(bullet,_gameObjects);
+                                DeleteObject.FromGameObjects(bullet, _gameObjects);
                             }
                             else
                             {
-                                _gameObjects = DeleteObject.FromGameObjects(bullet,_gameObjects);
+                                DeleteObject.FromGameObjects(bullet, _gameObjects);
                             }
                             break;
                         case Event.Delete:
-                            _gameObjects = DeleteObject.FromGameObjects(bullet,_gameObjects);
+                            DeleteObject.FromGameObjects(bullet, _gameObjects);
                             break;
                     }
             }
@@ -218,7 +208,7 @@ namespace BombAttackGame
         private void CreateDamage(Bullet Bullet, GameTime GameTime)
         {
             Damage Damage = new Damage(Bullet.DamageDealt, Bullet.Location);
-            Damage.Font = _damageF;
+            Damage.Font = ContentContainer.DamageFont;
             Damage.Location = Bullet.Location;
             Damage.ShowTime = GameTime.TotalGameTime.TotalMilliseconds;
             _gameSprites.Add(Damage);
