@@ -17,6 +17,8 @@ namespace BombAttackGame {
     {
         private List<IGameObject> _gameObjects;
         private List<IGameSprite> _gameSprites;
+        private List<IHoldableObject> _holdableObjects;
+        private Sheriff _sheriff;
         private MapManager _mapManager;
         private EventProcessor _eventProcessor;
         private Player _player;
@@ -28,9 +30,6 @@ namespace BombAttackGame {
         private int _teamMateAmount;
         private int _enemyAmount;
         private List<Rectangle> _mapCollision;
-        private List<IGameObject> _gameObjects { get; set; }
-        private List<IGameSprite> _gameSprites { get; set; }
-        private List<IHoldableObject> _holdableObjects { get; set; }
 
         public Game1()
         {
@@ -74,18 +73,19 @@ namespace BombAttackGame {
             _mapManager = new MapManager(_spriteBatch);
             CreateMapCollision();
 
+            _sheriff = new Sheriff();
 
             _holdableObjects.Add(_sheriff);
 
-            _gameObjects.Add(GameObject.AddMainSpeed(_mapSize, Content, Team.None, _mapManager));
+            _gameObjects.Add(GameObject.AddMainSpeed(_mapSize, Team.None, _mapManager));
 
             _player = GameObject.AddPlayer(Team.TeamMate, _mapSize, _mapManager);
             _gameObjects.Add(_player);
             _player.IsHuman = true;
             _player.Color = Color.Tomato;
 
-            _gameObjects.AddRange(GameObject.AddPlayers(Team.TeamMate, Content, _teamMateAmount, _mapSize, _mapManager));
-            _gameObjects.AddRange(GameObject.AddPlayers(Team.Enemy, Content, _enemyAmount, _mapSize, _mapManager));
+            _gameObjects.AddRange(GameObject.AddPlayers(Team.TeamMate, _teamMateAmount, _mapSize, _mapManager));
+            _gameObjects.AddRange(GameObject.AddPlayers(Team.Enemy, _enemyAmount, _mapSize, _mapManager));
 
             foreach(var player in _gameObjects.OfType<Player>())
             {
