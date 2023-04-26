@@ -14,7 +14,6 @@ namespace BombAttackGame.Events
             bool canShoot = gameTime.TotalGameTime.TotalMilliseconds - player.ShotTime >= player.ShotLatency;
 
             if (canShoot == false) return null;
-
             var gun = player.HoldingObject as IGun;
             var bullet = new Bullet(player.Location, player, point, gun.Damage);
             bullet.Texture = ContentContainer.BulletTexture;

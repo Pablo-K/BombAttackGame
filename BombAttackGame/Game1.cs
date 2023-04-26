@@ -16,11 +16,11 @@ namespace BombAttackGame {
   public class Game1 : Game
     {
         private readonly List<IGameObject> _gameObjects;
-        private readonly List<IGameSprite> _gameSprites;
+        private readonly List<IGameSprite> _sprites;
         private readonly List<IHoldableObject> _holdableObjects;
         private readonly EventProcessor _eventProcessor;
         private readonly int[] _mapSize = new int[2];
-        private GameTime _gameTime;
+        private readonly GameTime _gameTime;
         private Sheriff _sheriff;
         private MapManager _mapManager;
         private Player _player;
@@ -40,10 +40,11 @@ namespace BombAttackGame {
             _mapSize[1] = 1000;
             _graphics = new GraphicsDeviceManager(this);
             _gameObjects = new List<IGameObject>();
-            _gameSprites = new List<IGameSprite>();
-            _holdableObjects = new List<IHoldableObject>();
+            _sprites = new List<IGameSprite>();
             _mapCollision = new List<Rectangle>();
-            _eventProcessor = new EventProcessor(_gameObjects, _mapCollision);
+            _gameTime = new GameTime();
+            _holdableObjects = new List<IHoldableObject>();
+            _eventProcessor = new EventProcessor(_gameObjects, _mapCollision, _gameTime, _sprites);
         }
 
         protected override void Initialize()
@@ -71,7 +72,7 @@ namespace BombAttackGame {
             ContentContainer.Initialize(base.Content);
 
             _mapManager = new MapManager(_spriteBatch);
-            CreateMapCollision();
+            _mapCollision.AddRange(_mapManager.Mirage.Rectangle);
 
             _sheriff = new Sheriff();
 
@@ -96,7 +97,9 @@ namespace BombAttackGame {
         protected override void Update(GameTime gameTime)
         {
 
-            _gameTime = gameTime;
+            _gameTime.TotalGameTime = gameTime.TotalGameTime;
+            _gameTime.ElapsedGameTime = gameTime.ElapsedGameTime;
+            _gameTime.IsRunningSlowly = gameTime.IsRunningSlowly;
 
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape)) Exit();
 
@@ -122,16 +125,14 @@ namespace BombAttackGame {
 
             if (mstate.LeftButton == ButtonState.Pressed) { _player.UseHoldableItem(_mousePosition); }
 
-            CheckAllBulletsEvent(gameTime);
-            CheckAllPlayersEvent();
-            //TODO -> _eventProcessor.ProcessEvents();
+            _eventProcessor.ProcessEvents();
 
             foreach (IGameObject gameObject in _gameObjects.OfType<Bullet>().ToList())
             {
                 gameObject.Tick(gameTime, _gameObjects, _mapManager.Mirage.Rectangle);
             }
 
-            foreach (IGameSprite GameSprite in _gameSprites.ToList()) { GameSprite.Tick(gameTime, _gameSprites); }
+            foreach (IGameSprite GameSprite in _sprites.ToList()) { GameSprite.Tick(gameTime, _sprites); }
 
             base.Update(gameTime);
         }
@@ -142,7 +143,7 @@ namespace BombAttackGame {
 
             _spriteBatch.Begin();
             foreach (var gameObject in _gameObjects) { if (!gameObject.IsDead && _player.VisibleObjects.Contains(gameObject)) { _spriteBatch.Draw(gameObject.Texture, gameObject.Location, gameObject.Color); } }
-            foreach (var gameSprite in _gameSprites) { _spriteBatch.DrawString(gameSprite.Font, gameSprite.Text, gameSprite.Location, gameSprite.Color); }
+            foreach (var gameSprite in _sprites) { _spriteBatch.DrawString(gameSprite.Font, gameSprite.Text, gameSprite.Location, gameSprite.Color); }
             for (int i = 0; i < _mapManager.Mirage.WallVector.Count; i++)
             { _spriteBatch.Draw(MapManager.Wall, _mapManager.Mirage.WallVector[i], Color.Red); }
 
@@ -154,77 +155,5 @@ namespace BombAttackGame {
             base.Draw(gameTime);
         }
 
-        private void CreateMapCollision()
-        {
-            AddCollisions(_mapManager.Mirage.Rectangle);
-        }
-
-        private void AddCollisions(List<Rectangle> Collision)
-        {
-            _mapCollision.AddRange(Collision);
-        }
-
-        private void CheckAllPlayersEvent()
-        {
-            foreach (var player in _gameObjects.OfType<Player>().ToList())
-            {
-                while (player.Event.TryDequeue(out Event result))
-                {
-                    switch (result)
-                    {
-                        case Event.None:
-                            break;
-                        case Event.Move:
-                            _eventProcessor.Move(player);
-                            break;
-                        case Event.TryShoot:
-                            _eventProcessor.TryShoot(_gameTime, player);
-                            break;
-                        case Event.Shoot:
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-        }
-
-        private void CheckAllBulletsEvent(GameTime GameTime)
-        {
-            foreach (var bullet in _gameObjects.OfType<Bullet>().ToList())
-            {
-                while (bullet.Event.TryDequeue(out Event result))
-                    switch (result)
-                    {
-                        case Event.Move:
-                            _eventProcessor.Move(bullet);
-                            break;
-                        case Event.ObjectHitted:
-                            if (bullet.ObjectHitted?.GetType() == typeof(Player))
-                            {
-                                DealDamage.DealDamageToPlayer(bullet.ObjectHitted as Player, bullet.DamageDealt);
-                                CreateDamage(bullet, GameTime);
-                                DeleteObject.FromGameObjects(bullet, _gameObjects);
-                            }
-                            else
-                            {
-                                DeleteObject.FromGameObjects(bullet, _gameObjects);
-                            }
-                            break;
-                        case Event.Delete:
-                            DeleteObject.FromGameObjects(bullet, _gameObjects);
-                            break;
-                    }
-            }
-        }
-
-        private void CreateDamage(Bullet Bullet, GameTime GameTime)
-        {
-            Damage Damage = new Damage(Bullet.DamageDealt, Bullet.Location);
-            Damage.Font = ContentContainer.DamageFont;
-            Damage.Location = Bullet.Location;
-            Damage.ShowTime = GameTime.TotalGameTime.TotalMilliseconds;
-            _gameSprites.Add(Damage);
-        }
     }
 }

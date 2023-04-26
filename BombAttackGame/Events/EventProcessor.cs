@@ -1,4 +1,5 @@
 ﻿using BombAttackGame.Enums;
+using BombAttackGame.Global;
 using BombAttackGame.Interfaces;
 using BombAttackGame.Models;
 using BombAttackGame.Vector;
@@ -12,12 +13,16 @@ namespace BombAttackGame.Events
     internal class EventProcessor
     {
         private readonly List<IGameObject> _gameObjects;
+        private readonly List<IGameSprite> _sprites;
         private readonly List<Rectangle> _mapCollisions;
+        private readonly GameTime _gameTime;
 
-        public EventProcessor(List<IGameObject> gameObjects, List<Rectangle> mapCollisions)
+        public EventProcessor(List<IGameObject> gameObjects, List<Rectangle> mapCollisions, GameTime gameTime, List<IGameSprite> sprites)
         {
             _gameObjects = gameObjects;
             _mapCollisions = mapCollisions;
+            _gameTime = gameTime;
+            _sprites = sprites;
         }
 
         public void Move(Player player)
@@ -163,6 +168,65 @@ namespace BombAttackGame.Events
             bullet.Direction = shootLoc - player.Location;
             bullet.Direction.Normalize();
             _gameObjects.Add(bullet);
+        }
+        public void ProcessEvents()
+        {
+            //playersEvent
+            foreach (var player in _gameObjects.OfType<Player>().ToList())
+            {
+                while (player.Event.TryDequeue(out Event result))
+                {
+                    switch (result)
+                    {
+                        case Event.None:
+                            break;
+                        case Event.Move:
+                            Move(player);
+                            break;
+                        case Event.TryShoot:
+                            TryShoot(_gameTime, player);
+                            break;
+                        case Event.Shoot:
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            //bulletsEvent
+            foreach (var bullet in _gameObjects.OfType<Bullet>().ToList())
+            {
+                while (bullet.Event.TryDequeue(out Event result))
+                    switch (result)
+                    {
+                        case Event.Move:
+                            Move(bullet);
+                            break;
+                        case Event.ObjectHitted:
+                            if (bullet.ObjectHitted?.GetType() == typeof(Player))
+                            {
+                                DealDamage.DealDamageToPlayer(bullet.ObjectHitted as Player, bullet.DamageDealt);
+                                CreateDamage(bullet, _gameTime);
+                                DeleteObject.FromGameObjects(bullet, _gameObjects);
+                            }
+                            else
+                            {
+                                DeleteObject.FromGameObjects(bullet, _gameObjects);
+                            }
+                            break;
+                        case Event.Delete:
+                            DeleteObject.FromGameObjects(bullet, _gameObjects);
+                            break;
+                    }
+            }
+        }
+        private void CreateDamage(Bullet bullet, GameTime gameTime)
+        {
+            Damage Damage = new Damage(bullet.DamageDealt, bullet.Location);
+            Damage.Font = ContentContainer.DamageFont;
+            Damage.Location = bullet.Location;
+            Damage.ShowTime = gameTime.TotalGameTime.TotalMilliseconds;
+            _sprites.Add(Damage);
         }
 
         private bool InRectangle(Rectangle rect)
