@@ -11,19 +11,14 @@ namespace BombAttackGame.Map
         public static Texture2D Wall => ContentContainer.WallTexture;
         public Mirage Mirage { get; set; }
 
-        public MapManager(SpriteBatch SpriteBatch)
+        public MapManager()
         {
-            this.Mirage = new Mirage();
+        }
+        public void GenerateMirage()
+        {
+            Mirage = new Mirage();
         }
 
-        public SpriteBatch DrawMap(SpriteBatch SpriteBatch, List<Vector2> MapVector)
-        {
-            for (int i = 0; i < MapVector.Count; i++)
-            {
-                DrawWall(SpriteBatch, MapVector[i], Wall);
-            }
-            return SpriteBatch;
-        }
         private SpriteBatch DrawWall(SpriteBatch SpriteBatch, Vector2 Position, Texture2D Texture)
         {
             SpriteBatch.Draw(

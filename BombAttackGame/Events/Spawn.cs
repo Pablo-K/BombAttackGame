@@ -8,7 +8,7 @@ namespace BombAttackGame.Events
 {
     internal class Spawn
     {
-        public static Vector2 ChooseRandomSpawnPoint(int[] MapSize, MapManager Map, Team Team)
+        public static Vector2 ChooseRandomSpawnPoint(MapManager Map, Team Team)
         {
             Random random = new Random();
             if(Team == Team.TeamMate)
@@ -24,7 +24,7 @@ namespace BombAttackGame.Events
                 return Map.Mirage.SpawnPoints.ElementAt(random.Next(-1, 10));
             }
         }
-        public static Vector2 ChooseBonusRandomSpawnPoint(int[] MapSize, MapManager Map, Team Team)
+        public static Vector2 ChooseBonusRandomSpawnPoint(MapManager Map, Team Team)
         {
             Random random = new Random();
             return Map.Mirage.BonusSpawnPoints.ElementAt(random.Next(0, Map.Mirage.BonusSpawnPoints.Count));

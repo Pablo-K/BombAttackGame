@@ -1,4 +1,5 @@
-﻿using BombAttackGame.Bonuses;
+﻿using BombAttackGame.Abstracts;
+using BombAttackGame.Bonuses;
 using BombAttackGame.Collisions;
 using BombAttackGame.Enums;
 using BombAttackGame.Global;
@@ -26,15 +27,15 @@ namespace BombAttackGame.Models
         public bool IsAttacked { get; set; }
         public bool OnMainSpeed { get; private set; }
         public double ShotTime { get; set; }
-        public double ShotLatency { get; set; }
         public double MainSpeedStartTime { get; private set; }
         public double MainSpeedEndTime { get; private set; }
         private double MovingTime { get; set; }
         private double MovingEndTime { get; set; }
         public Color Color { get; set; }
-        public Queue<Event> Event { get; set; }
+        public Queue<Enums.Events> Event { get; set; }
         public Rectangle Rectangle { get; set; }
         public bool IsHuman { get; set; }
+        public int Ammo { get; set; }
         public List<IGameObject> VisibleObjects { get; set; }
         public IHoldableObject HoldingObject { get; set; }
         public Texture2D Texture { get => ContentContainer.PlayerTexture(this.Team); set { } }
@@ -47,20 +48,19 @@ namespace BombAttackGame.Models
             this.MovingTime = 1000;
             this.OnMainSpeed = false;
             this.OldLocation = new List<Vector2>();
-            this.Event = new Queue<Event>();
+            this.Event = new Queue<Enums.Events>();
             this.IsHuman = false;
             this.VisibleObjects = new List<IGameObject>();
         }
-        public void GiveSheriff(Sheriff Sheriff)
+        public void GiveGun(Gun gun)
         {
-            this.HoldingObject = Sheriff;
-            this.ShotLatency = Sheriff.Speed;
+            this.HoldingObject = gun;
         }
         public void PlayerMove(Direction direction)
         {
             OldLocation.Add(Location);
             this.Direction = direction;
-            if (!this.Event.Contains(Enums.Event.Move)) { Event.Enqueue(Enums.Event.Move); }
+            if (!this.Event.Contains(Enums.Events.Move)) { Event.Enqueue(Enums.Events.Move); }
         }
         public void Hit(int Damage)
         {
@@ -78,7 +78,7 @@ namespace BombAttackGame.Models
                 if (this.HoldingObject.GetType() == typeof(Sheriff))
                 {
                     this.ShootLocation = ShootLocation;
-                    if (!this.Event.Contains(Enums.Event.TryShoot)) { this.Event.Enqueue(Enums.Event.TryShoot); }
+                    if (!this.Event.Contains(Enums.Events.TryShoot)) { this.Event.Enqueue(Enums.Events.TryShoot); }
                 }
             }
         }
@@ -119,7 +119,6 @@ namespace BombAttackGame.Models
             if (Player.MainSpeedEndTime <= GameTime.TotalGameTime.TotalMilliseconds && Player.OnMainSpeed)
             {
                 Player.Speed /= MainSpeed.WalkSpeed;
-                Player.ShotLatency *= MainSpeed.ShootingSpeed;
                 Player.OnMainSpeed = false;
             }
         }
@@ -139,7 +138,7 @@ namespace BombAttackGame.Models
             if (this.IsHuman) return;
             if (GameTime.TotalGameTime.TotalMilliseconds >= MovingEndTime)
             {
-                Random random = new Random();
+                Random random = new();
                 int x = random.Next(0, 8);
                 var Dir = (Direction)x;
                 MovingEndTime = GameTime.TotalGameTime.TotalMilliseconds + MovingTime;

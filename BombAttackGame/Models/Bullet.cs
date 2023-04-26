@@ -27,9 +27,10 @@ namespace BombAttackGame.Models
         public Vector2 Direction { get; set; }
         public Vector2 Point { get; set; }
         public Rectangle Rectangle { get; set; }
-        public Queue<Event> Event { get; set; }
+        public Queue<Enums.Events> Event { get; set; }
         public IGameObject ObjectHitted { get; set; }
         public int DamageDealt { get; set; }
+
         public Bullet(Vector2 location, Player owner, Vector2 point, int damage)
         {
             this.Location = new Vector2(location.X, location.Y);
@@ -44,7 +45,7 @@ namespace BombAttackGame.Models
             this.OtherDamage = 1;
             this.IsDead = false;
             this.Color = Color.AliceBlue;
-            this.Event = new Queue<Event>();
+            this.Event = new Queue<Enums.Events>();
         }
         public int CalculateDamage(IGameObject GameObject)
         {
@@ -91,7 +92,7 @@ namespace BombAttackGame.Models
         }
         private void Move()
         {
-            Event.Enqueue(Enums.Event.Move);
+            Event.Enqueue(Enums.Events.Move);
         }
         private void BulletHitted(List<IGameObject> GameObjects)
         {
@@ -99,7 +100,7 @@ namespace BombAttackGame.Models
             {
                 if (Hit.InHitBox(this, obj as Player))
                 {
-                    this.Event.Enqueue(Enums.Event.ObjectHitted);
+                    this.Event.Enqueue(Enums.Events.ObjectHitted);
                     this.ObjectHitted = obj;
                     this.DamageDealt = CalculateDamage(obj);
                 }
@@ -107,7 +108,7 @@ namespace BombAttackGame.Models
         }
         private void DistanceDelete()
         {
-            if (this.DistanceTravelled >= this.MaxDistance) this.Event.Enqueue(Enums.Event.Delete);
+            if (this.DistanceTravelled >= this.MaxDistance) this.Event.Enqueue(Enums.Events.Delete);
         }
     }
 }

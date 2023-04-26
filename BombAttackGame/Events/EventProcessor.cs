@@ -1,4 +1,5 @@
-﻿using BombAttackGame.Enums;
+﻿using BombAttackGame.Abstracts;
+using BombAttackGame.Enums;
 using BombAttackGame.Global;
 using BombAttackGame.Interfaces;
 using BombAttackGame.Models;
@@ -6,6 +7,7 @@ using BombAttackGame.Vector;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 
 namespace BombAttackGame.Events
 {
@@ -14,44 +16,65 @@ namespace BombAttackGame.Events
         private readonly List<IGameObject> _gameObjects;
         private readonly List<IGameSprite> _sprites;
         private readonly List<Rectangle> _mapCollisions;
+        private readonly List<IHoldableObject> _holdableObjects;
         private readonly GameTime _gameTime;
 
-        public EventProcessor(List<IGameObject> gameObjects, List<Rectangle> mapCollisions, GameTime gameTime, List<IGameSprite> sprites)
+        public EventProcessor(List<IGameObject> gameObjects, List<Rectangle> mapCollisions, GameTime gameTime, List<IGameSprite> sprites, List<IHoldableObject> holdableObjects)
         {
             _gameObjects = gameObjects;
             _mapCollisions = mapCollisions;
             _gameTime = gameTime;
             _sprites = sprites;
+            _holdableObjects = holdableObjects;
         }
 
         public void ProcessEvents()
         {
             foreach (var gameObject in _gameObjects.ToList()) {
                 if (gameObject.Event is null) continue;
-                while (gameObject.Event.TryDequeue(out Event e)) {
+                while (gameObject.Event.TryDequeue(out Enums.Events e)) {
                     ProcessEvent(gameObject, e);
+                }
+            }
+            foreach (var holdableObject in _holdableObjects.ToList())
+            {
+                if (holdableObject.Event is null) continue;
+                while (holdableObject.Event.TryDequeue(out Enums.Events e))
+                {
+                    ProvessEvent(holdableObject, e);
                 }
             }
         }
 
-        private void ProcessEvent(IGameObject gameObject, Event e) {
+        private void ProcessEvent(IGameObject gameObject, Enums.Events e) {
             switch (e)
             {
-                case Event.Move:
+                case Enums.Events.Move:
                     Move(gameObject);
                     break;
-                case Event.TryShoot:
+                case Enums.Events.TryShoot:
                     TryShoot(gameObject);
                     break;
-                case Event.ObjectHitted:
+                case Enums.Events.ObjectHitted:
                     ObjectHitted(gameObject);
                     break;
-                case Event.Shoot:
+                case Enums.Events.Shoot:
                     break;
-                case Event.Delete:
+                case Enums.Events.Delete:
                     Delete(gameObject);
                     break;
             }
+        }
+        private void ProvessEvent(IHoldableObject obj, Enums.Events e)
+        {
+            switch (e)
+            {
+                case Enums.Events.Reload:
+                    var o = obj as Gun;
+                    o.Reload();
+                    break;
+            }
+            
         }
 
         private void Move(IGameObject gameObject) {
@@ -191,7 +214,7 @@ namespace BombAttackGame.Events
             length += Vector2.Distance(bullet.Location, bullet.StartLocation);
             bullet.DistanceTravelled += length;
             foreach (var rec in _mapCollisions) {
-                if (bullet.Rectangle.Intersects(rec)) bullet.Event.Enqueue(Event.ObjectHitted);
+                if (bullet.Rectangle.Intersects(rec)) bullet.Event.Enqueue(Enums.Events.ObjectHitted);
             }
         }
 

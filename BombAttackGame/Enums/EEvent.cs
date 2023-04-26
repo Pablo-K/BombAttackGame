@@ -1,12 +1,13 @@
 ﻿namespace BombAttackGame.Enums
 {
-    public enum Event
+    public enum Events
     {
         None,
         Move,
         TryShoot,
         ObjectHitted,
         Shoot,
+        Reload,
         Delete
     }
 }

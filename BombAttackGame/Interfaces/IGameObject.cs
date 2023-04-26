@@ -13,6 +13,6 @@ namespace BombAttackGame.Interfaces
         public bool IsDead { get; set; }
         public void Tick(GameTime GameTime, List<IGameObject> GameObjects, List<Rectangle> MapRectangle) { }
         public Rectangle Rectangle { get; set; }
-        public Queue<Event> Event { get; set; }
+        public Queue<Enums.Events> Event { get; set; }
     }
 }

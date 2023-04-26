@@ -1,21 +1,31 @@
-﻿using BombAttackGame.Global;
+﻿using BombAttackGame.Abstracts;
+using BombAttackGame.Enums;
+using BombAttackGame.Global;
 using BombAttackGame.Interfaces;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
 
 namespace BombAttackGame.Models.HoldableObjects
 {
-    internal class Sheriff : IGun
+    internal class Sheriff : Gun
     {
-        public Texture2D Texture => ContentContainer.SheriffTexture;
-        public int Speed { get; set; }
-        public int Damage { get; set; }
-        public int Clip { get; set; }
+        public override Texture2D Texture => ContentContainer.SheriffTexture;
 
-        public Sheriff()
+        public Sheriff() : base()
         {
-            this.Speed = 200;
+            this.Latency = 200;
             this.Damage = 25;
-            this.Clip = 15;
+            this.Magazine = 6;
+            this.Ammo = 42;
+            this.MagazineCapacity = 6;
+            this.AmmoCapacity = 60;
         }
+
+        public void Shoot(IGameObject gameObject, GameTime gameTime, Vector2 point)
+        {
+            Events.Shoot.PlayerShoot(gameObject as Player, gameTime, point);
+        }
+
     }
 }

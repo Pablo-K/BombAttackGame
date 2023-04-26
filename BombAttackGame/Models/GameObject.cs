@@ -12,11 +12,11 @@ namespace BombAttackGame.Models
 {
     internal class GameObject
     {
-        public static Player AddPlayer(Team Team, int[] MapSize, MapManager Map)
+        public static Player AddPlayer(Team Team, (int Width, int Height) MapSize, MapManager Map)
         {
             Player Player = new Player();
             Player.Team = Team;
-            Player.Location = Spawn.ChooseRandomSpawnPoint(MapSize, Map, Team);
+            Player.Location = Spawn.ChooseRandomSpawnPoint(Map, Team);
             if (Team == Team.Enemy)
             {
                 Player.Color = Color.Red;
@@ -28,14 +28,14 @@ namespace BombAttackGame.Models
             return Player;
         }
 
-        public static List<Player> AddPlayers(Team Team, int Amount, int[] MapSize, MapManager Map)
+        public static List<Player> AddPlayers(Team Team, int Amount, MapManager Map)
         {
             List<Player> Players = new List<Player>();
             for (int i = 0; i < Amount; i++)
             {
                 Player Player = new Player();
                 Player.Team = Team;
-                Player.Location = Spawn.ChooseRandomSpawnPoint(MapSize, Map, Team);
+                Player.Location = Spawn.ChooseRandomSpawnPoint(Map, Team);
                 if (Team == Team.Enemy)
                 {
                     Player.Color = Color.Red;
@@ -48,11 +48,11 @@ namespace BombAttackGame.Models
             }
             return Players;
         }
-        public static MainSpeed AddMainSpeed(int[] MapSize, Team Team, MapManager Map)
+        public static MainSpeed AddMainSpeed(Team Team, MapManager Map)
         {
             var mainSpeed = new MainSpeed();
             mainSpeed.Texture = ContentContainer.MainSpeedTexture;
-            mainSpeed.Location = Spawn.ChooseBonusRandomSpawnPoint(MapSize, Map, Team);
+            mainSpeed.Location = Spawn.ChooseBonusRandomSpawnPoint(Map, Team);
             mainSpeed.IsDead = false;
             return mainSpeed;
         }

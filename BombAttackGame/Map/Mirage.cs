@@ -29,8 +29,8 @@ namespace BombAttackGame.Map
             this.SpawnPoints = new List<Vector2>
             {
                 new Vector2(160, 760), 
-                new Vector2(160, 780),
-                new Vector2(180, 760),
+                new Vector2(160, 760),
+                new Vector2(160, 760),
                 new Vector2(200, 760),
                 new Vector2(220, 760),
                 new Vector2(240, 760),
