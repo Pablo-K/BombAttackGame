@@ -32,7 +32,7 @@ namespace BombAttackGame.Models
         private double MovingTime { get; set; }
         private double MovingEndTime { get; set; }
         public Color Color { get; set; }
-        public Queue<Event> Event { get; private set; }
+        public Queue<Event> Event { get; set; }
         public Rectangle Rectangle { get; set; }
         public bool IsHuman { get; set; }
         public List<IGameObject> VisibleObjects { get; set; }

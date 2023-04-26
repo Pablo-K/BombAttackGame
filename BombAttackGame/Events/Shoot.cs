@@ -2,8 +2,6 @@
 using BombAttackGame.Interfaces;
 using BombAttackGame.Models;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace BombAttackGame.Events
 {

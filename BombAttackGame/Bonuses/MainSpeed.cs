@@ -1,7 +1,9 @@
-﻿using BombAttackGame.Interfaces;
+﻿using BombAttackGame.Enums;
+using BombAttackGame.Interfaces;
 using BombAttackGame.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
 
 namespace BombAttackGame.Bonuses
 {
@@ -20,6 +22,7 @@ namespace BombAttackGame.Bonuses
         public double FinallySpawnTime { get; set; }
         public bool IsDead { get; set; }
         public Rectangle Rectangle { get; set; }
+        public Queue<Event> Event { get; set; }
 
         public MainSpeed()
         {

@@ -4,7 +4,6 @@ using BombAttackGame.Interfaces;
 using BombAttackGame.Models;
 using BombAttackGame.Vector;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -25,7 +24,45 @@ namespace BombAttackGame.Events
             _sprites = sprites;
         }
 
-        public void Move(Player player)
+        public void ProcessEvents()
+        {
+            foreach (var gameObject in _gameObjects.ToList()) {
+                if (gameObject.Event is null) continue;
+                while (gameObject.Event.TryDequeue(out Event e)) {
+                    ProcessEvent(gameObject, e);
+                }
+            }
+        }
+
+        private void ProcessEvent(IGameObject gameObject, Event e) {
+            switch (e)
+            {
+                case Event.Move:
+                    Move(gameObject);
+                    break;
+                case Event.TryShoot:
+                    TryShoot(gameObject);
+                    break;
+                case Event.ObjectHitted:
+                    ObjectHitted(gameObject);
+                    break;
+                case Event.Shoot:
+                    break;
+                case Event.Delete:
+                    Delete(gameObject);
+                    break;
+            }
+        }
+
+        private void Move(IGameObject gameObject) {
+            switch (gameObject)
+            {
+                case Player player: Move(player); break;
+                case Bullet bullet: Move(bullet); break;
+            }
+        }
+
+        private void Move(Player player)
         {
             Vector2 newLocation;
             Rectangle rectangle;
@@ -146,7 +183,7 @@ namespace BombAttackGame.Events
             }
         }
 
-        public void Move(Bullet bullet)
+        private void Move(Bullet bullet)
         {
             float speed = bullet.Speed * (1.0f / bullet.Distance);
             float length = 0;
@@ -158,68 +195,45 @@ namespace BombAttackGame.Events
             }
         }
 
-        public void TryShoot(GameTime gameTime, Player player)
+        private void TryShoot(IGameObject gameObject) {
+            switch (gameObject)
+            {
+                case Player player: TryShoot(player); break;
+            }
+        }
+
+        private void TryShoot(Player player)
         {
             Bullet bullet = null;
             if (player == null) return;
             var shootLoc = VectorTool.ExtendVector(player.ShootLocation, player.Location, 100000);
-            bullet = Shoot.PlayerShoot(player, gameTime, shootLoc);
+            bullet = Shoot.PlayerShoot(player, _gameTime, shootLoc);
             if (bullet == null) { return; }
             bullet.Direction = shootLoc - player.Location;
             bullet.Direction.Normalize();
             _gameObjects.Add(bullet);
         }
-        public void ProcessEvents()
+
+        private void ObjectHitted(IGameObject gameObject)
         {
-            //playersEvent
-            foreach (var player in _gameObjects.OfType<Player>().ToList())
-            {
-                while (player.Event.TryDequeue(out Event result))
-                {
-                    switch (result)
-                    {
-                        case Event.None:
-                            break;
-                        case Event.Move:
-                            Move(player);
-                            break;
-                        case Event.TryShoot:
-                            TryShoot(_gameTime, player);
-                            break;
-                        case Event.Shoot:
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-            //bulletsEvent
-            foreach (var bullet in _gameObjects.OfType<Bullet>().ToList())
-            {
-                while (bullet.Event.TryDequeue(out Event result))
-                    switch (result)
-                    {
-                        case Event.Move:
-                            Move(bullet);
-                            break;
-                        case Event.ObjectHitted:
-                            if (bullet.ObjectHitted?.GetType() == typeof(Player))
-                            {
-                                DealDamage.DealDamageToPlayer(bullet.ObjectHitted as Player, bullet.DamageDealt);
-                                CreateDamage(bullet, _gameTime);
-                                DeleteObject.FromGameObjects(bullet, _gameObjects);
-                            }
-                            else
-                            {
-                                DeleteObject.FromGameObjects(bullet, _gameObjects);
-                            }
-                            break;
-                        case Event.Delete:
-                            DeleteObject.FromGameObjects(bullet, _gameObjects);
-                            break;
-                    }
-            }
+            if (gameObject is Bullet bullet) ObjectHitted(bullet);
         }
+
+        private void ObjectHitted(Bullet bullet)
+        {
+            if (bullet.ObjectHitted?.GetType() == typeof(Player))
+            {
+                DealDamage.DealDamageToPlayer(bullet.ObjectHitted as Player, bullet.DamageDealt);
+                CreateDamage(bullet, _gameTime);
+            }
+            DeleteObject.FromGameObjects(bullet, _gameObjects);
+        }
+
+        private void Delete(IGameObject gameObject)
+        {
+            DeleteObject.FromGameObjects(gameObject, _gameObjects);
+        }
+
         private void CreateDamage(Bullet bullet, GameTime gameTime)
         {
             Damage Damage = new Damage(bullet.DamageDealt, bullet.Location);
