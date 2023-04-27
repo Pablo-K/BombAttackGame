@@ -54,6 +54,7 @@ namespace BombAttackGame.Draw
         private void DrawGameObjects(SpriteBatch spriteBatch)
         {
             Player player = (Player)_gameObjects.ElementAt(0);
+
             foreach (var gameObject in _gameObjects)
             {
                 if (!gameObject.IsDead && player.VisibleObjects.Contains(gameObject))
