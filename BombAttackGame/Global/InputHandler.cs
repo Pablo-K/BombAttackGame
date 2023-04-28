@@ -2,6 +2,7 @@
 using BombAttackGame.Enums;
 using BombAttackGame.Models;
 using Microsoft.Xna.Framework.Input;
+using System.Linq;
 
 namespace BombAttackGame.Global
 {
@@ -23,12 +24,23 @@ namespace BombAttackGame.Global
             if (kstate.IsKeyDown(Keys.A) && kstate.IsKeyDown(Keys.S)) { player.PlayerMove(Direction.DownLeft); }
             if (kstate.IsKeyDown(Keys.D) && kstate.IsKeyDown(Keys.W)) { player.PlayerMove(Direction.UpRight); }
             if (kstate.IsKeyDown(Keys.D) && kstate.IsKeyDown(Keys.S)) { player.PlayerMove(Direction.DownRight); }
+
             if (kstate.IsKeyDown(Keys.R)) {
-                if(player.HoldingObject is Gun gun)
+                if(player.Inventory.SelectedItem is Gun gun)
                 gun.AddReloadEvent(); 
             }
 
-            if (mstate.LeftButton == ButtonState.Pressed) { player.UseHoldableItem(mousePosition); }
+            if (kstate.IsKeyDown(Keys.D1)) {
+                player.Inventory.SelectedSlot = 1; 
+            }
+            if (kstate.IsKeyDown(Keys.D2)) {
+                player.Inventory.SelectedSlot = 2; 
+            }
+            if (kstate.IsKeyDown(Keys.D3)) {
+                player.Inventory.SelectedSlot = 3; 
+            }
+
+            if (mstate.LeftButton == ButtonState.Pressed) { player.UseSelectedItem(mousePosition); }
 
         }
 

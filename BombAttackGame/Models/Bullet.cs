@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace BombAttackGame.Models
 {
-    internal class Bullet : IGameObject 
+    internal class Bullet : IGameObject, IProjectile
     {
         public Vector2 Location { get; set; }
         public Texture2D Texture { get; set; }

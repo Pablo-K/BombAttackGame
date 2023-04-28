@@ -7,7 +7,7 @@ namespace BombAttackGame.Abstracts
 {
     internal abstract class Gun : IHoldableObject, IEventRaiser
     {
-        public int Damage { get; set; }
+        public abstract int Damage { get; set; }
         public int Latency { get; set; }
         public double ShotTime { get; set; }
         public int Magazine { get; set; }
@@ -15,7 +15,7 @@ namespace BombAttackGame.Abstracts
         public int Ammo { get; set; }
         public int AmmoCapacity { get; set; }
         public bool IsReloading { get; set; }
-        public abstract Texture2D Texture { get; }
+        public abstract Texture2D HudTexture { get; }
         public Queue<Enums.Events> Event { get;  set; }
 
         public Gun()

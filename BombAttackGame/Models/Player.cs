@@ -19,6 +19,7 @@ namespace BombAttackGame.Models
     {
         public Vector2 Location { get; set; }
         public List<Vector2> OldLocation { get; set; }
+        public List<IInventoryItem> Equipment { get; set; }
         public Vector2 ShootLocation { get; set; }
         public Direction Direction { get; set; }
         public Team Team { get; set; }
@@ -38,7 +39,7 @@ namespace BombAttackGame.Models
         public bool IsHuman { get; set; }
         public int Ammo { get; set; }
         public List<IGameObject> VisibleObjects { get; set; }
-        public IHoldableObject HoldingObject { get; set; }
+        public Inventory Inventory { get; set; }
         public Texture2D Texture { get => ContentContainer.PlayerTexture(this.Team); set { } }
 
         public Player()
@@ -52,11 +53,7 @@ namespace BombAttackGame.Models
             this.Event = new Queue<Enums.Events>();
             this.IsHuman = false;
             this.VisibleObjects = new List<IGameObject>();
-        }
-
-        public void GiveGun(Gun gun)
-        {
-            this.HoldingObject = gun;
+            this.Inventory = new Inventory();
         }
 
         public void PlayerMove(Direction direction)
@@ -75,10 +72,10 @@ namespace BombAttackGame.Models
             }
         }
 
-        public void UseHoldableItem(Vector2 shootLocation)
+        public void UseSelectedItem(Vector2 shootLocation)
         {
-            if (this.HoldingObject == null) return;
-            if (this.HoldingObject.GetType() == typeof(Sheriff))
+            if (this.Inventory.SelectedItem == null) return;
+            if (this.Inventory.SelectedItem.GetType() == typeof(Sheriff))
             {
                 this.ShootLocation = shootLocation;
                 if (!this.Event.Contains(Enums.Events.TryShoot)) { this.Event.Enqueue(Enums.Events.TryShoot); }
@@ -97,10 +94,8 @@ namespace BombAttackGame.Models
         {
             foreach (var obj in gameObjects)
             {
-                bool[] intersects = new bool[2];
-                intersects[0] = await Task.Run(() => VectorTool.CheckLineIntersection(this.Location, new Vector2(obj.Rectangle.Left - 1, obj.Rectangle.Top - 1), mapRectangle));
-                intersects[1] = await Task.Run(() => VectorTool.CheckLineIntersection(this.Location, new Vector2(obj.Rectangle.Right - 1, obj.Rectangle.Bottom - 1), mapRectangle));
-                if (intersects.Contains(false))
+                bool intersects = VectorTool.CheckLineIntersection(this.Location, obj.Location, mapRectangle);
+                if (!intersects)
                 {
                     if (!this.VisibleObjects.Contains(obj)) this.VisibleObjects.Add(obj);
                 }

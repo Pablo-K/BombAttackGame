@@ -15,7 +15,7 @@ namespace BombAttackGame.Draw
     {
         private readonly List<IGameObject> _gameObjects;
         private readonly List<IGameSprite> _sprites;
-        private MapManager _mapManager;
+        private readonly MapManager _mapManager;
 
         public DrawingProcessor(List<IGameObject> gameObjects, List<IGameSprite> sprites, MapManager mapManager)
         {
@@ -34,13 +34,11 @@ namespace BombAttackGame.Draw
         {
             Player player = (Player)_gameObjects.ElementAt(0);
             spriteBatch.DrawString(ContentContainer.HpFont, player.Health.ToString(), HudVector.HpVector(), Color.Green);
-
-            spriteBatch.Draw(player.HoldingObject.Texture, HudVector.GunVector(), Color.FloralWhite);
-            if (player.HoldingObject is Gun gun)
+            spriteBatch.Draw(player.Inventory.SelectedItem.HudTexture, player.Inventory.SelectedItem.HudPosition, Color.FloralWhite);
+            if (player.Inventory.SelectedItem is Gun gun)
             {
                 spriteBatch.DrawString(ContentContainer.HpFont, gun.Magazine.ToString(), HudVector.MagazineVector(), Color.FloralWhite);
                 spriteBatch.DrawString(ContentContainer.HpFont, gun.Ammo.ToString(), HudVector.AmmoVector(), Color.FloralWhite);
-
             }
 
         }

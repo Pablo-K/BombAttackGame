@@ -10,7 +10,7 @@ namespace BombAttackGame.Events
     {
         public static Bullet PlayerShoot(Player player, GameTime gameTime, Vector2 point)
         {
-            Gun gun = (Gun)player.HoldingObject;
+            Gun gun = (Gun)player.Inventory.SelectedItem;
             if (!CanShoot(gameTime,gun)) return null;
             var bullet = new Bullet(player.Location, player, point, gun.Damage);
             bullet.Texture = ContentContainer.BulletTexture;

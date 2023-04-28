@@ -24,6 +24,7 @@ namespace BombAttackGame.Global
         private static Texture2D _enemyTexture;
         private static Texture2D _bulletTexture;
         private static Texture2D _mainSpeedTexture;
+        private static Texture2D _grenadeTexture;
 
         public static SpriteFont HpFont => _hpFont ??= _contentManager.Load<SpriteFont>("hp");
         public static SpriteFont DamageFont => _damageFont ??= _contentManager.Load<SpriteFont>("damage");
@@ -33,6 +34,7 @@ namespace BombAttackGame.Global
         public static Texture2D SheriffTexture => _sheriffTexture ??= _contentManager.Load<Texture2D>("sheriff");
         public static Texture2D BulletTexture => _bulletTexture ??= _contentManager.Load<Texture2D>("bullet");
         public static Texture2D MainSpeedTexture => _mainSpeedTexture ??= _contentManager.Load<Texture2D>("mainSpeed");
+        public static Texture2D GrenadeTexture => _grenadeTexture ??= _contentManager.Load<Texture2D>("grenade");
 
         public static void Initialize(ContentManager contentManager)
         {

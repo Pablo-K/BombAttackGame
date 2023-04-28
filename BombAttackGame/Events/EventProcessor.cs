@@ -74,7 +74,6 @@ namespace BombAttackGame.Events
                     o.Reload();
                     break;
             }
-            
         }
 
         private void Move(IGameObject gameObject) {

@@ -1,16 +1,21 @@
 ﻿using BombAttackGame.Abstracts;
-using BombAttackGame.Enums;
 using BombAttackGame.Global;
+using BombAttackGame.HUD;
 using BombAttackGame.Interfaces;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Collections.Generic;
 
 namespace BombAttackGame.Models.HoldableObjects
 {
-    internal class Sheriff : Gun
+    internal class Sheriff : Gun, IInventoryItem
     {
-        public override Texture2D Texture => ContentContainer.SheriffTexture;
+
+        public Vector2 HudPosition => HudVector.GunVector();
+        public string HudDisplayName { get; }
+        public override Texture2D HudTexture => ContentContainer.SheriffTexture;
+        public int InventorySlot { get; }
+        public Vector2 Location { get; set; }
+        public override int Damage { get; set; }
 
         public Sheriff() : base()
         {
@@ -20,6 +25,8 @@ namespace BombAttackGame.Models.HoldableObjects
             this.Ammo = 42;
             this.MagazineCapacity = 6;
             this.AmmoCapacity = 60;
+            this.HudDisplayName = "Sheriff";
+            this.InventorySlot = 1;
         }
 
         public void Shoot(IGameObject gameObject, GameTime gameTime, Vector2 point)

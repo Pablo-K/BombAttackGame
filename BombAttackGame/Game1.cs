@@ -11,7 +11,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 
 namespace BombAttackGame
 {
@@ -21,19 +20,18 @@ namespace BombAttackGame
         private readonly List<IGameObject> _gameObjects;
         private readonly List<IGameSprite> _sprites;
         private readonly List<IHoldableObject> _holdableObjects;
+        private readonly List<Rectangle> _mapCollision;
         private readonly EventProcessor _eventProcessor;
-        private (int Width, int Height) _mapSize;
         private readonly GameTime _gameTime;
         private readonly InputHandler _inputHandler;
-        private DrawingProcessor _draw;
-        private MapManager _mapManager;
+        private readonly DrawingProcessor _draw;
+        private readonly MapManager _mapManager;
+        private readonly GraphicsDeviceManager _graphics;
         private Player _player;
-        private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-        private Color _mainColor;
         private int _teamMateAmount;
         private int _enemyAmount;
-        private readonly List<Rectangle> _mapCollision;
+        private (int Width, int Height) _mapSize;
 
         public Game1()
         {
@@ -56,7 +54,6 @@ namespace BombAttackGame
 
         protected override void Initialize()
         {
-            _mainColor = Color.Tomato;
             base.Window.AllowUserResizing = false;
             _graphics.PreferredBackBufferWidth = _mapSize.Width;
             _graphics.PreferredBackBufferHeight = _mapSize.Height; 
@@ -79,12 +76,16 @@ namespace BombAttackGame
             _gameObjects.Add(GameObject.AddMainSpeed(Team.None, _mapManager));
             _gameObjects.AddRange(GameObject.AddPlayers(Team.TeamMate, _teamMateAmount, _mapManager));
             _gameObjects.AddRange(GameObject.AddPlayers(Team.Enemy, _enemyAmount, _mapManager));
+
             foreach (var player in _gameObjects.OfType<Player>())
             {
                 var gun = new Sheriff();
-                player.GiveGun(gun);
+                player.Inventory.InventoryItems.Add(gun);
+                player.Inventory.Equip(gun);
+                player.Inventory.Select(1);
                 _holdableObjects.Add(gun);
             }
+
         }
 
         protected override void Update(GameTime gameTime)
