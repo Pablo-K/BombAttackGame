@@ -6,6 +6,7 @@ using BombAttackGame.Interfaces;
 using BombAttackGame.Map;
 using BombAttackGame.Models;
 using BombAttackGame.Models.HoldableObjects;
+using BombAttackGame.Models.HoldableObjects.ThrowableObjects;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -80,12 +81,13 @@ namespace BombAttackGame
             foreach (var player in _gameObjects.OfType<Player>())
             {
                 var gun = new Sheriff();
+                var grenade = new Grenade("handgrenade");
                 player.Inventory.InventoryItems.Add(gun);
                 player.Inventory.Equip(gun);
+                player.Inventory.Equip(grenade);
                 player.Inventory.Select(1);
                 _holdableObjects.Add(gun);
             }
-
         }
 
         protected override void Update(GameTime gameTime)
@@ -119,6 +121,5 @@ namespace BombAttackGame
             _spriteBatch.End();
             base.Draw(gameTime);
         }
-
     }
 }

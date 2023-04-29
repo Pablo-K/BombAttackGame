@@ -1,26 +1,33 @@
 ﻿using BombAttackGame.Abstracts;
+using BombAttackGame.Global;
+using BombAttackGame.Interfaces;
 using BombAttackGame.Models;
 using BombAttackGame.Models.HoldableObjects.ThrowableObjects;
-using System.Numerics;
+using Microsoft.Xna.Framework;
 
 namespace BombAttackGame.Events
 {
     internal class Throw
     {
-        //public static Explosive PlayerThrow(Player player, Vector2 point)
-        //{
-        //    Explosive exp = (Explosive)player.HoldingObject;
-        //    if (exp.GetType() == typeof(Grenade))
-        //    {
-                
-        //    }
-        //    var explosive = new Bullet(player.Location, player, point, gun.Damage);
-        //    bullet.Texture = ContentContainer.BulletTexture;
-        //    bullet.Distance = Vector2.Distance(bullet.Point, bullet.Location);
-        //    gun.ShotTime = gameTime.TotalGameTime.TotalMilliseconds;
-        //    gun.Magazine -= 1;
-        //    return bullet;
-
-        //}
+        public static Explosive PlayerThrow(Player player)
+        {
+            Explosive exp = (Explosive)player.Inventory.SelectedItem;
+            var point = player.ShootLocation;
+            if (exp.GetType() == typeof(Grenade))
+            {
+                var grenade = (Grenade)exp;
+                if(grenade.Type  == "handgrenade")
+                {
+                    var handGrenade = new HandGrenade(player.Location, player, point, exp.Damage);
+                    handGrenade.Texture = ContentContainer.BulletTexture;
+                    handGrenade.Distance = Vector2.Distance(handGrenade.Point, handGrenade.Location);
+                    player.Inventory.InventoryItems.Remove(exp as IInventoryItem);
+                    player.Inventory.SelectedSlot = 1;
+                    player.Inventory.Slot2 = null;
+                    return handGrenade;
+                } 
+            }
+            return null;
+        }
     }
 }

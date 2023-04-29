@@ -31,12 +31,15 @@ namespace BombAttackGame.Global
             }
 
             if (kstate.IsKeyDown(Keys.D1)) {
+                if(player.Inventory.Slot1 != null)
                 player.Inventory.SelectedSlot = 1; 
             }
             if (kstate.IsKeyDown(Keys.D2)) {
+                if(player.Inventory.Slot2 != null)
                 player.Inventory.SelectedSlot = 2; 
             }
             if (kstate.IsKeyDown(Keys.D3)) {
+                if(player.Inventory.Slot3 != null)
                 player.Inventory.SelectedSlot = 3; 
             }
 

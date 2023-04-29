@@ -4,6 +4,7 @@ using BombAttackGame.Enums;
 using BombAttackGame.Global;
 using BombAttackGame.Interfaces;
 using BombAttackGame.Models.HoldableObjects;
+using BombAttackGame.Models.HoldableObjects.ThrowableObjects;
 using BombAttackGame.Vector;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -80,6 +81,11 @@ namespace BombAttackGame.Models
                 this.ShootLocation = shootLocation;
                 if (!this.Event.Contains(Enums.Events.TryShoot)) { this.Event.Enqueue(Enums.Events.TryShoot); }
             }
+            if (this.Inventory.SelectedItem.GetType() == typeof(Grenade))
+            {
+                this.ShootLocation = shootLocation;
+                this.Event.Enqueue(Enums.Events.Throw);
+            }
         }
 
         public void Tick(GameTime gameTime, List<IGameObject> gameObjects, List<Rectangle> mapRectangle)
@@ -87,7 +93,7 @@ namespace BombAttackGame.Models
             UpdateRectangle();
             UpdateColor(Color);
             CheckIfDead();
-            BotMove(gameTime);
+            //BotMove(gameTime);
             UpdateObjectsVisibilityAsync(gameObjects, mapRectangle);
         }
         private async Task UpdateObjectsVisibilityAsync(List<IGameObject> gameObjects, List<Rectangle> mapRectangle)

@@ -3,8 +3,10 @@ using BombAttackGame.Enums;
 using BombAttackGame.Global;
 using BombAttackGame.Interfaces;
 using BombAttackGame.Models;
+using BombAttackGame.Models.HoldableObjects.ThrowableObjects;
 using BombAttackGame.Vector;
 using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -55,6 +57,9 @@ namespace BombAttackGame.Events
                 case Enums.Events.TryShoot:
                     TryShoot(gameObject);
                     break;
+                case Enums.Events.Throw:
+                    ThrowItem(gameObject);
+                    break;
                 case Enums.Events.ObjectHitted:
                     ObjectHitted(gameObject);
                     break;
@@ -63,8 +68,36 @@ namespace BombAttackGame.Events
                 case Enums.Events.Delete:
                     Delete(gameObject);
                     break;
+                case Enums.Events.Explode:
+                    Explode(gameObject);
+                    break;
             }
         }
+
+        private void ThrowItem(IGameObject gameObject)
+        {
+            _gameObjects.Add(Throw.PlayerThrow((Player)gameObject));
+        }
+        private void Explode(IGameObject gameObject)
+        {
+            switch (gameObject)
+            {
+                case HandGrenade handGrenade: DealDamageAround(handGrenade); break;
+            }
+        }
+        private void DealDamageAround(HandGrenade handGrenade)
+        {
+            foreach(var obj in _gameObjects.OfType<Player>())
+            {
+                int damage = handGrenade.CalculateDamage(obj);
+                if(damage > 0)
+                {
+                    DealDamage.DealDamageToPlayer(obj, damage);
+                    CreateDamage(handGrenade, obj, _gameTime);
+                }
+            }
+        }
+
         private void ProvessEvent(IHoldableObject obj, Enums.Events e)
         {
             switch (e)
@@ -81,6 +114,7 @@ namespace BombAttackGame.Events
             {
                 case Player player: Move(player); break;
                 case Bullet bullet: Move(bullet); break;
+                case HandGrenade handgrenade: Move(handgrenade); break;
             }
         }
 
@@ -217,6 +251,18 @@ namespace BombAttackGame.Events
             }
         }
 
+        private void Move(HandGrenade handGrenade)
+        {
+            float speed = handGrenade.Speed * (1.0f / handGrenade.Distance);
+            float length = 0;
+            handGrenade.Location = Vector2.Lerp(handGrenade.Location, handGrenade.Point, speed);
+            length += Vector2.Distance(handGrenade.Location, handGrenade.StartLocation);
+            handGrenade.DistanceTravelled += length;
+            foreach (var rec in _mapCollisions) {
+                if (handGrenade.Rectangle.Intersects(rec)) handGrenade.Event.Enqueue(Enums.Events.ObjectHitted);
+            }
+        }
+
         private void TryShoot(IGameObject gameObject) {
             switch (gameObject)
             {
@@ -261,6 +307,14 @@ namespace BombAttackGame.Events
             Damage Damage = new Damage(bullet.DamageDealt, bullet.Location);
             Damage.Font = ContentContainer.DamageFont;
             Damage.Location = bullet.Location;
+            Damage.ShowTime = gameTime.TotalGameTime.TotalMilliseconds;
+            _sprites.Add(Damage);
+        }
+        private void CreateDamage(HandGrenade handGrenade, Player player, GameTime gameTime)
+        {
+            Damage Damage = new Damage(handGrenade.DamageDealt, player.Location);
+            Damage.Font = ContentContainer.DamageFont;
+            Damage.Location = player.Location;
             Damage.ShowTime = gameTime.TotalGameTime.TotalMilliseconds;
             _sprites.Add(Damage);
         }

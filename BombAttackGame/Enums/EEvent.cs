@@ -8,6 +8,9 @@
         ObjectHitted,
         Shoot,
         Reload,
-        Delete
+        Delete,
+        MaxDistance,
+        Explode,
+        Throw
     }
 }
