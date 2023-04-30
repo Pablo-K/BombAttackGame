@@ -17,7 +17,6 @@ namespace BombAttackGame.Models.HoldableObjects.ThrowableObjects
 
         public Grenade(string type) : base()
         {
-            this.Damage = 90;
             this.Type = type;
             this.InventorySlot = 2;
             this.HudDisplayName = type;

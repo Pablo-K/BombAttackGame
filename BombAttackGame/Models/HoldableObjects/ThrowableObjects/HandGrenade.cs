@@ -31,12 +31,12 @@ namespace BombAttackGame.Models.HoldableObjects.ThrowableObjects
         public int DamageDealt { get; set; }
         public override Texture2D HudTexture => ContentContainer.GrenadeTexture;
 
-        public HandGrenade(Vector2 location, Player owner, Vector2 point, int damage)
+        public HandGrenade(Vector2 location, Player owner, Vector2 point)
         {
             Location = new Vector2(location.X, location.Y);
             StartLocation = new Vector2(location.X, location.Y);
             Owner = owner;
-            Damage = damage;
+            Damage = 83;
             Point = point;
             Speed = 5;
             MaxDistance = 5000;

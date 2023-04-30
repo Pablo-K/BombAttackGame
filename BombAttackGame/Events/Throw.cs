@@ -18,7 +18,7 @@ namespace BombAttackGame.Events
                 var grenade = (Grenade)exp;
                 if(grenade.Type  == "handgrenade")
                 {
-                    var handGrenade = new HandGrenade(player.Location, player, point, exp.Damage);
+                    var handGrenade = new HandGrenade(player.Location, player, point);
                     handGrenade.Texture = ContentContainer.BulletTexture;
                     handGrenade.Distance = Vector2.Distance(handGrenade.Point, handGrenade.Location);
                     player.Inventory.InventoryItems.Remove(exp as IInventoryItem);
