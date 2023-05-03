@@ -21,6 +21,8 @@ namespace BombAttackGame.Models.HoldableObjects.ThrowableObjects
         public double TeamDamage { get; set; }
         public double EnemyDamage { get; set; }
         public double OtherDamage { get; set; }
+        public double StartTime { get; set; }
+        public double MaxTime { get; set; }
         public Player Owner { get; set; }
         public Vector2 StartLocation { get; set; }
         public Vector2 Direction { get; set; }
@@ -33,19 +35,20 @@ namespace BombAttackGame.Models.HoldableObjects.ThrowableObjects
 
         public HandGrenade(Vector2 location, Player owner, Vector2 point)
         {
-            Location = new Vector2(location.X, location.Y);
-            StartLocation = new Vector2(location.X, location.Y);
-            Owner = owner;
-            Damage = 83;
-            Point = point;
-            Speed = 5;
-            MaxDistance = 5000;
-            TeamDamage = 0.5;
-            EnemyDamage = 1;
-            OtherDamage = 1;
-            IsDead = false;
-            Color = Color.AliceBlue;
-            Event = new Queue<Enums.Events>();
+            this.Location = new Vector2(location.X, location.Y);
+            this.StartLocation = new Vector2(location.X, location.Y);
+            this.Owner = owner;
+            this.Damage = 83;
+            this.Point = point;
+            this.Speed = 5;
+            this.MaxDistance = 5000;
+            this.TeamDamage = 0.5;
+            this.EnemyDamage = 1;
+            this.OtherDamage = 1;
+            this.IsDead = false;
+            this.Color = Color.AliceBlue;
+            this.Event = new Queue<Enums.Events>();
+            this.MaxTime = 1000;
         }
 
         public override void Explode()
@@ -101,15 +104,15 @@ namespace BombAttackGame.Models.HoldableObjects.ThrowableObjects
         {
             Move();
             UpdateRectangle();
-            DistanceEvent();
+            TimeEvent(GameTime.TotalGameTime.TotalMilliseconds);
         }
         private void Move()
         {
             Event.Enqueue(Enums.Events.Move);
         }
-        private void DistanceEvent()
+        private void TimeEvent(double time)
         {
-            if (DistanceTravelled >= MaxDistance)
+            if (time >= this.StartTime + this.MaxTime)
                 Explode();
         }
     }

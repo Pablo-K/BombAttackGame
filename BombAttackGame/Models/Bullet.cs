@@ -55,19 +55,19 @@ namespace BombAttackGame.Models
                     Damage = (int)(Damage * 0.1); break;
                 case > 55000:
                     Damage = (int)(Damage * 0.2); break;
-                case > 40000:
-                    Damage = (int)(Damage * 0.3); break;
                 case > 30000:
-                    Damage = (int)(Damage * 0.4); break;
+                    Damage = (int)(Damage * 0.3); break;
                 case > 20000:
-                    Damage = (int)(Damage * 0.5); break;
+                    Damage = (int)(Damage * 0.4); break;
                 case > 15000:
+                    Damage = (int)(Damage * 0.5); break;
+                case > 12000:
                     Damage = (int)(Damage * 0.6); break;
-                case > 10000:
+                case > 9000:
                     Damage = (int)(Damage * 0.7); break;
-                case > 8000:
+                case > 7000:
                     Damage = (int)(Damage * 0.8); break;
-                case > 5000:
+                case > 4000:
                     Damage = (int)(Damage * 0.9); break;
             }
             if(GameObject is Player)

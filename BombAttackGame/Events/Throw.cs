@@ -21,9 +21,7 @@ namespace BombAttackGame.Events
                     var handGrenade = new HandGrenade(player.Location, player, point);
                     handGrenade.Texture = ContentContainer.BulletTexture;
                     handGrenade.Distance = Vector2.Distance(handGrenade.Point, handGrenade.Location);
-                    player.Inventory.InventoryItems.Remove(exp as IInventoryItem);
-                    player.ChangeInventorySlot(1);
-                    player.Inventory.Slot2 = null;
+                    player.RemoveFromInventory((IInventoryItem)exp);
                     return handGrenade;
                 } 
             }

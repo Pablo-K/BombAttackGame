@@ -79,7 +79,13 @@ namespace BombAttackGame.Events
 
         private void ThrowItem(IGameObject gameObject)
         {
-            _gameObjects.Add(Throw.PlayerThrow((Player)gameObject));
+            Explosive item = Throw.PlayerThrow((Player)gameObject);
+            if(item is HandGrenade)
+            {
+                HandGrenade handGrenade = (HandGrenade)item;
+                handGrenade.StartTime = _gameTime.TotalGameTime.TotalMilliseconds;
+                _gameObjects.Add(handGrenade);
+            }
         }
         private void Explode(IGameObject gameObject)
         {

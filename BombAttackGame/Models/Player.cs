@@ -66,11 +66,14 @@ namespace BombAttackGame.Models
             switch (slot)
             {
                 case 1:
-                    if (this.Inventory.Slot1 != null) { this.Inventory.SelectedSlot = slot; BlockUseHoldableItem(); } break;
+                    if (this.Inventory.Slot1 != null) { this.Inventory.SelectedSlot = slot; BlockUseHoldableItem(); }
+                    break;
                 case 2:
-                    if (this.Inventory.Slot2 != null) { this.Inventory.SelectedSlot = slot; BlockUseHoldableItem(); } break;
+                    if (this.Inventory.Slot2 != null) { this.Inventory.SelectedSlot = slot; BlockUseHoldableItem(); }
+                    break;
                 case 3:
-                    if (this.Inventory.Slot3 != null) { this.Inventory.SelectedSlot = slot; BlockUseHoldableItem(); } break;
+                    if (this.Inventory.Slot3 != null) { this.Inventory.SelectedSlot = slot; BlockUseHoldableItem(); }
+                    break;
             }
         }
         public void BlockUseHoldableItem()
@@ -80,7 +83,7 @@ namespace BombAttackGame.Models
         }
         private void UnblockUseHoldableItem()
         {
-            if(!this.CanUseHoldableItem && this.Time >= this.UseHoldableItemBlockTime + this.UseHoldableItemBlockLatency)
+            if (!this.CanUseHoldableItem && this.Time >= this.UseHoldableItemBlockTime + this.UseHoldableItemBlockLatency)
             {
                 this.CanUseHoldableItem = true;
             }
@@ -122,10 +125,39 @@ namespace BombAttackGame.Models
             UpdateRectangle();
             UpdateColor(Color);
             CheckIfDead();
+            CheckInventory();
             //BotMove(gameTime);
             UnblockUseHoldableItem();
             UpdateObjectsVisibilityAsync(gameObjects, mapRectangle);
         }
+        public void RemoveFromInventory(IInventoryItem inventoryItem)
+        {
+            this.Inventory.InventoryItems.Remove(inventoryItem);
+            switch(inventoryItem.InventorySlot)
+            {
+                case 1: this.Inventory.Slot1 = null; break;
+                case 2: this.Inventory.Slot2 = null; break;
+                case 3: this.Inventory.Slot3 = null; break;
+            }
+        }
+        private void CheckInventory()
+        {
+            if (this.Inventory?.SelectedSlot == 2)
+            {
+                if (this.Inventory.Slot2 == null)
+                {
+                    ChangeInventorySlot(1);
+                }
+            }
+            if (this.Inventory?.SelectedSlot == 3)
+            {
+                if (this.Inventory.Slot3 == null)
+                {
+                    ChangeInventorySlot(1);
+                }
+            }
+        }
+
         private async Task UpdateObjectsVisibilityAsync(List<IGameObject> gameObjects, List<Rectangle> mapRectangle)
         {
             foreach (var obj in gameObjects)
@@ -141,7 +173,7 @@ namespace BombAttackGame.Models
                 }
             }
         }
-       
+
         private bool CheckIfDead()
         {
             if (this.Health <= 0) return true;
