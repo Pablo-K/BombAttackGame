@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BombAttackGame.Draw
 {
@@ -18,7 +19,8 @@ namespace BombAttackGame.Draw
             Parts = parts;
             PartTime = partTime;
             LastPartTime = 0;
-            Location = location;
+            Location = new Vector2(location.X - (int)animationTexture.ElementAt(0).Width / 2,
+                        location.Y - (int)animationTexture.ElementAt(0).Height / 2);
         }
     }
 }
