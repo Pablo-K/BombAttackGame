@@ -26,6 +26,7 @@ namespace BombAttackGame.Models
         public Team Team { get; set; }
         public int Health { get; private set; }
         public double Speed { get; set; }
+        public bool CanUseHoldableItem { get; private set; }
         public bool IsDead { get; set; }
         public bool IsAttacked { get; set; }
         public bool OnMainSpeed { get; private set; }
@@ -34,6 +35,8 @@ namespace BombAttackGame.Models
         public double MainSpeedEndTime { get; private set; }
         private double MovingTime { get; set; }
         private double MovingEndTime { get; set; }
+        private double UseHoldableItemBlockTime { get; set; }
+        private double UseHoldableItemBlockLatency { get; set; }
         public Color Color { get; set; }
         public Queue<Enums.Events> Event { get; set; }
         public Rectangle Rectangle { get; set; }
@@ -42,6 +45,7 @@ namespace BombAttackGame.Models
         public List<IGameObject> VisibleObjects { get; set; }
         public Inventory Inventory { get; set; }
         public Texture2D Texture { get => ContentContainer.PlayerTexture(this.Team); set { } }
+        public double Time { get; private set; }
 
         public Player()
         {
@@ -55,8 +59,32 @@ namespace BombAttackGame.Models
             this.IsHuman = false;
             this.VisibleObjects = new List<IGameObject>();
             this.Inventory = new Inventory();
+            this.UseHoldableItemBlockLatency = 500;
         }
-
+        public void ChangeInventorySlot(int slot)
+        {
+            switch (slot)
+            {
+                case 1:
+                    if (this.Inventory.Slot1 != null) { this.Inventory.SelectedSlot = slot; BlockUseHoldableItem(); } break;
+                case 2:
+                    if (this.Inventory.Slot2 != null) { this.Inventory.SelectedSlot = slot; BlockUseHoldableItem(); } break;
+                case 3:
+                    if (this.Inventory.Slot3 != null) { this.Inventory.SelectedSlot = slot; BlockUseHoldableItem(); } break;
+            }
+        }
+        public void BlockUseHoldableItem()
+        {
+            this.CanUseHoldableItem = false;
+            this.UseHoldableItemBlockTime = this.Time;
+        }
+        private void UnblockUseHoldableItem()
+        {
+            if(!this.CanUseHoldableItem && this.Time >= this.UseHoldableItemBlockTime + this.UseHoldableItemBlockLatency)
+            {
+                this.CanUseHoldableItem = true;
+            }
+        }
         public void PlayerMove(Direction direction)
         {
             OldLocation.Add(Location);
@@ -90,10 +118,12 @@ namespace BombAttackGame.Models
 
         public void Tick(GameTime gameTime, List<IGameObject> gameObjects, List<Rectangle> mapRectangle)
         {
+            this.Time = gameTime.TotalGameTime.TotalMilliseconds;
             UpdateRectangle();
             UpdateColor(Color);
             CheckIfDead();
             //BotMove(gameTime);
+            UnblockUseHoldableItem();
             UpdateObjectsVisibilityAsync(gameObjects, mapRectangle);
         }
         private async Task UpdateObjectsVisibilityAsync(List<IGameObject> gameObjects, List<Rectangle> mapRectangle)

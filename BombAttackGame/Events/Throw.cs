@@ -22,7 +22,7 @@ namespace BombAttackGame.Events
                     handGrenade.Texture = ContentContainer.BulletTexture;
                     handGrenade.Distance = Vector2.Distance(handGrenade.Point, handGrenade.Location);
                     player.Inventory.InventoryItems.Remove(exp as IInventoryItem);
-                    player.Inventory.SelectedSlot = 1;
+                    player.ChangeInventorySlot(1);
                     player.Inventory.Slot2 = null;
                     return handGrenade;
                 } 
