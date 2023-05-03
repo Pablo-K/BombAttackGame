@@ -87,7 +87,10 @@ namespace BombAttackGame.Events
             {
                 case HandGrenade handGrenade: 
                     DealDamageAround(handGrenade);
-                    _animations.Add(new Animation(AnimationsContainer.HandGrenadeBoom, AnimationsContainer.HandGrenadeBoom.Count, 30, handGrenade.Point));
+                    _animations.Add(new Animation(AnimationsContainer.HandGrenadeBoom, AnimationsContainer.HandGrenadeBoom.Count, 30, 
+                        new Vector2(handGrenade.Location.X - (int)AnimationsContainer.HandGrenadeBoom.ElementAt(0).Width/2,
+                        handGrenade.Location.Y - (int)AnimationsContainer.HandGrenadeBoom.ElementAt(0).Height/2
+                        )));
                     break;
             }
         }
