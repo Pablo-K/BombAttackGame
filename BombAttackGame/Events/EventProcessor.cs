@@ -1,4 +1,5 @@
 ﻿using BombAttackGame.Abstracts;
+using BombAttackGame.Draw;
 using BombAttackGame.Enums;
 using BombAttackGame.Global;
 using BombAttackGame.Interfaces;
@@ -19,15 +20,17 @@ namespace BombAttackGame.Events
         private readonly List<IGameSprite> _sprites;
         private readonly List<Rectangle> _mapCollisions;
         private readonly List<IHoldableObject> _holdableObjects;
+        private List<Animation> _animations;
         private readonly GameTime _gameTime;
 
-        public EventProcessor(List<IGameObject> gameObjects, List<Rectangle> mapCollisions, GameTime gameTime, List<IGameSprite> sprites, List<IHoldableObject> holdableObjects)
+        public EventProcessor(List<IGameObject> gameObjects, List<Rectangle> mapCollisions, GameTime gameTime, List<IGameSprite> sprites, List<IHoldableObject> holdableObjects, List<Animation> animations)
         {
             _gameObjects = gameObjects;
             _mapCollisions = mapCollisions;
             _gameTime = gameTime;
             _sprites = sprites;
             _holdableObjects = holdableObjects;
+            _animations = animations;
         }
 
         public void ProcessEvents()
@@ -82,7 +85,10 @@ namespace BombAttackGame.Events
         {
             switch (gameObject)
             {
-                case HandGrenade handGrenade: DealDamageAround(handGrenade); break;
+                case HandGrenade handGrenade: 
+                    DealDamageAround(handGrenade);
+                    _animations.Add(new Animation(AnimationsContainer.HandGrenadeBoom, AnimationsContainer.HandGrenadeBoom.Count, 30, handGrenade.Point));
+                    break;
             }
         }
         private void DealDamageAround(HandGrenade handGrenade)

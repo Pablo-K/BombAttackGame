@@ -28,6 +28,7 @@ namespace BombAttackGame
         private readonly DrawingProcessor _draw;
         private readonly MapManager _mapManager;
         private readonly GraphicsDeviceManager _graphics;
+        private List<Animation> _animations;
         private Player _player;
         private SpriteBatch _spriteBatch;
         private int _teamMateAmount;
@@ -47,10 +48,11 @@ namespace BombAttackGame
             _mapCollision = new List<Rectangle>();
             _gameTime = new GameTime();
             _holdableObjects = new List<IHoldableObject>();
+            _animations = new List<Animation>();
             _mapManager = new MapManager();
             _inputHandler = new InputHandler();
-            _eventProcessor = new EventProcessor(_gameObjects, _mapCollision, _gameTime, _sprites, _holdableObjects);
-            _draw = new DrawingProcessor(_gameObjects, _sprites, _mapManager);
+            _eventProcessor = new EventProcessor(_gameObjects, _mapCollision, _gameTime, _sprites, _holdableObjects, _animations);
+            _draw = new DrawingProcessor(_gameObjects, _sprites, _animations, _mapManager, _gameTime);
         }
 
         protected override void Initialize()
@@ -68,6 +70,7 @@ namespace BombAttackGame
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             ContentContainer.Initialize(base.Content);
+            AnimationsContainer.Initialize(base.Content);
             _mapManager.GenerateMirage();
             _mapCollision.AddRange(_mapManager.Mirage.Rectangle);
             _player = GameObject.AddPlayer(Team.TeamMate, _mapSize, _mapManager);

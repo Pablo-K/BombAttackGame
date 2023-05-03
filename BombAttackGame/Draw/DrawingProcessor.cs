@@ -14,14 +14,18 @@ namespace BombAttackGame.Draw
     internal class DrawingProcessor
     {
         private readonly List<IGameObject> _gameObjects;
+        private List<Animation> _animations;
         private readonly List<IGameSprite> _sprites;
         private readonly MapManager _mapManager;
+        private readonly GameTime _gameTime;
 
-        public DrawingProcessor(List<IGameObject> gameObjects, List<IGameSprite> sprites, MapManager mapManager)
+        public DrawingProcessor(List<IGameObject> gameObjects, List<IGameSprite> sprites, List<Animation> animations, MapManager mapManager, GameTime gameTime)
         {
             _gameObjects = gameObjects;
             _sprites = sprites;
             _mapManager = mapManager;
+            _gameTime = gameTime;
+            _animations = animations;
         }
         public void Draw(SpriteBatch spriteBatch)
         {
@@ -29,6 +33,23 @@ namespace BombAttackGame.Draw
             DrawSprites(spriteBatch);
             DrawMap(spriteBatch);
             DrawHud(spriteBatch);
+            DrawAnimations(spriteBatch);
+        }
+        private void DrawAnimations(SpriteBatch spriteBatch)
+        {
+            foreach (var animation in _animations.ToList())
+            {
+                if (_gameTime.TotalGameTime.TotalMilliseconds >= animation.LastPartTime + animation.PartTime)
+                {
+                    spriteBatch.Draw(animation.AnimationTexture.ElementAt(animation.ActualPart), animation.Location, Color.Black);
+                    animation.ActualPart += 1;
+                    animation.LastPartTime = _gameTime.TotalGameTime.TotalMilliseconds;
+                }
+                if (animation.ActualPart == animation.Parts)
+                {
+                    _animations.Remove(animation);
+                }
+            }
         }
         private void DrawHud(SpriteBatch spriteBatch)
         {
