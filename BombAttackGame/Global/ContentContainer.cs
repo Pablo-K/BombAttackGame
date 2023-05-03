@@ -1,6 +1,8 @@
 ﻿using BombAttackGame.Enums;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace BombAttackGame.Global
 {
@@ -20,6 +22,15 @@ namespace BombAttackGame.Global
         private static Texture2D _bulletTexture;
         private static Texture2D _mainSpeedTexture;
         private static Texture2D _grenadeTexture;
+        private static List<Texture2D> _teamMateUp;
+        private static List<Texture2D> _teamMateRight;
+        private static List<Texture2D> _teamMateDown;
+        private static List<Texture2D> _teamMateLeft;
+        private static List<Texture2D> _enemyUp;
+        private static List<Texture2D> _enemyRight;
+        private static List<Texture2D> _enemyDown;
+        private static List<Texture2D> _enemyLeft;
+        const string PA = "PlayerAnimation/";
 
         public static SpriteFont HpFont => _hpFont ??= _contentManager.Load<SpriteFont>("hp");
         public static SpriteFont DamageFont => _damageFont ??= _contentManager.Load<SpriteFont>("damage");
@@ -30,6 +41,14 @@ namespace BombAttackGame.Global
         public static Texture2D BulletTexture => _bulletTexture ??= _contentManager.Load<Texture2D>("bullet");
         public static Texture2D MainSpeedTexture => _mainSpeedTexture ??= _contentManager.Load<Texture2D>("mainSpeed");
         public static Texture2D GrenadeTexture => _grenadeTexture ??= _contentManager.Load<Texture2D>("grenade");
+        public static List<Texture2D> TeamMateUp { get { return new List<Texture2D>() { _contentManager.Load<Texture2D>(PA +"teammateup1"), _contentManager.Load<Texture2D>(PA +"teammateup2") }; } }
+        public static List<Texture2D> TeamMateDown { get { return new List<Texture2D>() { _contentManager.Load<Texture2D>(PA + "teammatedown1"), _contentManager.Load<Texture2D>(PA +"teammatedown2") }; } }
+        public static List<Texture2D> TeamMateLeft { get { return new List<Texture2D>() { _contentManager.Load<Texture2D>(PA + "teammateleft1"), _contentManager.Load<Texture2D>(PA + "teammateleft2") }; } }
+        public static List<Texture2D> TeamMateRight { get { return new List<Texture2D>() { _contentManager.Load<Texture2D>(PA + "teammateright1"), _contentManager.Load<Texture2D>(PA + "teammateright2") }; } }
+        public static List<Texture2D> EnemyUp { get { return new List<Texture2D>() { _contentManager.Load<Texture2D>(PA + "enemyup1"), _contentManager.Load<Texture2D>(PA + "enemyup2") }; } }
+        public static List<Texture2D> EnemyDown { get { return new List<Texture2D>() { _contentManager.Load<Texture2D>(PA + "enemydown1"), _contentManager.Load<Texture2D>(PA + "enemydown2") }; } }
+        public static List<Texture2D> EnemyLeft { get { return new List<Texture2D>() { _contentManager.Load<Texture2D>(PA + "enemyleft1"), _contentManager.Load<Texture2D>(PA + "enemyleft2") }; } }
+        public static List<Texture2D> EnemyRight { get { return new List<Texture2D>() { _contentManager.Load<Texture2D>(PA + "enemyright1"), _contentManager.Load<Texture2D>(PA + "enemyright2") }; } }
 
         public static void Initialize(ContentManager contentManager)
         {
@@ -40,10 +59,41 @@ namespace BombAttackGame.Global
         {
             return team switch
             {
-                Team.TeamMate => _teamMateTexture ??= _contentManager.Load<Texture2D>(team.ToString()),
-                Team.Enemy => _enemyTexture ??= _contentManager.Load<Texture2D>(team.ToString()),
+                Team.TeamMate => _teamMateTexture ??= _contentManager.Load<Texture2D>("PlayerAnimation/" + team.ToString() + "down1"),
+                Team.Enemy => _enemyTexture ??= _contentManager.Load<Texture2D>("PlayerAnimation/" + team.ToString() + "down1"),
                 _ => null
             };
+        }
+        public static Texture2D PlayerTextureMove(Team team, Direction direction, int value)
+        {
+            switch (direction)
+            {
+                case Direction.Left:
+                    if (team == Team.TeamMate) return TeamMateLeft.ElementAt(value);
+                    return EnemyLeft.ElementAt(value);
+                case Direction.Right:
+                    if (team == Team.TeamMate) return TeamMateRight.ElementAt(value);
+                    return EnemyRight.ElementAt(value);
+                case Direction.Down:
+                    if (team == Team.TeamMate) return TeamMateDown.ElementAt(value);
+                    return EnemyDown.ElementAt(value);
+                case Direction.DownRight:
+                    if (team == Team.TeamMate) return TeamMateDown.ElementAt(value);
+                    return EnemyDown.ElementAt(value);
+                case Direction.DownLeft:
+                    if (team == Team.TeamMate) return TeamMateDown.ElementAt(value);
+                    return EnemyDown.ElementAt(value);
+                case Direction.Up:
+                    if (team == Team.TeamMate) return TeamMateUp.ElementAt(value);
+                    return EnemyLeft.ElementAt(value);
+                case Direction.UpRight:
+                    if (team == Team.TeamMate) return TeamMateUp.ElementAt(value);
+                    return EnemyLeft.ElementAt(value);
+                case Direction.UpLeft:
+                    if (team == Team.TeamMate) return TeamMateUp.ElementAt(value);
+                    return EnemyLeft.ElementAt(value);
+            }
+            return null;
         }
 
     }

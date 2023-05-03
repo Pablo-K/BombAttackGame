@@ -35,9 +35,11 @@ namespace BombAttackGame.Events
 
         public void ProcessEvents()
         {
-            foreach (var gameObject in _gameObjects.ToList()) {
+            foreach (var gameObject in _gameObjects.ToList())
+            {
                 if (gameObject.Event is null) continue;
-                while (gameObject.Event.TryDequeue(out Enums.Events e)) {
+                while (gameObject.Event.TryDequeue(out Enums.Events e))
+                {
                     ProcessEvent(gameObject, e);
                 }
             }
@@ -51,7 +53,8 @@ namespace BombAttackGame.Events
             }
         }
 
-        private void ProcessEvent(IGameObject gameObject, Enums.Events e) {
+        private void ProcessEvent(IGameObject gameObject, Enums.Events e)
+        {
             switch (e)
             {
                 case Enums.Events.Move:
@@ -80,7 +83,7 @@ namespace BombAttackGame.Events
         private void ThrowItem(IGameObject gameObject)
         {
             Explosive item = Throw.PlayerThrow((Player)gameObject);
-            if(item is HandGrenade)
+            if (item is HandGrenade)
             {
                 HandGrenade handGrenade = (HandGrenade)item;
                 handGrenade.StartTime = _gameTime.TotalGameTime.TotalMilliseconds;
@@ -91,7 +94,7 @@ namespace BombAttackGame.Events
         {
             switch (gameObject)
             {
-                case HandGrenade handGrenade: 
+                case HandGrenade handGrenade:
                     DealDamageAround(handGrenade);
                     _animations.Add(new Animation(AnimationsContainer.HandGrenadeBoom, handGrenade.Location));
                     break;
@@ -99,10 +102,10 @@ namespace BombAttackGame.Events
         }
         private void DealDamageAround(HandGrenade handGrenade)
         {
-            foreach(var obj in _gameObjects.OfType<Player>())
+            foreach (var obj in _gameObjects.OfType<Player>())
             {
                 int damage = handGrenade.CalculateDamage(obj);
-                if(damage > 0)
+                if (damage > 0)
                 {
                     DealDamage.DealDamageToPlayer(obj, damage);
                     CreateDamage(handGrenade, obj, _gameTime);
@@ -121,7 +124,8 @@ namespace BombAttackGame.Events
             }
         }
 
-        private void Move(IGameObject gameObject) {
+        private void Move(IGameObject gameObject)
+        {
             switch (gameObject)
             {
                 case Player player: Move(player); break;
@@ -249,6 +253,7 @@ namespace BombAttackGame.Events
                     player.Direction = Direction.UpRight;
                     break;
             }
+                player.ChangeTexture();
         }
 
         private void Move(Bullet bullet)
@@ -258,11 +263,11 @@ namespace BombAttackGame.Events
             bullet.Location = Vector2.Lerp(bullet.Location, bullet.Point, speed);
             length += Vector2.Distance(bullet.Location, bullet.StartLocation);
             bullet.DistanceTravelled += length;
-            foreach (var rec in _mapCollisions) {
+            foreach (var rec in _mapCollisions)
+            {
                 if (bullet.Rectangle.Intersects(rec)) bullet.Event.Enqueue(Enums.Events.ObjectHitted);
             }
         }
-
         private void Move(HandGrenade handGrenade)
         {
             float speed = handGrenade.Speed * (1.0f / handGrenade.Distance);
@@ -270,12 +275,15 @@ namespace BombAttackGame.Events
             handGrenade.Location = Vector2.Lerp(handGrenade.Location, handGrenade.Point, speed);
             length += Vector2.Distance(handGrenade.Location, handGrenade.StartLocation);
             handGrenade.DistanceTravelled += length;
-            foreach (var rec in _mapCollisions) {
-                if (handGrenade.Rectangle.Intersects(rec)) handGrenade.Event.Enqueue(Enums.Events.ObjectHitted);
+            foreach (var rec in _mapCollisions)
+            {
+                if (handGrenade.Rectangle.Intersects(rec))
+                    handGrenade.Event.Enqueue(Enums.Events.ObjectHitted);
             }
         }
 
-        private void TryShoot(IGameObject gameObject) {
+        private void TryShoot(IGameObject gameObject)
+        {
             switch (gameObject)
             {
                 case Player player: TryShoot(player); break;
@@ -297,6 +305,7 @@ namespace BombAttackGame.Events
         private void ObjectHitted(IGameObject gameObject)
         {
             if (gameObject is Bullet bullet) ObjectHitted(bullet);
+            if (gameObject is HandGrenade hgrenade) ObjectHitted(hgrenade);
         }
 
         private void ObjectHitted(Bullet bullet)
@@ -307,6 +316,11 @@ namespace BombAttackGame.Events
                 CreateDamage(bullet, _gameTime);
             }
             DeleteObject.FromGameObjects(bullet, _gameObjects);
+        }
+
+        private void ObjectHitted(HandGrenade hGrenade)
+        {
+
         }
 
         private void Delete(IGameObject gameObject)

@@ -44,11 +44,14 @@ namespace BombAttackGame.Models
         public int Ammo { get; set; }
         public List<IGameObject> VisibleObjects { get; set; }
         public Inventory Inventory { get; set; }
-        public Texture2D Texture { get => ContentContainer.PlayerTexture(this.Team); set { } }
+        public Texture2D Texture { get; set; }
         public double Time { get; private set; }
+        private double WalkTextureTime { get; set; }
+        private double WalkTextureTimeLatency { get; set; }
 
-        public Player()
+        public Player(Team team)
         {
+            this.Team = team;
             this.Direction = Direction.Right;
             this.Speed = 2;
             this.Health = 100;
@@ -60,6 +63,15 @@ namespace BombAttackGame.Models
             this.VisibleObjects = new List<IGameObject>();
             this.Inventory = new Inventory();
             this.UseHoldableItemBlockLatency = 500;
+            this.Texture = ContentContainer.PlayerTexture(this.Team);
+            this.WalkTextureTimeLatency = 100;
+        }
+        public void ChangeTexture()
+        {
+            if (Time <= WalkTextureTime + WalkTextureTimeLatency) return;
+            if (this.Texture.Name.ElementAt(this.Texture.Name.Length - 1) == '1') this.Texture = ContentContainer.PlayerTextureMove(this.Team, this.Direction, 1);
+            else this.Texture = ContentContainer.PlayerTextureMove(this.Team, this.Direction, 0);
+            this.WalkTextureTime = Time;
         }
         public void ChangeInventorySlot(int slot)
         {
@@ -133,7 +145,7 @@ namespace BombAttackGame.Models
         public void RemoveFromInventory(IInventoryItem inventoryItem)
         {
             this.Inventory.InventoryItems.Remove(inventoryItem);
-            switch(inventoryItem.InventorySlot)
+            switch (inventoryItem.InventorySlot)
             {
                 case 1: this.Inventory.Slot1 = null; break;
                 case 2: this.Inventory.Slot2 = null; break;

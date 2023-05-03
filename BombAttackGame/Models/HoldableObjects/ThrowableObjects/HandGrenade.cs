@@ -48,7 +48,7 @@ namespace BombAttackGame.Models.HoldableObjects.ThrowableObjects
             this.IsDead = false;
             this.Color = Color.AliceBlue;
             this.Event = new Queue<Enums.Events>();
-            this.MaxTime = 1000;
+            this.MaxTime = 2000;
         }
 
         public override void Explode()

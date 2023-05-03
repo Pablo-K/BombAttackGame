@@ -10,35 +10,34 @@ namespace BombAttackGame.Models
 {
     internal class GameObject
     {
-        public static Player AddPlayer(Team Team, (int Width, int Height) MapSize, MapManager Map)
+        public static Player AddPlayer(Team team, (int Width, int Height) MapSize, MapManager Map)
         {
-            Player Player = new Player();
-            Player.Team = Team;
-            Player.Location = Spawn.ChooseRandomSpawnPoint(Map, Team);
-            if (Team == Team.Enemy)
+            Player Player = new Player(team);
+            Player.Location = Spawn.ChooseRandomSpawnPoint(Map, team);
+            if (team == Team.Enemy)
             {
                 Player.Color = Color.Red;
             }
-            if (Team == Team.TeamMate)
+            if (team == Team.TeamMate)
             {
                 Player.Color = Color.Green;
             }
             return Player;
         }
 
-        public static List<Player> AddPlayers(Team Team, int Amount, MapManager Map)
+        public static List<Player> AddPlayers(Team team, int Amount, MapManager Map)
         {
             List<Player> Players = new List<Player>();
             for (int i = 0; i < Amount; i++)
             {
-                Player Player = new Player();
-                Player.Team = Team;
-                Player.Location = Spawn.ChooseRandomSpawnPoint(Map, Team);
-                if (Team == Team.Enemy)
+                Player Player = new Player(team);
+                Player.Team = team;
+                Player.Location = Spawn.ChooseRandomSpawnPoint(Map, team);
+                if (team == Team.Enemy)
                 {
                     Player.Color = Color.Red;
                 }
-                if (Team == Team.TeamMate)
+                if (team == Team.TeamMate)
                 {
                     Player.Color = Color.Green;
                 }
