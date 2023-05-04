@@ -24,6 +24,14 @@ namespace BombAttackGame.Events
                     player.RemoveFromInventory((IInventoryItem)exp);
                     return handGrenade;
                 } 
+                if(grenade.Type  == "flashgrenade")
+                {
+                    var flashGrenade = new FlashGrenade(player.Location, player, point);
+                    flashGrenade.Texture = ContentContainer.BulletTexture;
+                    flashGrenade.Distance = Vector2.Distance(flashGrenade.Point, flashGrenade.Location);
+                    player.RemoveFromInventory((IInventoryItem)exp);
+                    return flashGrenade;
+                } 
             }
             return null;
         }

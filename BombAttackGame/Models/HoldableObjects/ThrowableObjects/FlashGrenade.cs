@@ -1,14 +1,17 @@
 ﻿using BombAttackGame.Abstracts;
-using BombAttackGame.Bonuses;
 using BombAttackGame.Global;
 using BombAttackGame.Interfaces;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace BombAttackGame.Models.HoldableObjects.ThrowableObjects
 {
-    internal class HandGrenade : Explosive, IGameObject, IProjectile
+    internal class FlashGrenade : Explosive, IGameObject, IProjectile
     {
         public Vector2 Location { get; set; }
         public Texture2D Texture { get; set; }
@@ -18,9 +21,7 @@ namespace BombAttackGame.Models.HoldableObjects.ThrowableObjects
         public float DistanceTravelled { get; set; }
         public float MaxDistance { get; set; }
         public int FlashTime { get; set; }
-        public double TeamDamage { get; set; }
-        public double EnemyDamage { get; set; }
-        public double OtherDamage { get; set; }
+        public int TimeFlashed { get; set; }
         public double StartTime { get; set; }
         public double MaxTime { get; set; }
         public Player Owner { get; set; }
@@ -30,21 +31,17 @@ namespace BombAttackGame.Models.HoldableObjects.ThrowableObjects
         public Rectangle Rectangle { get; set; }
         public Queue<Enums.Events> Event { get; set; }
         public bool IsDead { get; set; }
-        public int DamageDealt { get; set; }
         public override Texture2D HudTexture => ContentContainer.GrenadeTexture;
 
-        public HandGrenade(Vector2 location, Player owner, Vector2 point)
+        public FlashGrenade(Vector2 location, Player owner, Vector2 point)
         {
             this.Location = new Vector2(location.X, location.Y);
             this.StartLocation = new Vector2(location.X, location.Y);
             this.Owner = owner;
-            this.FlashTime = 83;
+            this.FlashTime = 2500;
             this.Point = point;
             this.Speed = 5;
             this.MaxDistance = 5000;
-            this.TeamDamage = 0.5;
-            this.EnemyDamage = 1;
-            this.OtherDamage = 1;
             this.IsDead = false;
             this.Color = Color.AliceBlue;
             this.Event = new Queue<Enums.Events>();
@@ -56,44 +53,37 @@ namespace BombAttackGame.Models.HoldableObjects.ThrowableObjects
             this.Event.Enqueue(Enums.Events.Explode);
             this.Event.Enqueue(Enums.Events.Delete);
         }
-        public int CalculateDamage(IGameObject gameObject)
+        public int CalculateTime(IGameObject gameObject)
         {
             float distance = 0;
-            var newDamage = 0;
+            var newTime = 0;
             distance = Vector2.Distance(Location, gameObject.Location);
             switch (distance)
             {
-                case > 100:
-                    newDamage = 0;
+                case > 400:
+                    newTime = 0;
                     break;
-                case > 90:
-                    newDamage = (int)(FlashTime * 0.1); break;
-                case > 80:
-                    newDamage = (int)(FlashTime * 0.2); break;
-                case > 70:
-                    newDamage = (int)(FlashTime * 0.3); break;
-                case > 60:
-                    newDamage = (int)(FlashTime * 0.4); break;
-                case > 50:
-                    newDamage = (int)(FlashTime * 0.5); break;
-                case > 40:
-                    newDamage = (int)(FlashTime * 0.6); break;
-                case > 30:
-                    newDamage = (int)(FlashTime * 0.7); break;
-                case > 20:
-                    newDamage = (int)(FlashTime * 0.8); break;
+                case > 300:
+                    newTime = (int)(FlashTime * 0.1); break;
+                case > 250:
+                    newTime = (int)(FlashTime * 0.2); break;
+                case > 200:
+                    newTime = (int)(FlashTime * 0.3); break;
+                case > 180:
+                    newTime = (int)(FlashTime * 0.4); break;
+                case > 160:
+                    newTime = (int)(FlashTime * 0.5); break;
+                case > 140:
+                    newTime = (int)(FlashTime * 0.6); break;
+                case > 120:
+                    newTime = (int)(FlashTime * 0.7); break;
+                case > 100:
+                    newTime = (int)(FlashTime * 0.8); break;
                 case > 10:
-                    newDamage = (int)(FlashTime * 0.9); break;
+                    newTime = (int)(FlashTime * 0.9); break;
             }
-            if (gameObject is Player)
-            {
-                Player Player = gameObject as Player;
-                if (Player.Team == Owner.Team) newDamage = (int)(newDamage * TeamDamage);
-                if (Player.Team != Owner.Team) newDamage = (int)(newDamage * EnemyDamage);
-                if (Player == this.Owner) newDamage = 0;
-            }
-            this.DamageDealt = newDamage;
-            return DamageDealt;
+            this.TimeFlashed = newTime;
+            return this.TimeFlashed;
         }
         public void UpdateRectangle()
         {

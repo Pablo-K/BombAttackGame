@@ -13,10 +13,6 @@ namespace BombAttackGame.Interfaces
         public float Distance { get; set; }
         public float DistanceTravelled { get; set; }
         public float MaxDistance { get; set; }
-        public int Damage { get; set; }
-        public double TeamDamage { get; set; }
-        public double EnemyDamage { get; set; }
-        public double OtherDamage { get; set; }
         public Player Owner { get; set; }
         public Vector2 StartLocation { get; set; }
         public Vector2 Direction { get; set; }

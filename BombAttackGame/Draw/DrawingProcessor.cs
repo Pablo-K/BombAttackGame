@@ -18,6 +18,8 @@ namespace BombAttackGame.Draw
         private readonly List<IGameSprite> _sprites;
         private readonly MapManager _mapManager;
         private readonly GameTime _gameTime;
+        private float _alpha = 1f;
+        private Color _color = Color.Indigo;
 
         public DrawingProcessor(List<IGameObject> gameObjects, List<IGameSprite> sprites, List<Animation> animations, MapManager mapManager, GameTime gameTime)
         {
@@ -27,13 +29,19 @@ namespace BombAttackGame.Draw
             _gameTime = gameTime;
             _animations = animations;
         }
-        public void Draw(SpriteBatch spriteBatch)
+        public void Draw(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice)
         {
+            graphicsDevice.Clear(_color);
+            spriteBatch.Begin();
+
             DrawGameObjects(spriteBatch);
             DrawSprites(spriteBatch);
             DrawMap(spriteBatch);
             DrawHud(spriteBatch);
             DrawAnimations(spriteBatch);
+            DrawFlash(spriteBatch);
+
+            spriteBatch.End();
         }
         private void DrawAnimations(SpriteBatch spriteBatch)
         {
@@ -41,7 +49,7 @@ namespace BombAttackGame.Draw
             {
                 if (_gameTime.TotalGameTime.TotalMilliseconds >= animation.LastPartTime + animation.PartTime)
                 {
-                    spriteBatch.Draw(animation.AnimationTexture.ElementAt(animation.ActualPart), animation.Location, Color.Black);
+                    spriteBatch.Draw(animation.AnimationTexture.ElementAt(animation.ActualPart), animation.Location, Color.Black * _alpha);
                     animation.ActualPart += 1;
                     animation.LastPartTime = _gameTime.TotalGameTime.TotalMilliseconds;
                 }
@@ -63,11 +71,24 @@ namespace BombAttackGame.Draw
             }
 
         }
+        private void DrawFlash(SpriteBatch spriteBatch)
+        {
+            Player player = (Player)_gameObjects.ElementAt(0);
+            if (player.IsFlashed)
+            {
+                _alpha = 1f - ((player.FlashTime - (float)player.Time) / 1000); ;
+            }
+            else
+            {
+                _alpha = 1f;
+                _color = Color.Indigo;
+            }
+        }
         private void DrawMap(SpriteBatch spriteBatch)
         {
             for (int i = 0; i < _mapManager.Mirage.WallVector.Count; i++)
             {
-                spriteBatch.Draw(MapManager.Wall, _mapManager.Mirage.WallVector[i], Color.Red);
+                spriteBatch.Draw(MapManager.Wall, _mapManager.Mirage.WallVector[i], Color.Red * _alpha);
             }
         }
         private void DrawGameObjects(SpriteBatch spriteBatch)
@@ -78,7 +99,7 @@ namespace BombAttackGame.Draw
             {
                 if (!gameObject.IsDead && player.VisibleObjects.Contains(gameObject))
                 {
-                    spriteBatch.Draw(gameObject.Texture, gameObject.Location, gameObject.Color);
+                    spriteBatch.Draw(gameObject.Texture, gameObject.Location, gameObject.Color * _alpha);
                 }
             }
         }
@@ -86,7 +107,7 @@ namespace BombAttackGame.Draw
         {
             foreach (var gameSprite in _sprites)
             {
-                spriteBatch.DrawString(gameSprite.Font, gameSprite.Text, gameSprite.Location, gameSprite.Color);
+                spriteBatch.DrawString(gameSprite.Font, gameSprite.Text, gameSprite.Location, gameSprite.Color * _alpha);
             }
 
         }

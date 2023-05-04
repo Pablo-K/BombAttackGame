@@ -30,6 +30,7 @@ namespace BombAttackGame.Models
         public bool IsDead { get; set; }
         public bool IsAttacked { get; set; }
         public bool OnMainSpeed { get; private set; }
+        public bool IsFlashed { get; set; }
         public double ShotTime { get; set; }
         public double MainSpeedStartTime { get; private set; }
         public double MainSpeedEndTime { get; private set; }
@@ -42,6 +43,7 @@ namespace BombAttackGame.Models
         public Rectangle Rectangle { get; set; }
         public bool IsHuman { get; set; }
         public int Ammo { get; set; }
+        public int FlashTime { get; set; }
         public List<IGameObject> VisibleObjects { get; set; }
         public Inventory Inventory { get; set; }
         public Texture2D Texture { get; set; }
@@ -138,9 +140,17 @@ namespace BombAttackGame.Models
             UpdateColor(Color);
             CheckIfDead();
             CheckInventory();
+            CheckFlash();
             //BotMove(gameTime);
             UnblockUseHoldableItem();
             UpdateObjectsVisibilityAsync(gameObjects, mapRectangle);
+        }
+        private void CheckFlash()
+        {
+            if(this.FlashTime <= this.Time)
+            {
+                this.IsFlashed = false;
+            }
         }
         public void RemoveFromInventory(IInventoryItem inventoryItem)
         {

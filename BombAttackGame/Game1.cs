@@ -84,7 +84,7 @@ namespace BombAttackGame
             foreach (var player in _gameObjects.OfType<Player>())
             {
                 var gun = new Sheriff();
-                var grenade = new Grenade("handgrenade");
+                var grenade = new Grenade("flashgrenade");
                 player.Inventory.InventoryItems.Add(gun);
                 player.Inventory.Equip(gun);
                 player.Inventory.Equip(grenade);
@@ -117,11 +117,8 @@ namespace BombAttackGame
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.Indigo);
-            _spriteBatch.Begin();
-            _draw.Draw(_spriteBatch);
+            _draw.Draw(_spriteBatch, GraphicsDevice);
 
-            _spriteBatch.End();
             base.Draw(gameTime);
         }
     }

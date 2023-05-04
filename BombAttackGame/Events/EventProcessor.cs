@@ -89,6 +89,12 @@ namespace BombAttackGame.Events
                 handGrenade.StartTime = _gameTime.TotalGameTime.TotalMilliseconds;
                 _gameObjects.Add(handGrenade);
             }
+            if (item is FlashGrenade)
+            {
+                FlashGrenade flashGrenade = (FlashGrenade)item;
+                flashGrenade.StartTime = _gameTime.TotalGameTime.TotalMilliseconds;
+                _gameObjects.Add(flashGrenade);
+            }
         }
         private void Explode(IGameObject gameObject)
         {
@@ -98,6 +104,22 @@ namespace BombAttackGame.Events
                     DealDamageAround(handGrenade);
                     _animations.Add(new Animation(AnimationsContainer.HandGrenadeBoom, handGrenade.Location));
                     break;
+                case FlashGrenade flashGrenade:
+                    FlashAround(flashGrenade); break;
+            }
+        }
+        private void FlashAround(FlashGrenade flashGrenade)
+        {
+            foreach (var obj in _gameObjects.OfType<Player>())
+            {
+                if (obj.VisibleObjects.Any(x => flashGrenade == x))
+                {
+                    int time = flashGrenade.CalculateTime(obj);
+                    if (time > 0)
+                    {
+                        FlashPlayers.Flash(obj, (int)_gameTime.TotalGameTime.TotalMilliseconds + time);
+                    }
+                }
             }
         }
         private void DealDamageAround(HandGrenade handGrenade)
@@ -131,6 +153,7 @@ namespace BombAttackGame.Events
                 case Player player: Move(player); break;
                 case Bullet bullet: Move(bullet); break;
                 case HandGrenade handgrenade: Move(handgrenade); break;
+                case FlashGrenade flashGrenade: Move(flashGrenade); break;
             }
         }
 
@@ -253,7 +276,7 @@ namespace BombAttackGame.Events
                     player.Direction = Direction.UpRight;
                     break;
             }
-                player.ChangeTexture();
+            player.ChangeTexture();
         }
 
         private void Move(Bullet bullet)
@@ -282,6 +305,20 @@ namespace BombAttackGame.Events
             }
         }
 
+        private void Move(FlashGrenade flashGrenade)
+        {
+            float speed = flashGrenade.Speed * (1.0f / flashGrenade.Distance);
+            float length = 0;
+            flashGrenade.Location = Vector2.Lerp(flashGrenade.Location, flashGrenade.Point, speed);
+            length += Vector2.Distance(flashGrenade.Location, flashGrenade.StartLocation);
+            flashGrenade.DistanceTravelled += length;
+            foreach (var rec in _mapCollisions)
+            {
+                if (flashGrenade.Rectangle.Intersects(rec))
+                    flashGrenade.Event.Enqueue(Enums.Events.ObjectHitted);
+            }
+        }
+
         private void TryShoot(IGameObject gameObject)
         {
             switch (gameObject)
@@ -306,6 +343,7 @@ namespace BombAttackGame.Events
         {
             if (gameObject is Bullet bullet) ObjectHitted(bullet);
             if (gameObject is HandGrenade hgrenade) ObjectHitted(hgrenade);
+            if (gameObject is FlashGrenade fgrenade) ObjectHitted(fgrenade);
         }
 
         private void ObjectHitted(Bullet bullet)
@@ -318,10 +356,8 @@ namespace BombAttackGame.Events
             DeleteObject.FromGameObjects(bullet, _gameObjects);
         }
 
-        private void ObjectHitted(HandGrenade hGrenade)
-        {
-
-        }
+        private void ObjectHitted(HandGrenade hGrenade) { }
+        private void ObjectHitted(FlashGrenade fGrenade) { }
 
         private void Delete(IGameObject gameObject)
         {
