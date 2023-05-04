@@ -18,7 +18,7 @@ namespace BombAttackGame.Models
         public float Distance { get; set; }
         public float DistanceTravelled { get; set; }
         public float MaxDistance { get; set; }
-        public int FlashTime { get; set; }
+        public int Damage { get; set; }
         public double TeamDamage { get; set; }
         public double EnemyDamage { get; set; }
         public double OtherDamage { get; set; }
@@ -37,7 +37,7 @@ namespace BombAttackGame.Models
             this.StartLocation = new Vector2(location.X, location.Y);
             this.Speed = 5;
             this.Owner = owner;
-            this.FlashTime = damage;
+            this.Damage = damage;
             this.Point = point;
             this.MaxDistance = 120000;
             this.TeamDamage = 0.5;
@@ -52,31 +52,31 @@ namespace BombAttackGame.Models
             switch (this.DistanceTravelled)
             {
                 case > 80000:
-                    FlashTime = (int)(FlashTime * 0.1); break;
+                    Damage = (int)(Damage * 0.1); break;
                 case > 55000:
-                    FlashTime = (int)(FlashTime * 0.2); break;
+                    Damage = (int)(Damage * 0.2); break;
                 case > 30000:
-                    FlashTime = (int)(FlashTime * 0.3); break;
+                    Damage = (int)(Damage * 0.3); break;
                 case > 20000:
-                    FlashTime = (int)(FlashTime * 0.4); break;
+                    Damage = (int)(Damage * 0.4); break;
                 case > 15000:
-                    FlashTime = (int)(FlashTime * 0.5); break;
+                    Damage = (int)(Damage * 0.5); break;
                 case > 12000:
-                    FlashTime = (int)(FlashTime * 0.6); break;
+                    Damage = (int)(Damage * 0.6); break;
                 case > 9000:
-                    FlashTime = (int)(FlashTime * 0.7); break;
+                    Damage = (int)(Damage * 0.7); break;
                 case > 7000:
-                    FlashTime = (int)(FlashTime * 0.8); break;
+                    Damage = (int)(Damage * 0.8); break;
                 case > 4000:
-                    FlashTime = (int)(FlashTime * 0.9); break;
+                    Damage = (int)(Damage * 0.9); break;
             }
             if(GameObject is Player)
             {
                 Player Player = GameObject as Player;
-                if (Player.Team == this.Owner.Team) FlashTime = (int)(FlashTime * this.TeamDamage);
-                if (Player.Team != this.Owner.Team) FlashTime = (int)(FlashTime * this.EnemyDamage);
+                if (Player.Team == this.Owner.Team) Damage = (int)(Damage * this.TeamDamage);
+                if (Player.Team != this.Owner.Team) Damage = (int)(Damage * this.EnemyDamage);
             }
-            return (int)FlashTime;
+            return (int)Damage;
         }
         public void UpdateRectangle()
         {
