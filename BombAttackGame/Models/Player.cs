@@ -141,13 +141,70 @@ namespace BombAttackGame.Models
             CheckIfDead();
             CheckInventory();
             CheckFlash();
-            //BotMove(gameTime);
+            BotUseHoldable(gameTime);
+            BotMove(gameTime);
             UnblockUseHoldableItem();
             UpdateObjectsVisibilityAsync(gameObjects, mapRectangle);
         }
+
+        private void BotUseHoldable(GameTime gameTime)
+        {
+            if (this.IsHuman) return;
+            if (this.IsFlashed) return;
+            Random random = new Random();
+            var x = random.Next(0, 100);
+            if (x > 50) return;
+            if (this.Team == Team.Enemy)
+            {
+                var visible = VisibleObjects.OfType<Player>().Where(x => x.Team == Team.TeamMate);
+                if (visible.Count() == 0) return;
+                if (x > 20)
+                {
+                    var rand = visible.ElementAt(random.Next(0, visible.Count()));
+                    UseSelectedItem(rand.Location);
+                    if (this.Inventory.SelectedItem is Gun gun)
+                    {
+                        if (gun.Magazine == 0) gun.AddReloadEvent();
+                    }
+                }
+                else if (x > 15)
+                {
+                    if (this.Inventory.Slot2 != null)
+                    {
+                        ChangeInventorySlot(2);
+                        var rand = visible.ElementAt(random.Next(0, visible.Count()));
+                        UseSelectedItem(rand.Location);
+                    }
+                }
+            }
+            if (this.Team == Team.TeamMate)
+            {
+                var visible = VisibleObjects.OfType<Player>().Where(x => x.Team == Team.Enemy);
+                if (visible.Count() == 0) return;
+                if (x > 20)
+                {
+                    var rand = visible.ElementAt(random.Next(0, visible.Count()));
+                    UseSelectedItem(rand.Location);
+                    if (this.Inventory.SelectedItem is Gun gun)
+                    {
+                        if (gun.Magazine == 0) gun.AddReloadEvent();
+                    }
+                }
+                else if (x > 15)
+                {
+                    if (this.Inventory.Slot2 != null)
+                    {
+                        ChangeInventorySlot(2);
+                        var rand = visible.ElementAt(random.Next(0, visible.Count()));
+                        UseSelectedItem(rand.Location);
+                    }
+                }
+            }
+        }
+
         private void CheckFlash()
         {
-            if(this.FlashTime <= this.Time)
+            if (this.FlashTime <= this.Time)
             {
                 this.IsFlashed = false;
             }

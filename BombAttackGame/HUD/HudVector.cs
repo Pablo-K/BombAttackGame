@@ -9,9 +9,13 @@ namespace BombAttackGame.HUD
         {
             return new Vector2(MapSize[0]  - 30, MapSize[1] - 20);
         }
-        public static Vector2 GunVector()
+        public static Vector2 HoldableVector()
         {
             return new Vector2(MapSize[0]  - 80, MapSize[1] - 80);
+        }
+        public static Vector2 HoldableNameVector()
+        {
+            return new Vector2(MapSize[0]  - 100, MapSize[1] - 90);
         }
         public static Vector2 MagazineVector()
         {

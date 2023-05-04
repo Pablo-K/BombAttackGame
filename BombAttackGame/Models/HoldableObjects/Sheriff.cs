@@ -10,7 +10,7 @@ namespace BombAttackGame.Models.HoldableObjects
     internal class Sheriff : Gun, IInventoryItem
     {
 
-        public Vector2 HudPosition => HudVector.GunVector();
+        public Vector2 HudPosition => HudVector.HoldableVector();
         public string HudDisplayName { get; }
         public override Texture2D HudTexture => ContentContainer.SheriffTexture;
         public int InventorySlot { get; }

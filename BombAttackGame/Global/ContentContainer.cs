@@ -85,13 +85,13 @@ namespace BombAttackGame.Global
                     return EnemyDown.ElementAt(value);
                 case Direction.Up:
                     if (team == Team.TeamMate) return TeamMateUp.ElementAt(value);
-                    return EnemyLeft.ElementAt(value);
+                    return EnemyUp.ElementAt(value);
                 case Direction.UpRight:
                     if (team == Team.TeamMate) return TeamMateUp.ElementAt(value);
-                    return EnemyLeft.ElementAt(value);
+                    return EnemyUp.ElementAt(value);
                 case Direction.UpLeft:
                     if (team == Team.TeamMate) return TeamMateUp.ElementAt(value);
-                    return EnemyLeft.ElementAt(value);
+                    return EnemyUp.ElementAt(value);
             }
             return null;
         }

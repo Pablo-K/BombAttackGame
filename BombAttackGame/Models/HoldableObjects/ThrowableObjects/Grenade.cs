@@ -11,7 +11,7 @@ namespace BombAttackGame.Models.HoldableObjects.ThrowableObjects
     {
         public override Texture2D HudTexture => ContentContainer.GrenadeTexture;
         public string Type { get; set; }
-        public Vector2 HudPosition => HudVector.GunVector();
+        public Vector2 HudPosition => HudVector.HoldableVector();
         public string HudDisplayName { get; }
         public int InventorySlot { get; }
 
