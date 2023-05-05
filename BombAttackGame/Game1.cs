@@ -85,15 +85,17 @@ namespace BombAttackGame
             foreach (var player in _gameObjects.OfType<Player>())
             {
                 var gun = new Sheriff();
+                var gun2 = new Sheriff();
                 var flash = new Grenade("flashgrenade");
                 var nade = new Grenade("handgrenade");
                 player.Inventory.InventoryItems.Add(gun);
                 player.Inventory.Equip(gun);
-                Random rand = new();
-                if(rand.Next(0,10) <= 6) { player.Inventory.Equip(nade); }
-                else { player.Inventory.Equip(flash); }
+                player.Inventory.Equip(gun2);
+                player.Inventory.Equip(nade);
+                player.Inventory.Equip(flash);
                 player.Inventory.Select(1);
                 _holdableObjects.Add(gun);
+                _holdableObjects.Add(gun2);
             }
         }
 

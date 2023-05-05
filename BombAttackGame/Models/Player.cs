@@ -48,6 +48,8 @@ namespace BombAttackGame.Models
         public Inventory Inventory { get; set; }
         public Texture2D Texture { get; set; }
         public double Time { get; private set; }
+        private double ChangeInventoryTime { get; set; }
+        private double ChangeInventoryLatency { get; set; }
         private double WalkTextureTime { get; set; }
         private double WalkTextureTimeLatency { get; set; }
 
@@ -67,6 +69,7 @@ namespace BombAttackGame.Models
             this.UseHoldableItemBlockLatency = 500;
             this.Texture = ContentContainer.PlayerTexture(this.Team);
             this.WalkTextureTimeLatency = 100;
+            this.ChangeInventoryLatency = 300;
         }
         public void ChangeTexture()
         {
@@ -77,18 +80,53 @@ namespace BombAttackGame.Models
         }
         public void ChangeInventorySlot(int slot)
         {
+            if (this.Time < this.ChangeInventoryTime + this.ChangeInventoryLatency) return;
             switch (slot)
             {
                 case 1:
-                    if (this.Inventory.Slot1 != null) { this.Inventory.SelectedSlot = slot; BlockUseHoldableItem(); }
+                    if (this.Inventory.Slot1 != null)
+                    {
+                        if (this.Inventory.SelectedSlot == 1)
+                        {
+                            this.Inventory.SelectNext(slot);
+                        }
+                        else
+                        {
+                            this.Inventory.Select(slot);
+                        }
+                        BlockUseHoldableItem();
+                    }
                     break;
                 case 2:
-                    if (this.Inventory.Slot2 != null) { this.Inventory.SelectedSlot = slot; BlockUseHoldableItem(); }
+                    if (this.Inventory.Slot2 != null)
+                    {
+                        if (this.Inventory.SelectedSlot == 2)
+                        {
+                            this.Inventory.SelectNext(slot);
+                        }
+                        else
+                        {
+                            this.Inventory.Select(slot);
+                        }
+                        BlockUseHoldableItem();
+                    }
                     break;
                 case 3:
-                    if (this.Inventory.Slot3 != null) { this.Inventory.SelectedSlot = slot; BlockUseHoldableItem(); }
+                    if (this.Inventory.Slot3 != null)
+                    {
+                        if (this.Inventory.SelectedSlot == 3)
+                        {
+                            this.Inventory.SelectNext(slot);
+                        }
+                        else
+                        {
+                            this.Inventory.Select(slot);
+                        }
+                        BlockUseHoldableItem();
+                    }
                     break;
             }
+            this.ChangeInventoryTime = this.Time;
         }
         public void BlockUseHoldableItem()
         {
@@ -142,7 +180,7 @@ namespace BombAttackGame.Models
             CheckInventory();
             CheckFlash();
             BotUseHoldable(gameTime);
-            BotMove(gameTime);
+            //BotMove(gameTime);
             UnblockUseHoldableItem();
             UpdateObjectsVisibilityAsync(gameObjects, mapRectangle);
         }
@@ -211,7 +249,6 @@ namespace BombAttackGame.Models
         }
         public void RemoveFromInventory(IInventoryItem inventoryItem)
         {
-            this.Inventory.InventoryItems.Remove(inventoryItem);
             switch (inventoryItem.InventorySlot)
             {
                 case 1: this.Inventory.Slot1 = null; break;
@@ -225,7 +262,10 @@ namespace BombAttackGame.Models
             {
                 if (this.Inventory.Slot2 == null)
                 {
-                    ChangeInventorySlot(1);
+                    {
+                        this.Inventory.SelectNext(2);
+                        ChangeInventorySlot(1);
+                    }
                 }
             }
             if (this.Inventory?.SelectedSlot == 3)
