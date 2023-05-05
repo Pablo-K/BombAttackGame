@@ -30,6 +30,7 @@ namespace BombAttackGame.Models
         public Queue<Enums.Events> Event { get; set; }
         public IGameObject ObjectHitted { get; set; }
         public int DamageDealt { get; set; }
+        public bool IsHuman { get; set; }
 
         public Bullet(Vector2 location, Player owner, Vector2 point, int damage)
         {

@@ -1,3 +1,3 @@
 ﻿
-using var game = new BombAttackGame.Game1();
+using var game = new BombAttackGame.BombAttackGame();
 game.Run();

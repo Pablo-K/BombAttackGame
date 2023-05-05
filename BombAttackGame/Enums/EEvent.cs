@@ -11,6 +11,9 @@
         Delete,
         MaxDistance,
         Explode,
-        Throw
+        Throw,
+        EndRound,
+        EndGame,
+        Dead
     }
 }

@@ -18,16 +18,18 @@ namespace BombAttackGame.Draw
         private readonly List<IGameSprite> _sprites;
         private readonly MapManager _mapManager;
         private readonly GameTime _gameTime;
+        private readonly GameManager _gameManager;
         private float _alpha = 1f;
         private Color _color = Color.Indigo;
 
-        public DrawingProcessor(List<IGameObject> gameObjects, List<IGameSprite> sprites, List<Animation> animations, MapManager mapManager, GameTime gameTime)
+        public DrawingProcessor(List<IGameObject> gameObjects, List<IGameSprite> sprites, List<Animation> animations, MapManager mapManager, GameTime gameTime, GameManager gameManager)
         {
             _gameObjects = gameObjects;
             _sprites = sprites;
             _mapManager = mapManager;
             _gameTime = gameTime;
             _animations = animations;
+            _gameManager = gameManager;
         }
         public void Draw(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice)
         {
@@ -61,9 +63,12 @@ namespace BombAttackGame.Draw
         }
         private void DrawHud(SpriteBatch spriteBatch)
         {
-            Player player = (Player)_gameObjects.ElementAt(0);
+            if ((Player)_gameObjects.Where(x => x.IsHuman).FirstOrDefault() == null) return;
+            Player player = (Player)_gameObjects.Where(x => x.IsHuman).First();
             spriteBatch.DrawString(ContentContainer.HpFont, player.Health.ToString(), HudVector.HpVector(), Color.Green);
             spriteBatch.DrawString(ContentContainer.HpFont, player.Inventory.SelectedItem.HudDisplayName, HudVector.HoldableNameVector(), Color.Green);
+            spriteBatch.DrawString(ContentContainer.GameResultFont, _gameManager.CTWinRounds.ToString(), HudVector.CTWinVector(), Color.Green);
+            spriteBatch.DrawString(ContentContainer.GameResultFont, _gameManager.TTWinRounds.ToString(), HudVector.TTWinVector(), Color.Green);
             spriteBatch.Draw(player.Inventory.SelectedItem.HudTexture, player.Inventory.SelectedItem.HudPosition, Color.FloralWhite);
             if (player.Inventory.SelectedItem is Gun gun)
             {
@@ -74,7 +79,8 @@ namespace BombAttackGame.Draw
         }
         private void DrawFlash(SpriteBatch spriteBatch)
         {
-            Player player = (Player)_gameObjects.ElementAt(0);
+            if ((Player)_gameObjects.Where(x => x.IsHuman).FirstOrDefault() == null) return;
+            Player player = (Player)_gameObjects.Where(x => x.IsHuman).First();
             if (player.IsFlashed)
             {
                 _alpha = 1f - ((player.FlashTime - (float)player.Time) / 1000); ;
@@ -94,7 +100,8 @@ namespace BombAttackGame.Draw
         }
         private void DrawGameObjects(SpriteBatch spriteBatch)
         {
-            Player player = (Player)_gameObjects.ElementAt(0);
+            if ((Player)_gameObjects.Where(x => x.IsHuman).FirstOrDefault() == null) return;
+            Player player = (Player)_gameObjects.Where(x => x.IsHuman).First();
 
             foreach (var gameObject in _gameObjects)
             {

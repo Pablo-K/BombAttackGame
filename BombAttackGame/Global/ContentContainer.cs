@@ -12,6 +12,7 @@ namespace BombAttackGame.Global
         private static ContentManager _contentManager;
 
         private static SpriteFont _hpFont;
+        private static SpriteFont _gameResultFont;
         private static SpriteFont _damageFont;
         private static SpriteFont _magazineFont;
         private static SpriteFont _ammoFont;
@@ -22,17 +23,10 @@ namespace BombAttackGame.Global
         private static Texture2D _bulletTexture;
         private static Texture2D _mainSpeedTexture;
         private static Texture2D _grenadeTexture;
-        private static List<Texture2D> _teamMateUp;
-        private static List<Texture2D> _teamMateRight;
-        private static List<Texture2D> _teamMateDown;
-        private static List<Texture2D> _teamMateLeft;
-        private static List<Texture2D> _enemyUp;
-        private static List<Texture2D> _enemyRight;
-        private static List<Texture2D> _enemyDown;
-        private static List<Texture2D> _enemyLeft;
         const string PA = "PlayerAnimation/";
 
         public static SpriteFont HpFont => _hpFont ??= _contentManager.Load<SpriteFont>("hp");
+        public static SpriteFont GameResultFont => _gameResultFont ??= _contentManager.Load<SpriteFont>("gameresult");
         public static SpriteFont DamageFont => _damageFont ??= _contentManager.Load<SpriteFont>("damage");
         public static SpriteFont MagazineFont => _magazineFont ??= _contentManager.Load<SpriteFont>("magazine");
         public static SpriteFont AmmoFont => _ammoFont ??= _contentManager.Load<SpriteFont>("ammo");

@@ -295,7 +295,11 @@ namespace BombAttackGame.Models
 
         private bool CheckIfDead()
         {
-            if (this.Health <= 0) return true;
+            if (this.Health <= 0)
+            {
+                this.Event.Enqueue(Enums.Events.Dead);
+                return true;
+            } 
             return false;
         }
 

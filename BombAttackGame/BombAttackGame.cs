@@ -17,7 +17,7 @@ using System.Linq;
 namespace BombAttackGame
 {
 
-    public class Game1 : Game
+    public class BombAttackGame : Game
     {
         private readonly List<IGameObject> _gameObjects;
         private readonly List<IGameSprite> _sprites;
@@ -29,6 +29,7 @@ namespace BombAttackGame
         private readonly DrawingProcessor _draw;
         private readonly MapManager _mapManager;
         private readonly GraphicsDeviceManager _graphics;
+        private readonly GameManager _gameManager;
         private List<Animation> _animations;
         private Player _player;
         private SpriteBatch _spriteBatch;
@@ -36,7 +37,7 @@ namespace BombAttackGame
         private int _enemyAmount;
         private (int Width, int Height) _mapSize;
 
-        public Game1()
+        public BombAttackGame()
         {
             base.Content.RootDirectory = "Content";
             base.IsMouseVisible = true;
@@ -52,8 +53,9 @@ namespace BombAttackGame
             _animations = new List<Animation>();
             _mapManager = new MapManager();
             _inputHandler = new InputHandler();
-            _eventProcessor = new EventProcessor(_gameObjects, _mapCollision, _gameTime, _sprites, _holdableObjects, _animations);
-            _draw = new DrawingProcessor(_gameObjects, _sprites, _animations, _mapManager, _gameTime);
+            _gameManager = new GameManager(_gameObjects);
+            _eventProcessor = new EventProcessor(_gameObjects, _mapCollision, _gameTime, _sprites, _holdableObjects, _animations, _gameManager);
+            _draw = new DrawingProcessor(_gameObjects, _sprites, _animations, _mapManager, _gameTime,_gameManager);
         }
 
         protected override void Initialize()
@@ -74,36 +76,16 @@ namespace BombAttackGame
             AnimationsContainer.Initialize(base.Content);
             _mapManager.GenerateMirage();
             _mapCollision.AddRange(_mapManager.Mirage.Rectangle);
-            _player = GameObject.AddPlayer(Team.TeamMate, _mapSize, _mapManager);
-            _gameObjects.Add(_player);
-            _player.IsHuman = true;
-            _player.Color = Color.Tomato;
-            _gameObjects.Add(GameObject.AddMainSpeed(Team.None, _mapManager));
-            _gameObjects.AddRange(GameObject.AddPlayers(Team.TeamMate, _teamMateAmount, _mapManager));
-            _gameObjects.AddRange(GameObject.AddPlayers(Team.Enemy, _enemyAmount, _mapManager));
-
-            foreach (var player in _gameObjects.OfType<Player>())
-            {
-                var gun = new Sheriff();
-                var gun2 = new Sheriff();
-                var flash = new Grenade("flashgrenade");
-                var nade = new Grenade("handgrenade");
-                player.Inventory.InventoryItems.Add(gun);
-                player.Inventory.Equip(gun);
-                player.Inventory.Equip(gun2);
-                player.Inventory.Equip(nade);
-                player.Inventory.Equip(flash);
-                player.Inventory.Select(1);
-                _holdableObjects.Add(gun);
-                _holdableObjects.Add(gun2);
-            }
+            StartRound();
         }
 
         protected override void Update(GameTime gameTime)
         {
+            if (_eventProcessor.EndRoundBool) StartRound();
             _gameTime.TotalGameTime = gameTime.TotalGameTime;
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape)) Exit();
             _inputHandler.HandleInputs(_player);
+            _gameManager.Process();
             _eventProcessor.ProcessEvents();
             Tick();
             base.Update(gameTime);
@@ -126,6 +108,33 @@ namespace BombAttackGame
             _draw.Draw(_spriteBatch, GraphicsDevice);
 
             base.Draw(gameTime);
+        }
+        private void StartRound()
+        {
+            this._holdableObjects.Clear();
+            this._gameObjects.Clear();
+            _player = GameObject.AddPlayer(Team.TeamMate, _mapSize, _mapManager);
+            _gameObjects.Add(_player);
+            _player.IsHuman = true;
+            _player.Color = Color.Tomato;
+            _gameObjects.Add(GameObject.AddMainSpeed(Team.None, _mapManager));
+            _gameObjects.AddRange(GameObject.AddPlayers(Team.TeamMate, _teamMateAmount, _mapManager));
+            _gameObjects.AddRange(GameObject.AddPlayers(Team.Enemy, _enemyAmount, _mapManager));
+
+            foreach (var player in _gameObjects.OfType<Player>())
+            {
+                var gun = new Sheriff();
+                var flash = new Grenade("flashgrenade");
+                var nade = new Grenade("handgrenade");
+                player.Inventory.InventoryItems.Add(gun);
+                player.Inventory.Equip(gun);
+                player.Inventory.Equip(nade);
+                player.Inventory.Equip(flash);
+                player.Inventory.Select(1);
+                _holdableObjects.Add(gun);
+            }
+            _eventProcessor.EndRoundBool = false;
+            _gameManager.RoundStarted();
         }
     }
 }

@@ -14,5 +14,6 @@ namespace BombAttackGame.Interfaces
         public void Tick(GameTime GameTime, List<IGameObject> GameObjects, List<Rectangle> MapRectangle) { }
         public Rectangle Rectangle { get; set; }
         public Queue<Enums.Events> Event { get; set; }
+        public bool IsHuman { get; set; }
     }
 }

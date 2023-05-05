@@ -7,10 +7,10 @@ using BombAttackGame.Models;
 using BombAttackGame.Models.HoldableObjects.ThrowableObjects;
 using BombAttackGame.Vector;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 
 namespace BombAttackGame.Events
 {
@@ -20,10 +20,14 @@ namespace BombAttackGame.Events
         private readonly List<IGameSprite> _sprites;
         private readonly List<Rectangle> _mapCollisions;
         private readonly List<IHoldableObject> _holdableObjects;
+        private readonly GameManager _gameManager;
         private List<Animation> _animations;
         private readonly GameTime _gameTime;
+        public bool EndRoundBool;
+        public bool EndGameBool;
 
-        public EventProcessor(List<IGameObject> gameObjects, List<Rectangle> mapCollisions, GameTime gameTime, List<IGameSprite> sprites, List<IHoldableObject> holdableObjects, List<Animation> animations)
+        public EventProcessor(List<IGameObject> gameObjects, List<Rectangle> mapCollisions, GameTime gameTime,
+            List<IGameSprite> sprites, List<IHoldableObject> holdableObjects, List<Animation> animations, GameManager gameManager)
         {
             _gameObjects = gameObjects;
             _mapCollisions = mapCollisions;
@@ -31,6 +35,7 @@ namespace BombAttackGame.Events
             _sprites = sprites;
             _holdableObjects = holdableObjects;
             _animations = animations;
+            _gameManager = gameManager;
         }
 
         public void ProcessEvents()
@@ -48,9 +53,10 @@ namespace BombAttackGame.Events
                 if (holdableObject.Event is null) continue;
                 while (holdableObject.Event.TryDequeue(out Enums.Events e))
                 {
-                    ProvessEvent(holdableObject, e);
+                    ProcessEvent(holdableObject, e);
                 }
             }
+            ProcessEvent(_gameManager, _gameManager.Event);
         }
 
         private void ProcessEvent(IGameObject gameObject, Enums.Events e)
@@ -59,6 +65,9 @@ namespace BombAttackGame.Events
             {
                 case Enums.Events.Move:
                     Move(gameObject);
+                    break;
+                case Enums.Events.Dead:
+                    Dead(gameObject);
                     break;
                 case Enums.Events.TryShoot:
                     TryShoot(gameObject);
@@ -78,6 +87,32 @@ namespace BombAttackGame.Events
                     Explode(gameObject);
                     break;
             }
+        }
+
+        private void Dead(IGameObject gameObject)
+        {
+            _gameObjects.Remove(gameObject);
+        }
+
+        private void ProcessEvent(GameManager gameManager, Enums.Events e)
+        {
+            switch(e)
+            {
+                case Enums.Events.EndRound:
+                    EndRound();
+                    break;
+                case Enums.Events.EndGame:
+                    EndGame();
+                    break;
+            }
+        }
+        private void EndRound()
+        {
+            this.EndRoundBool = true;
+        }
+        private void EndGame()
+        {
+            this.EndGameBool = true;
         }
 
         private void ThrowItem(IGameObject gameObject)
@@ -135,7 +170,7 @@ namespace BombAttackGame.Events
             }
         }
 
-        private void ProvessEvent(IHoldableObject obj, Enums.Events e)
+        private void ProcessEvent(IHoldableObject obj, Enums.Events e)
         {
             switch (e)
             {

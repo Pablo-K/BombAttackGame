@@ -15,6 +15,7 @@ namespace BombAttackGame.Abstracts
         public Texture2D Texture { get; set; }
         public bool IsDead { get; set; }
         public Rectangle Rectangle { get; set; }
+        public bool IsHuman { get; set; }
 
         public Explosive()
         {

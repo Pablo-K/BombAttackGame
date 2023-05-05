@@ -25,5 +25,13 @@ namespace BombAttackGame.HUD
         {
             return new Vector2(MapSize[0]  - 60, MapSize[1] - 30);
         }
+        public static Vector2 CTWinVector()
+        {
+            return new Vector2(MapSize[0] / 2 - 20, 50);
+        }
+        public static Vector2 TTWinVector()
+        {
+            return new Vector2(MapSize[0] / 2 + 20, 50);
+        }
     }
 }

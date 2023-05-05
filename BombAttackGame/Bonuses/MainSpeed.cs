@@ -23,6 +23,7 @@ namespace BombAttackGame.Bonuses
         public bool IsDead { get; set; }
         public Rectangle Rectangle { get; set; }
         public Queue<Enums.Events> Event { get; set; }
+        public bool IsHuman { get; set ; }
 
         public MainSpeed()
         {
