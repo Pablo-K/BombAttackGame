@@ -3,7 +3,9 @@ using BombAttackGame.Draw;
 using BombAttackGame.Enums;
 using BombAttackGame.Global;
 using BombAttackGame.Interfaces;
+using BombAttackGame.Map;
 using BombAttackGame.Models;
+using BombAttackGame.Models.HoldableObjects;
 using BombAttackGame.Models.HoldableObjects.ThrowableObjects;
 using BombAttackGame.Vector;
 using Microsoft.Xna.Framework;
@@ -21,13 +23,15 @@ namespace BombAttackGame.Events
         private readonly List<Rectangle> _mapCollisions;
         private readonly List<IHoldableObject> _holdableObjects;
         private readonly GameManager _gameManager;
+        private readonly MapManager _mapManager;
         private List<Animation> _animations;
         private readonly GameTime _gameTime;
         public bool EndRoundBool;
         public bool EndGameBool;
 
         public EventProcessor(List<IGameObject> gameObjects, List<Rectangle> mapCollisions, GameTime gameTime,
-            List<IGameSprite> sprites, List<IHoldableObject> holdableObjects, List<Animation> animations, GameManager gameManager)
+            List<IGameSprite> sprites, List<IHoldableObject> holdableObjects, List<Animation> animations, GameManager gameManager,
+            MapManager mapManager)
         {
             _gameObjects = gameObjects;
             _mapCollisions = mapCollisions;
@@ -36,6 +40,7 @@ namespace BombAttackGame.Events
             _holdableObjects = holdableObjects;
             _animations = animations;
             _gameManager = gameManager;
+            _mapManager = mapManager;
         }
 
         public void ProcessEvents()
@@ -104,11 +109,54 @@ namespace BombAttackGame.Events
                 case Enums.Events.EndGame:
                     EndGame();
                     break;
+                case Enums.Events.TimeLapse:
+                    TimeLapse();
+                    break;
             }
+        }
+        private void TimeLapse()
+        {
+            foreach (var player in _gameObjects.OfType<Player>())
+            {
+                player.Speed = 10;
+                player.MovingTime = 200;
+                if (player.Inventory.Slot1 is Sheriff sheriff) sheriff.Latency = 20;
+                player.BotGrenadeChance = 10;
+                player.BotGunChance = 20;
+                player.BotNothingChance = 60;
+            }
+            foreach (var bullet in _gameObjects.OfType<Bullet>())
+            {
+                bullet.Speed = 10;
+            }
+            _gameManager.ResetEvent();
         }
         private void EndRound()
         {
-            this.EndRoundBool = true;
+            Player player = new Player(Team.TeamMate);
+            this._holdableObjects.Clear();
+            this._gameObjects.Clear();
+            player = GameObject.AddPlayer(Team.TeamMate, _mapManager);
+            _gameObjects.Add(player);
+            player.IsHuman = true;
+            player.Color = Color.Tomato;
+            _gameObjects.Add(GameObject.AddMainSpeed(Team.None, _mapManager));
+            _gameObjects.AddRange(GameObject.AddPlayers(Team.TeamMate, _gameManager.TeamMatesCount, _mapManager));
+            _gameObjects.AddRange(GameObject.AddPlayers(Team.Enemy, _gameManager.EnemyCount, _mapManager));
+
+            foreach (var p in _gameObjects.OfType<Player>())
+            {
+                var gun = new Sheriff();
+                var flash = new Grenade("flashgrenade");
+                var nade = new Grenade("handgrenade");
+                p.Inventory.InventoryItems.Add(gun);
+                p.Inventory.Equip(gun);
+                p.Inventory.Equip(nade);
+                p.Inventory.Equip(flash);
+                p.Inventory.Select(1);
+                _holdableObjects.Add(gun);
+            }
+            _gameManager.ResetEvent();
         }
         private void EndGame()
         {

@@ -10,7 +10,7 @@ namespace BombAttackGame.Models
 {
     internal class GameObject
     {
-        public static Player AddPlayer(Team team, (int Width, int Height) MapSize, MapManager Map)
+        public static Player AddPlayer(Team team, MapManager Map)
         {
             Player Player = new Player(team);
             Player.Location = Spawn.ChooseRandomSpawnPoint(Map, team);

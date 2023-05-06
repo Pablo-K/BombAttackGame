@@ -90,7 +90,6 @@ namespace BombAttackGame.Models.HoldableObjects.ThrowableObjects
                 Player Player = gameObject as Player;
                 if (Player.Team == Owner.Team) newDamage = (int)(newDamage * TeamDamage);
                 if (Player.Team != Owner.Team) newDamage = (int)(newDamage * EnemyDamage);
-                if (Player == this.Owner) newDamage = 0;
             }
             this.DamageDealt = newDamage;
             return DamageDealt;

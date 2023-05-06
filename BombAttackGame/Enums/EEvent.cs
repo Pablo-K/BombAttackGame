@@ -14,6 +14,7 @@
         Throw,
         EndRound,
         EndGame,
-        Dead
+        Dead,
+        TimeLapse
     }
 }

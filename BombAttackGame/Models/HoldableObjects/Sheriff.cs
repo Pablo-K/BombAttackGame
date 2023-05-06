@@ -19,10 +19,10 @@ namespace BombAttackGame.Models.HoldableObjects
 
         public Sheriff() : base()
         {
-            this.Latency = 200;
+            this.Latency = GameManager.SheriffLatency;
             this.Damage = 25;
             this.Magazine = 6;
-            this.Ammo = 42;
+            this.Ammo = 78;
             this.MagazineCapacity = 6;
             this.AmmoCapacity = 60;
             this.HudDisplayName = "Sheriff";

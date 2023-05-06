@@ -35,14 +35,12 @@ namespace BombAttackGame.Draw
         {
             graphicsDevice.Clear(_color);
             spriteBatch.Begin();
-
             DrawGameObjects(spriteBatch);
             DrawSprites(spriteBatch);
             DrawMap(spriteBatch);
             DrawHud(spriteBatch);
             DrawAnimations(spriteBatch);
             DrawFlash(spriteBatch);
-
             spriteBatch.End();
         }
         private void DrawAnimations(SpriteBatch spriteBatch)
@@ -68,7 +66,7 @@ namespace BombAttackGame.Draw
             spriteBatch.DrawString(ContentContainer.HpFont, player.Health.ToString(), HudVector.HpVector(), Color.Green);
             spriteBatch.DrawString(ContentContainer.HpFont, player.Inventory.SelectedItem.HudDisplayName, HudVector.HoldableNameVector(), Color.Green);
             spriteBatch.DrawString(ContentContainer.GameResultFont, _gameManager.CTWinRounds.ToString(), HudVector.CTWinVector(), Color.Green);
-            spriteBatch.DrawString(ContentContainer.GameResultFont, _gameManager.TTWinRounds.ToString(), HudVector.TTWinVector(), Color.Green);
+            spriteBatch.DrawString(ContentContainer.GameResultFont, _gameManager.TTWinRounds.ToString(), HudVector.TTWinVector(), Color.Red);
             spriteBatch.Draw(player.Inventory.SelectedItem.HudTexture, player.Inventory.SelectedItem.HudPosition, Color.FloralWhite);
             if (player.Inventory.SelectedItem is Gun gun)
             {
@@ -79,8 +77,12 @@ namespace BombAttackGame.Draw
         }
         private void DrawFlash(SpriteBatch spriteBatch)
         {
-            if ((Player)_gameObjects.Where(x => x.IsHuman).FirstOrDefault() == null) return;
-            Player player = (Player)_gameObjects.Where(x => x.IsHuman).First();
+            if ((Player)_gameObjects.Where(x => x.IsHuman).FirstOrDefault() == null)
+            {
+                _alpha = 1f;
+                return;
+            }
+            Player player = (Player)_gameObjects.Where(x => x.IsHuman).FirstOrDefault();
             if (player.IsFlashed)
             {
                 _alpha = 1f - ((player.FlashTime - (float)player.Time) / 1000); ;
@@ -100,9 +102,16 @@ namespace BombAttackGame.Draw
         }
         private void DrawGameObjects(SpriteBatch spriteBatch)
         {
-            if ((Player)_gameObjects.Where(x => x.IsHuman).FirstOrDefault() == null) return;
-            Player player = (Player)_gameObjects.Where(x => x.IsHuman).First();
+            if ((Player)_gameObjects.Where(x => x.IsHuman).FirstOrDefault() == null)
+            {
+            foreach (var gameObject in _gameObjects)
+                {
+                    spriteBatch.Draw(gameObject.Texture, gameObject.Location, gameObject.Color * _alpha);
+                }
+                return;
+            }
 
+            Player player = (Player)_gameObjects.Where(x => x.IsHuman).First();
             foreach (var gameObject in _gameObjects)
             {
                 if (!gameObject.IsDead && player.VisibleObjects.Contains(gameObject))

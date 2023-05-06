@@ -36,7 +36,7 @@ namespace BombAttackGame.Models
         {
             this.Location = new Vector2(location.X, location.Y);
             this.StartLocation = new Vector2(location.X, location.Y);
-            this.Speed = 5;
+            this.Speed = GameManager.BulletSpeed;
             this.Owner = owner;
             this.Damage = damage;
             this.Point = point;

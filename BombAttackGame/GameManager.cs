@@ -13,10 +13,22 @@ namespace BombAttackGame
         public int CTWinRounds { get; private set; }
         public int TTWinRounds { get; private set; }
         public Enums.Events Event { get; private set; }
+        public int TeamMatesCount { get; private set; }
+        public int EnemyCount { get; private set; }
+        public static int PlayerSpeed = 2;
+        public static int SheriffLatency = 200;
+        public static int BulletSpeed = 5;
+        public static int BotMovingTime = 1000;
+        public static int BotNothingChange = 90;
+        public static int BotGunChance = 5;
+        public static int BotGrenadeChance = 1;
+        
         public GameManager(List<IGameObject> gameObjects)
         {
             this.MaxRounds = 30;
             this._gameObjects = gameObjects;
+            this.TeamMatesCount = 4;
+            this.EnemyCount = 5;
         }
         public void Process()
         {
@@ -24,9 +36,19 @@ namespace BombAttackGame
             var playersTT = new List<IGameObject>();
             playersCT.AddRange(this._gameObjects.OfType<Player>().Where(x => x.Team == Team.TeamMate));
             playersTT.AddRange(this._gameObjects.OfType<Player>().Where(x => x.Team == Team.Enemy));
-            if (playersCT.Count == 0) TTWin();
-            if (playersCT.Where(x => x.IsHuman).FirstOrDefault() == null) TTWin();
-            if (playersTT.Count == 0) CTWin();
+            if (playersCT.Count == 0)
+            {
+                TTWin();
+                return;
+            }
+            if (playersCT.Where(x => x.IsHuman).FirstOrDefault() == null)
+            {
+                TimeLapse();
+            }
+            if (playersTT.Count == 0) {
+                CTWin();
+                return;
+            }
             CheckRounds();
         }
         private void CTWin()
@@ -46,8 +68,12 @@ namespace BombAttackGame
                 this.Event = Enums.Events.EndGame;
             }
         }
+        private void TimeLapse()
+        {
+            this.Event = Enums.Events.TimeLapse;
+        }
 
-        public void RoundStarted()
+        public void ResetEvent()
         {
             this.Event = Enums.Events.None;
         }

@@ -28,13 +28,11 @@ namespace BombAttackGame.Models
         public double Speed { get; set; }
         public bool CanUseHoldableItem { get; private set; }
         public bool IsDead { get; set; }
-        public bool IsAttacked { get; set; }
         public bool OnMainSpeed { get; private set; }
         public bool IsFlashed { get; set; }
-        public double ShotTime { get; set; }
         public double MainSpeedStartTime { get; private set; }
         public double MainSpeedEndTime { get; private set; }
-        private double MovingTime { get; set; }
+        public double MovingTime { get; set; }
         private double MovingEndTime { get; set; }
         private double UseHoldableItemBlockTime { get; set; }
         private double UseHoldableItemBlockLatency { get; set; }
@@ -52,14 +50,17 @@ namespace BombAttackGame.Models
         private double ChangeInventoryLatency { get; set; }
         private double WalkTextureTime { get; set; }
         private double WalkTextureTimeLatency { get; set; }
+        public int BotGunChance { get; set; }
+        public int BotNothingChance { get; set; }
+        public int BotGrenadeChance { get; set; }
 
         public Player(Team team)
         {
             this.Team = team;
             this.Direction = Direction.Right;
-            this.Speed = 2;
+            this.Speed = GameManager.PlayerSpeed;
             this.Health = 100;
-            this.MovingTime = 1000;
+            this.MovingTime = GameManager.BotMovingTime;
             this.OnMainSpeed = false;
             this.OldLocation = new List<Vector2>();
             this.Event = new Queue<Enums.Events>();
@@ -70,6 +71,9 @@ namespace BombAttackGame.Models
             this.Texture = ContentContainer.PlayerTexture(this.Team);
             this.WalkTextureTimeLatency = 100;
             this.ChangeInventoryLatency = 300;
+            this.BotNothingChance = GameManager.BotNothingChange;
+            this.BotGunChance = GameManager.BotGunChance;
+            this.BotGrenadeChance = GameManager.BotGrenadeChance;
         }
         public void ChangeTexture()
         {
@@ -180,7 +184,7 @@ namespace BombAttackGame.Models
             CheckInventory();
             CheckFlash();
             BotUseHoldable(gameTime);
-            //BotMove(gameTime);
+            BotMove(gameTime);
             UnblockUseHoldableItem();
             UpdateObjectsVisibilityAsync(gameObjects, mapRectangle);
         }
@@ -191,12 +195,12 @@ namespace BombAttackGame.Models
             if (this.IsFlashed) return;
             Random random = new Random();
             var x = random.Next(0, 100);
-            if (x > 50) return;
+            if (x < BotNothingChance) return;
             if (this.Team == Team.Enemy)
             {
                 var visible = VisibleObjects.OfType<Player>().Where(x => x.Team == Team.TeamMate);
                 if (visible.Count() == 0) return;
-                if (x > 20)
+                if (x < BotNothingChance + BotGunChance)
                 {
                     var rand = visible.ElementAt(random.Next(0, visible.Count()));
                     UseSelectedItem(rand.Location);
@@ -205,7 +209,7 @@ namespace BombAttackGame.Models
                         if (gun.Magazine == 0) gun.AddReloadEvent();
                     }
                 }
-                else if (x > 15)
+                else if (x < BotNothingChance + BotGunChance + BotGrenadeChance)
                 {
                     if (this.Inventory.Slot2 != null)
                     {
@@ -219,7 +223,7 @@ namespace BombAttackGame.Models
             {
                 var visible = VisibleObjects.OfType<Player>().Where(x => x.Team == Team.Enemy);
                 if (visible.Count() == 0) return;
-                if (x > 20)
+                if (x < BotNothingChance + BotGunChance)
                 {
                     var rand = visible.ElementAt(random.Next(0, visible.Count()));
                     UseSelectedItem(rand.Location);
@@ -228,7 +232,7 @@ namespace BombAttackGame.Models
                         if (gun.Magazine == 0) gun.AddReloadEvent();
                     }
                 }
-                else if (x > 15)
+                else if (x < BotNothingChance + BotGunChance + BotGrenadeChance)
                 {
                     if (this.Inventory.Slot2 != null)
                     {
@@ -291,6 +295,10 @@ namespace BombAttackGame.Models
                     if (this.VisibleObjects.Contains(obj)) this.VisibleObjects.Remove(obj);
                 }
             }
+            foreach (var obj in this.VisibleObjects)
+            {
+                if (obj.IsDead) this.VisibleObjects.Remove(obj);
+            }
         }
 
         private bool CheckIfDead()
@@ -299,7 +307,7 @@ namespace BombAttackGame.Models
             {
                 this.Event.Enqueue(Enums.Events.Dead);
                 return true;
-            } 
+            }
             return false;
         }
 
