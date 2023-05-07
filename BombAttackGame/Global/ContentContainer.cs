@@ -39,14 +39,30 @@ namespace BombAttackGame.Global
         public static Texture2D GrenadeTexture => _grenadeTexture ??= _contentManager.Load<Texture2D>("grenade");
         public static Texture2D HandGrenadeTexture => _handGrenadeTexture ??= _contentManager.Load<Texture2D>("handgrenade");
         public static Texture2D FlashGrenadeTexture => _flashGrenadeTexture ??= _contentManager.Load<Texture2D>("flashgrenade");
-        public static List<Texture2D> TeamMateUp { get { return new List<Texture2D>() { _contentManager.Load<Texture2D>(PA +"teammateup1"), _contentManager.Load<Texture2D>(PA +"teammateup2") }; } }
-        public static List<Texture2D> TeamMateDown { get { return new List<Texture2D>() { _contentManager.Load<Texture2D>(PA + "teammatedown1"), _contentManager.Load<Texture2D>(PA +"teammatedown2") }; } }
-        public static List<Texture2D> TeamMateLeft { get { return new List<Texture2D>() { _contentManager.Load<Texture2D>(PA + "teammateleft1"), _contentManager.Load<Texture2D>(PA + "teammateleft2") }; } }
-        public static List<Texture2D> TeamMateRight { get { return new List<Texture2D>() { _contentManager.Load<Texture2D>(PA + "teammateright1"), _contentManager.Load<Texture2D>(PA + "teammateright2") }; } }
-        public static List<Texture2D> EnemyUp { get { return new List<Texture2D>() { _contentManager.Load<Texture2D>(PA + "enemyup1"), _contentManager.Load<Texture2D>(PA + "enemyup2") }; } }
-        public static List<Texture2D> EnemyDown { get { return new List<Texture2D>() { _contentManager.Load<Texture2D>(PA + "enemydown1"), _contentManager.Load<Texture2D>(PA + "enemydown2") }; } }
-        public static List<Texture2D> EnemyLeft { get { return new List<Texture2D>() { _contentManager.Load<Texture2D>(PA + "enemyleft1"), _contentManager.Load<Texture2D>(PA + "enemyleft2") }; } }
-        public static List<Texture2D> EnemyRight { get { return new List<Texture2D>() { _contentManager.Load<Texture2D>(PA + "enemyright1"), _contentManager.Load<Texture2D>(PA + "enemyright2") }; } }
+        public static List<Texture2D> TeamMateUp { get { return new List<Texture2D>() { 
+            _contentManager.Load<Texture2D>(PA +"teammateup1"), 
+            _contentManager.Load<Texture2D>(PA +"teammateup2") }; } }
+        public static List<Texture2D> TeamMateDown { get { return new List<Texture2D>() { 
+            _contentManager.Load<Texture2D>(PA + "teammatedown1"),
+            _contentManager.Load<Texture2D>(PA +"teammatedown2") }; } }
+        public static List<Texture2D> TeamMateLeft { get { return new List<Texture2D>() { 
+            _contentManager.Load<Texture2D>(PA + "teammateleft1"), 
+            _contentManager.Load<Texture2D>(PA + "teammateleft2") }; } }
+        public static List<Texture2D> TeamMateRight { get { return new List<Texture2D>() { 
+            _contentManager.Load<Texture2D>(PA + "teammateright1"), 
+            _contentManager.Load<Texture2D>(PA + "teammateright2") }; } }
+        public static List<Texture2D> EnemyUp { get { return new List<Texture2D>() { 
+            _contentManager.Load<Texture2D>(PA + "enemyup1"), 
+            _contentManager.Load<Texture2D>(PA + "enemyup2") }; } }
+        public static List<Texture2D> EnemyDown { get { return new List<Texture2D>() { 
+            _contentManager.Load<Texture2D>(PA + "enemydown1"), 
+            _contentManager.Load<Texture2D>(PA + "enemydown2") }; } }
+        public static List<Texture2D> EnemyLeft { get { return new List<Texture2D>() { 
+            _contentManager.Load<Texture2D>(PA + "enemyleft1"), 
+            _contentManager.Load<Texture2D>(PA + "enemyleft2") }; } }
+        public static List<Texture2D> EnemyRight { get { return new List<Texture2D>() { 
+            _contentManager.Load<Texture2D>(PA + "enemyright1"), 
+            _contentManager.Load<Texture2D>(PA + "enemyright2") }; } }
 
         public static void Initialize(ContentManager contentManager)
         {

@@ -13,25 +13,25 @@ namespace BombAttackGame.Events
         {
             Explosive exp = (Explosive)player.Inventory.SelectedItem;
             var point = player.ShootLocation;
-            if (exp.GetType() == typeof(Grenade))
+            if (player.Inventory.SelectedItem is HandGrenade handGrenade)
             {
-                var grenade = (Grenade)exp;
-                if(grenade.Type  == "handgrenade")
-                {
-                    var handGrenade = new HandGrenade(player.Location, player, point);
-                    handGrenade.Texture = ContentContainer.HandGrenadeTexture;
-                    handGrenade.Distance = Vector2.Distance(handGrenade.Point, handGrenade.Location);
-                    player.RemoveFromInventory((IInventoryItem)exp);
-                    return handGrenade;
-                } 
-                if(grenade.Type  == "flashgrenade")
-                {
-                    var flashGrenade = new FlashGrenade(player.Location, player, point);
-                    flashGrenade.Texture = ContentContainer.FlashGrenadeTexture;
-                    flashGrenade.Distance = Vector2.Distance(flashGrenade.Point, flashGrenade.Location);
-                    player.RemoveFromInventory((IInventoryItem)exp);
-                    return flashGrenade;
-                } 
+                handGrenade.Location = new Vector2(player.Location.X, player.Location.Y);
+                handGrenade.StartLocation = new Vector2(player.Location.X, player.Location.Y);
+                handGrenade.Point = point;
+                handGrenade.Texture = ContentContainer.HandGrenadeTexture;
+                handGrenade.Distance = Vector2.Distance(point, handGrenade.Location);
+                player.RemoveFromInventory((IInventoryItem)exp);
+                return handGrenade;
+            }
+            if (player.Inventory.SelectedItem is FlashGrenade flashGrenade)
+            {
+                flashGrenade.Location = new Vector2(player.Location.X, player.Location.Y);
+                flashGrenade.StartLocation = new Vector2(player.Location.X, player.Location.Y);
+                flashGrenade.Point = point;
+                flashGrenade.Texture = ContentContainer.FlashGrenadeTexture;
+                flashGrenade.Distance = Vector2.Distance(point, flashGrenade.Location);
+                player.RemoveFromInventory((IInventoryItem)exp);
+                return flashGrenade;
             }
             return null;
         }

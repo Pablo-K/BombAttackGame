@@ -12,7 +12,7 @@
         MaxDistance,
         Explode,
         Throw,
-        EndRound,
+        StartRound,
         EndGame,
         Dead,
         TimeLapse

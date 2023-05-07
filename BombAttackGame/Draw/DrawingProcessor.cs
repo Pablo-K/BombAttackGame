@@ -61,13 +61,20 @@ namespace BombAttackGame.Draw
         }
         private void DrawHud(SpriteBatch spriteBatch)
         {
-            if ((Player)_gameObjects.Where(x => x.IsHuman).FirstOrDefault() == null) return;
+            if ((Player)_gameObjects.Where(x => x.IsHuman).FirstOrDefault() == null)
+            {
+                spriteBatch.DrawString(ContentContainer.GameResultFont, _gameManager.CTWinRounds.ToString(), HudVector.CTWinVector(), Color.Green);
+                spriteBatch.DrawString(ContentContainer.GameResultFont, _gameManager.TTWinRounds.ToString(), HudVector.TTWinVector(), Color.Red);
+                spriteBatch.DrawString(ContentContainer.GameResultFont, _gameManager.RoundMinutesLeft.ToString() + ":" + _gameManager.RoundSecondsLeft, HudVector.LeftTimeVector(), Color.Red);
+                return;
+            }
             Player player = (Player)_gameObjects.Where(x => x.IsHuman).First();
             spriteBatch.DrawString(ContentContainer.HpFont, player.Health.ToString(), HudVector.HpVector(), Color.Green);
             spriteBatch.DrawString(ContentContainer.HpFont, player.Inventory.SelectedItem.HudDisplayName, HudVector.HoldableNameVector(), Color.Green);
             spriteBatch.DrawString(ContentContainer.GameResultFont, _gameManager.CTWinRounds.ToString(), HudVector.CTWinVector(), Color.Green);
             spriteBatch.DrawString(ContentContainer.GameResultFont, _gameManager.TTWinRounds.ToString(), HudVector.TTWinVector(), Color.Red);
-            spriteBatch.Draw(player.Inventory.SelectedItem.HudTexture, player.Inventory.SelectedItem.HudPosition, Color.FloralWhite);
+            spriteBatch.DrawString(ContentContainer.GameResultFont, _gameManager.RoundMinutesLeft.ToString(), HudVector.LeftTimeVector(), Color.Red);
+            spriteBatch.DrawString(ContentContainer.GameResultFont, _gameManager.RoundMinutesLeft.ToString() + ":" + _gameManager.RoundSecondsLeft, HudVector.LeftTimeVector(), Color.Red);
             if (player.Inventory.SelectedItem is Gun gun)
             {
                 spriteBatch.DrawString(ContentContainer.HpFont, gun.Magazine.ToString(), HudVector.MagazineVector(), Color.FloralWhite);
@@ -104,7 +111,7 @@ namespace BombAttackGame.Draw
         {
             if ((Player)_gameObjects.Where(x => x.IsHuman).FirstOrDefault() == null)
             {
-            foreach (var gameObject in _gameObjects)
+                foreach (var gameObject in _gameObjects)
                 {
                     spriteBatch.Draw(gameObject.Texture, gameObject.Location, gameObject.Color * _alpha);
                 }

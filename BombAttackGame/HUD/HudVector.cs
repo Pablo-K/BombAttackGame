@@ -33,5 +33,9 @@ namespace BombAttackGame.HUD
         {
             return new Vector2(MapSize[0] / 2 + 100, 1);
         }
+        public static Vector2 LeftTimeVector()
+        {
+            return new Vector2(MapSize[0] / 2 - 20, 10);
+        }
     }
 }

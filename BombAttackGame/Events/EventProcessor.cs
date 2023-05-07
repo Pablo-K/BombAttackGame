@@ -103,8 +103,8 @@ namespace BombAttackGame.Events
         {
             switch(e)
             {
-                case Enums.Events.EndRound:
-                    EndRound();
+                case Enums.Events.StartRound:
+                    StartRound();
                     break;
                 case Enums.Events.EndGame:
                     EndGame();
@@ -129,9 +129,14 @@ namespace BombAttackGame.Events
             {
                 bullet.Speed = 10;
             }
+            foreach (var nade in _gameObjects.OfType<Grenade>())
+            {
+                nade.Speed = 100;
+            }
+
             _gameManager.ResetEvent();
         }
-        private void EndRound()
+        private void StartRound()
         {
             Player player = new Player(Team.TeamMate);
             this._holdableObjects.Clear();
@@ -147,15 +152,14 @@ namespace BombAttackGame.Events
             foreach (var p in _gameObjects.OfType<Player>())
             {
                 var gun = new Sheriff();
-                var flash = new Grenade("flashgrenade");
-                var nade = new Grenade("handgrenade");
                 p.Inventory.InventoryItems.Add(gun);
                 p.Inventory.Equip(gun);
-                p.Inventory.Equip(nade);
-                p.Inventory.Equip(flash);
+                player.Inventory.Equip(new FlashGrenade(player));
+                player.Inventory.Equip(new HandGrenade(player));
                 p.Inventory.Select(1);
                 _holdableObjects.Add(gun);
             }
+            _gameManager.SetTime(_gameTime);
             _gameManager.ResetEvent();
         }
         private void EndGame()

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace BombAttackGame.Abstracts
 {
-    abstract class Explosive : IGameObject, IHoldableObject, IEventRaiser
+    public abstract class Explosive : IGameObject, IHoldableObject, IEventRaiser
     {
         public int Damage { get; set; }
         public abstract Texture2D HudTexture { get; }

@@ -12,7 +12,6 @@ namespace BombAttackGame.Interfaces
         public Color Color { get; set; }
         public float Distance { get; set; }
         public float DistanceTravelled { get; set; }
-        public float MaxDistance { get; set; }
         public Player Owner { get; set; }
         public Vector2 StartLocation { get; set; }
         public Vector2 Direction { get; set; }

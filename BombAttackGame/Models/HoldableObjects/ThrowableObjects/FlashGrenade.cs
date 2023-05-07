@@ -6,46 +6,34 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace BombAttackGame.Models.HoldableObjects.ThrowableObjects
 {
-    internal class FlashGrenade : Explosive, IGameObject, IProjectile
+    internal class FlashGrenade : Grenade, IGameObject
     {
-        public Vector2 Location { get; set; }
-        public Texture2D Texture { get; set; }
-        public Color Color { get; set; }
-        public float Distance { get; set; }
-        public int Speed { get; set; }
-        public float DistanceTravelled { get; set; }
-        public float MaxDistance { get; set; }
-        public int FlashTime { get; set; }
+        public override string HudDisplayName => "FlashGrenade";
+        public int FlashTime => 2500; 
         public int TimeFlashed { get; set; }
         public double StartTime { get; set; }
-        public double MaxTime { get; set; }
-        public Player Owner { get; set; }
-        public Vector2 StartLocation { get; set; }
-        public Vector2 Direction { get; set; }
-        public Vector2 Point { get; set; }
-        public Rectangle Rectangle { get; set; }
-        public Queue<Enums.Events> Event { get; set; }
-        public bool IsDead { get; set; }
+        public override double MaxTime => 1300; 
         public override Texture2D HudTexture => ContentContainer.GrenadeTexture;
 
-        public FlashGrenade(Vector2 location, Player owner, Vector2 point)
+        public FlashGrenade(Vector2 location, Player owner, Vector2 point) : base (owner)
         {
             this.Location = new Vector2(location.X, location.Y);
             this.StartLocation = new Vector2(location.X, location.Y);
-            this.Owner = owner;
-            this.FlashTime = 2500;
             this.Point = point;
-            this.Speed = 5;
-            this.MaxDistance = 5000;
             this.IsDead = false;
             this.Color = Color.AliceBlue;
             this.Event = new Queue<Enums.Events>();
-            this.MaxTime = 1300;
+        }
+        public FlashGrenade(Player owner) : base (owner) { 
+        
+            this.Texture = ContentContainer.FlashGrenadeTexture;
+            this.Color = Color.Blue;
         }
 
         public override void Explode()

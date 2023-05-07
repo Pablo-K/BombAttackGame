@@ -1,6 +1,7 @@
 ﻿using BombAttackGame.Enums;
 using BombAttackGame.Interfaces;
 using BombAttackGame.Models;
+using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,6 +16,12 @@ namespace BombAttackGame
         public Enums.Events Event { get; private set; }
         public int TeamMatesCount { get; private set; }
         public int EnemyCount { get; private set; }
+        public double RoundStartedTime { get; private set; }
+        public double RoundEndTime { get; private set; }
+        public int RoundMinutesLeft { get; private set; }
+        public int RoundSecondsLeft { get; private set; }
+        private double _totalSecondsLeft { get; set; }
+        public static double MaxRoundSeconds = 10;
         public static int PlayerSpeed = 2;
         public static int SheriffLatency = 200;
         public static int BulletSpeed = 5;
@@ -22,6 +29,7 @@ namespace BombAttackGame
         public static int BotNothingChange = 90;
         public static int BotGunChance = 5;
         public static int BotGrenadeChance = 1;
+        public static int GrenadeSpeed = 5;
         
         public GameManager(List<IGameObject> gameObjects)
         {
@@ -49,17 +57,21 @@ namespace BombAttackGame
                 CTWin();
                 return;
             }
+            if (this._totalSecondsLeft <= 0)
+            {
+                CTWin();
+            }
             CheckRounds();
         }
         private void CTWin()
         {
             this.CTWinRounds += 1;
-            this.Event = Enums.Events.EndRound;
+            this.Event = Enums.Events.StartRound;
         }
         private void TTWin()
         {
             this.TTWinRounds += 1;
-            this.Event = Enums.Events.EndRound;
+            this.Event = Enums.Events.StartRound;
         }
         private void CheckRounds()
         {
@@ -76,6 +88,17 @@ namespace BombAttackGame
         public void ResetEvent()
         {
             this.Event = Enums.Events.None;
+        }
+        public void SetTime(GameTime gameTime)
+        {
+            this.RoundStartedTime = gameTime.TotalGameTime.TotalSeconds;
+            this.RoundEndTime = gameTime.TotalGameTime.TotalSeconds + GameManager.MaxRoundSeconds;
+        }
+        public void UpdateTime(GameTime gameTime)
+        {
+            this._totalSecondsLeft = this.RoundEndTime - gameTime.TotalGameTime.TotalSeconds;
+            this.RoundMinutesLeft = (int)this._totalSecondsLeft / 60;
+            this.RoundSecondsLeft = (int)this._totalSecondsLeft % 60;
         }
     }
 }

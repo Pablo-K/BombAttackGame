@@ -8,47 +8,34 @@ using System.Collections.Generic;
 
 namespace BombAttackGame.Models.HoldableObjects.ThrowableObjects
 {
-    internal class HandGrenade : Explosive, IGameObject, IProjectile
+    internal class HandGrenade : Grenade, IGameObject
     {
-        public Vector2 Location { get; set; }
-        public Texture2D Texture { get; set; }
-        public Color Color { get; set; }
-        public float Distance { get; set; }
-        public int Speed { get; set; }
-        public float DistanceTravelled { get; set; }
-        public float MaxDistance { get; set; }
-        public int FlashTime { get; set; }
+        public override string HudDisplayName => "HandGrenade";
         public double TeamDamage { get; set; }
         public double EnemyDamage { get; set; }
         public double OtherDamage { get; set; }
         public double StartTime { get; set; }
-        public double MaxTime { get; set; }
-        public Player Owner { get; set; }
-        public Vector2 StartLocation { get; set; }
-        public Vector2 Direction { get; set; }
-        public Vector2 Point { get; set; }
-        public Rectangle Rectangle { get; set; }
-        public Queue<Enums.Events> Event { get; set; }
-        public bool IsDead { get; set; }
+        public override double MaxTime => 2000; 
         public int DamageDealt { get; set; }
+        
         public override Texture2D HudTexture => ContentContainer.GrenadeTexture;
 
-        public HandGrenade(Vector2 location, Player owner, Vector2 point)
+        public HandGrenade(Vector2 location, Player owner, Vector2 point) : base (owner)
         {
             this.Location = new Vector2(location.X, location.Y);
             this.StartLocation = new Vector2(location.X, location.Y);
-            this.Owner = owner;
-            this.FlashTime = 83;
             this.Point = point;
-            this.Speed = 5;
-            this.MaxDistance = 5000;
-            this.TeamDamage = 0.5;
-            this.EnemyDamage = 1;
-            this.OtherDamage = 1;
             this.IsDead = false;
             this.Color = Color.AliceBlue;
             this.Event = new Queue<Enums.Events>();
-            this.MaxTime = 2000;
+        }
+        public HandGrenade(Player owner) :base (owner){
+            this.Texture = ContentContainer.HandGrenadeTexture;
+            this.Color = Color.Red;
+            this.Damage = 83;
+            this.TeamDamage = 0.5;
+            this.EnemyDamage = 1;
+            this.OtherDamage = 1;
         }
 
         public override void Explode()
@@ -67,23 +54,23 @@ namespace BombAttackGame.Models.HoldableObjects.ThrowableObjects
                     newDamage = 0;
                     break;
                 case > 90:
-                    newDamage = (int)(FlashTime * 0.1); break;
+                    newDamage = (int)(Damage * 0.1); break;
                 case > 80:
-                    newDamage = (int)(FlashTime * 0.2); break;
+                    newDamage = (int)(Damage * 0.2); break;
                 case > 70:
-                    newDamage = (int)(FlashTime * 0.3); break;
+                    newDamage = (int)(Damage * 0.3); break;
                 case > 60:
-                    newDamage = (int)(FlashTime * 0.4); break;
+                    newDamage = (int)(Damage * 0.4); break;
                 case > 50:
-                    newDamage = (int)(FlashTime * 0.5); break;
+                    newDamage = (int)(Damage * 0.5); break;
                 case > 40:
-                    newDamage = (int)(FlashTime * 0.6); break;
+                    newDamage = (int)(Damage * 0.6); break;
                 case > 30:
-                    newDamage = (int)(FlashTime * 0.7); break;
+                    newDamage = (int)(Damage * 0.7); break;
                 case > 20:
-                    newDamage = (int)(FlashTime * 0.8); break;
+                    newDamage = (int)(Damage * 0.8); break;
                 case > 10:
-                    newDamage = (int)(FlashTime * 0.9); break;
+                    newDamage = (int)(Damage * 0.9); break;
             }
             if (gameObject is Player)
             {

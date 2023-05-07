@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace BombAttackGame.Models
 {
-    internal class Player : IGameObject
+    public class Player : IGameObject
     {
         public Vector2 Location { get; set; }
         public List<Vector2> OldLocation { get; set; }
@@ -168,7 +168,7 @@ namespace BombAttackGame.Models
                 this.ShootLocation = shootLocation;
                 if (!this.Event.Contains(Enums.Events.TryShoot)) { this.Event.Enqueue(Enums.Events.TryShoot); }
             }
-            if (this.Inventory.SelectedItem.GetType() == typeof(Grenade))
+            if (this.Inventory.SelectedItem is Grenade)
             {
                 this.ShootLocation = shootLocation;
                 this.Event.Enqueue(Enums.Events.Throw);

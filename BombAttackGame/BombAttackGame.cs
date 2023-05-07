@@ -77,12 +77,14 @@ namespace BombAttackGame
 
         protected override void Update(GameTime gameTime)
         {
+            if (_gameManager.RoundStartedTime == 0) _gameManager.SetTime(gameTime);
             if (_gameObjects.Where(x => x.IsHuman).Any()) _player = (Player)_gameObjects.Where(x => x.IsHuman).FirstOrDefault();
             _gameTime.TotalGameTime = gameTime.TotalGameTime;
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape)) Exit();
             _inputHandler.HandleInputs(_player);
-            _gameManager.Process();
             _eventProcessor.ProcessEvents();
+            _gameManager.UpdateTime(gameTime);
+            _gameManager.Process();
             Tick();
             base.Update(gameTime);
         }
@@ -119,12 +121,10 @@ namespace BombAttackGame
             foreach (var player in _gameObjects.OfType<Player>())
             {
                 var gun = new Sheriff();
-                var flash = new Grenade("flashgrenade");
-                var nade = new Grenade("handgrenade");
                 player.Inventory.InventoryItems.Add(gun);
                 player.Inventory.Equip(gun);
-                player.Inventory.Equip(nade);
-                player.Inventory.Equip(flash);
+                player.Inventory.Equip(new FlashGrenade(player));
+                player.Inventory.Equip(new HandGrenade(player));
                 player.Inventory.Select(1);
                 _holdableObjects.Add(gun);
             }

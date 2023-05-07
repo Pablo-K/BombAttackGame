@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace BombAttackGame.Models
 {
-    internal class Inventory
+    public class Inventory
     {
         public IInventoryItem Slot1 { get; set; }
         public IInventoryItem Slot2 { get; set; }

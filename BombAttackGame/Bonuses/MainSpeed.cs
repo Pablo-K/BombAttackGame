@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace BombAttackGame.Bonuses
 {
-    internal class MainSpeed : IGameObject
+    public class MainSpeed : IGameObject
     {
         public Vector2 Location { get; set; }
         public Color Color { get; set; }
