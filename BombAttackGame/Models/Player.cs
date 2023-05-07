@@ -1,5 +1,4 @@
 ﻿using BombAttackGame.Abstracts;
-using BombAttackGame.Bonuses;
 using BombAttackGame.Enums;
 using BombAttackGame.Global;
 using BombAttackGame.Interfaces;
@@ -10,7 +9,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -28,10 +26,7 @@ namespace BombAttackGame.Models
         public double Speed { get; set; }
         public bool CanUseHoldableItem { get; private set; }
         public bool IsDead { get; set; }
-        public bool OnMainSpeed { get; private set; }
         public bool IsFlashed { get; set; }
-        public double MainSpeedStartTime { get; private set; }
-        public double MainSpeedEndTime { get; private set; }
         public double MovingTime { get; set; }
         private double MovingEndTime { get; set; }
         private double UseHoldableItemBlockTime { get; set; }
@@ -61,7 +56,6 @@ namespace BombAttackGame.Models
             this.Speed = GameManager.PlayerSpeed;
             this.Health = 100;
             this.MovingTime = GameManager.BotMovingTime;
-            this.OnMainSpeed = false;
             this.OldLocation = new List<Vector2>();
             this.Event = new Queue<Enums.Events>();
             this.IsHuman = false;
@@ -179,7 +173,6 @@ namespace BombAttackGame.Models
         {
             this.Time = gameTime.TotalGameTime.TotalMilliseconds;
             UpdateRectangle();
-            UpdateColor(Color);
             CheckIfDead();
             CheckInventory();
             CheckFlash();
@@ -314,28 +307,6 @@ namespace BombAttackGame.Models
         public void UpdateRectangle()
         {
             this.Rectangle = new Rectangle((int)Location.X, (int)Location.Y, this.Texture.Width, this.Texture.Height);
-        }
-
-        public static void MainSpeedTime(Player Player, GameTime GameTime, MainSpeed MainSpeed)
-        {
-            if (Player.MainSpeedEndTime <= GameTime.TotalGameTime.TotalMilliseconds && Player.OnMainSpeed)
-            {
-                Player.Speed /= MainSpeed.WalkSpeed;
-                Player.OnMainSpeed = false;
-            }
-        }
-
-        public void UpdateColor(Color color)
-        {
-            if (OnMainSpeed)
-            {
-                this.Color = Color.GreenYellow;
-            }
-            else
-            {
-                this.Color = color;
-            }
-
         }
 
         public void BotMove(GameTime gameTime)

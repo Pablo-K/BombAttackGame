@@ -1,11 +1,9 @@
 ﻿using BombAttackGame.Abstracts;
-using BombAttackGame.Bonuses;
 using BombAttackGame.Global;
 using BombAttackGame.HUD;
 using BombAttackGame.Interfaces;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.ComponentModel.DataAnnotations;
 
 namespace BombAttackGame.Models.HoldableObjects.ThrowableObjects
 {

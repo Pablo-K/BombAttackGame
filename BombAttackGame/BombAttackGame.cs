@@ -79,6 +79,11 @@ namespace BombAttackGame
         {
             if (_gameManager.RoundStartedTime == 0) _gameManager.SetTime(gameTime);
             if (_gameObjects.Where(x => x.IsHuman).Any()) _player = (Player)_gameObjects.Where(x => x.IsHuman).FirstOrDefault();
+            if(_gameManager.IsOnTimeLapse)
+            {
+                var x = gameTime.ElapsedGameTime.TotalMilliseconds;
+                gameTime.TotalGameTime += new TimeSpan((long)x*10000);
+            }
             _gameTime.TotalGameTime = gameTime.TotalGameTime;
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape)) Exit();
             _inputHandler.HandleInputs(_player);
@@ -114,7 +119,6 @@ namespace BombAttackGame
             _gameObjects.Add(_player);
             _player.IsHuman = true;
             _player.Color = Color.Tomato;
-            _gameObjects.Add(GameObject.AddMainSpeed(Team.None, _mapManager));
             _gameObjects.AddRange(GameObject.AddPlayers(Team.TeamMate, _gameManager.TeamMatesCount, _mapManager));
             _gameObjects.AddRange(GameObject.AddPlayers(Team.Enemy, _gameManager.EnemyCount, _mapManager));
 

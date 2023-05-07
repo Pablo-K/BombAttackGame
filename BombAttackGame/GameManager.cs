@@ -20,17 +20,19 @@ namespace BombAttackGame
         public double RoundEndTime { get; private set; }
         public int RoundMinutesLeft { get; private set; }
         public int RoundSecondsLeft { get; private set; }
+        private double _totalSecondsLeftLast { get; set; }
         private double _totalSecondsLeft { get; set; }
-        public static double MaxRoundSeconds = 10;
+        public bool IsOnTimeLapse { get; set; }
+        public static double MaxRoundSeconds = 90;
         public static int PlayerSpeed = 2;
         public static int SheriffLatency = 200;
         public static int BulletSpeed = 5;
-        public static int BotMovingTime = 1000;
+        public static int BotMovingTime = 600;
         public static int BotNothingChange = 90;
         public static int BotGunChance = 5;
         public static int BotGrenadeChance = 1;
         public static int GrenadeSpeed = 5;
-        
+
         public GameManager(List<IGameObject> gameObjects)
         {
             this.MaxRounds = 30;
@@ -53,7 +55,8 @@ namespace BombAttackGame
             {
                 TimeLapse();
             }
-            if (playersTT.Count == 0) {
+            if (playersTT.Count == 0)
+            {
                 CTWin();
                 return;
             }
@@ -75,7 +78,7 @@ namespace BombAttackGame
         }
         private void CheckRounds()
         {
-            if(this.CTWinRounds + this.TTWinRounds == this.MaxRounds)
+            if (this.CTWinRounds + this.TTWinRounds == this.MaxRounds)
             {
                 this.Event = Enums.Events.EndGame;
             }
@@ -83,11 +86,16 @@ namespace BombAttackGame
         private void TimeLapse()
         {
             this.Event = Enums.Events.TimeLapse;
+            this.IsOnTimeLapse = true;
         }
 
         public void ResetEvent()
         {
             this.Event = Enums.Events.None;
+        }
+        public void Reset()
+        {
+            this.IsOnTimeLapse = false;
         }
         public void SetTime(GameTime gameTime)
         {

@@ -1,6 +1,4 @@
-﻿using BombAttackGame.Abstracts;
-using BombAttackGame.Bonuses;
-using BombAttackGame.Global;
+﻿using BombAttackGame.Global;
 using BombAttackGame.Interfaces;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -10,7 +8,7 @@ namespace BombAttackGame.Models.HoldableObjects.ThrowableObjects
 {
     internal class HandGrenade : Grenade, IGameObject
     {
-        public override string HudDisplayName => "HandGrenade";
+        public override string HudDisplayName => "Hand Grenade";
         public double TeamDamage { get; set; }
         public double EnemyDamage { get; set; }
         public double OtherDamage { get; set; }

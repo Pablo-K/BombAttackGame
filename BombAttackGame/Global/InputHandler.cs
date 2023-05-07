@@ -2,7 +2,6 @@
 using BombAttackGame.Enums;
 using BombAttackGame.Models;
 using Microsoft.Xna.Framework.Input;
-using System.Linq;
 
 namespace BombAttackGame.Global
 {

@@ -1,20 +1,14 @@
-﻿using BombAttackGame.Abstracts;
-using BombAttackGame.Global;
+﻿using BombAttackGame.Global;
 using BombAttackGame.Interfaces;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BombAttackGame.Models.HoldableObjects.ThrowableObjects
 {
     internal class FlashGrenade : Grenade, IGameObject
     {
-        public override string HudDisplayName => "FlashGrenade";
+        public override string HudDisplayName => "Flash Grenade";
         public int FlashTime => 2500; 
         public int TimeFlashed { get; set; }
         public double StartTime { get; set; }

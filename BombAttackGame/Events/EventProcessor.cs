@@ -119,7 +119,6 @@ namespace BombAttackGame.Events
             foreach (var player in _gameObjects.OfType<Player>())
             {
                 player.Speed = 10;
-                player.MovingTime = 200;
                 if (player.Inventory.Slot1 is Sheriff sheriff) sheriff.Latency = 20;
                 player.BotGrenadeChance = 10;
                 player.BotGunChance = 20;
@@ -145,7 +144,6 @@ namespace BombAttackGame.Events
             _gameObjects.Add(player);
             player.IsHuman = true;
             player.Color = Color.Tomato;
-            _gameObjects.Add(GameObject.AddMainSpeed(Team.None, _mapManager));
             _gameObjects.AddRange(GameObject.AddPlayers(Team.TeamMate, _gameManager.TeamMatesCount, _mapManager));
             _gameObjects.AddRange(GameObject.AddPlayers(Team.Enemy, _gameManager.EnemyCount, _mapManager));
 
@@ -161,6 +159,7 @@ namespace BombAttackGame.Events
             }
             _gameManager.SetTime(_gameTime);
             _gameManager.ResetEvent();
+            _gameManager.Reset();
         }
         private void EndGame()
         {

@@ -65,7 +65,7 @@ namespace BombAttackGame.Draw
             {
                 spriteBatch.DrawString(ContentContainer.GameResultFont, _gameManager.CTWinRounds.ToString(), HudVector.CTWinVector(), Color.Green);
                 spriteBatch.DrawString(ContentContainer.GameResultFont, _gameManager.TTWinRounds.ToString(), HudVector.TTWinVector(), Color.Red);
-                spriteBatch.DrawString(ContentContainer.GameResultFont, _gameManager.RoundMinutesLeft.ToString() + ":" + _gameManager.RoundSecondsLeft, HudVector.LeftTimeVector(), Color.Red);
+                spriteBatch.DrawString(ContentContainer.GameResultFont, ConvertTime(_gameManager.RoundMinutesLeft, _gameManager.RoundSecondsLeft), HudVector.LeftTimeVector(), Color.Red);
                 return;
             }
             Player player = (Player)_gameObjects.Where(x => x.IsHuman).First();
@@ -73,14 +73,23 @@ namespace BombAttackGame.Draw
             spriteBatch.DrawString(ContentContainer.HpFont, player.Inventory.SelectedItem.HudDisplayName, HudVector.HoldableNameVector(), Color.Green);
             spriteBatch.DrawString(ContentContainer.GameResultFont, _gameManager.CTWinRounds.ToString(), HudVector.CTWinVector(), Color.Green);
             spriteBatch.DrawString(ContentContainer.GameResultFont, _gameManager.TTWinRounds.ToString(), HudVector.TTWinVector(), Color.Red);
+            spriteBatch.Draw(player.Inventory.SelectedItem.HudTexture, player.Inventory.SelectedItem.HudPosition, Color.FloralWhite);
             spriteBatch.DrawString(ContentContainer.GameResultFont, _gameManager.RoundMinutesLeft.ToString(), HudVector.LeftTimeVector(), Color.Red);
-            spriteBatch.DrawString(ContentContainer.GameResultFont, _gameManager.RoundMinutesLeft.ToString() + ":" + _gameManager.RoundSecondsLeft, HudVector.LeftTimeVector(), Color.Red);
+            spriteBatch.DrawString(ContentContainer.GameResultFont, ConvertTime(_gameManager.RoundMinutesLeft, _gameManager.RoundSecondsLeft), HudVector.LeftTimeVector(), Color.Red);
             if (player.Inventory.SelectedItem is Gun gun)
             {
                 spriteBatch.DrawString(ContentContainer.HpFont, gun.Magazine.ToString(), HudVector.MagazineVector(), Color.FloralWhite);
                 spriteBatch.DrawString(ContentContainer.HpFont, gun.Ammo.ToString(), HudVector.AmmoVector(), Color.FloralWhite);
             }
 
+        }
+        private string ConvertTime(double minutes, double seconds)
+        {
+            if(seconds < 10)
+            {
+                return minutes + ":0" + seconds;
+            }
+            return minutes + ":" + seconds;
         }
         private void DrawFlash(SpriteBatch spriteBatch)
         {

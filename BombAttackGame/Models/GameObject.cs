@@ -1,5 +1,4 @@
-﻿using BombAttackGame.Bonuses;
-using BombAttackGame.Enums;
+﻿using BombAttackGame.Enums;
 using BombAttackGame.Events;
 using BombAttackGame.Global;
 using BombAttackGame.Map;
@@ -44,14 +43,6 @@ namespace BombAttackGame.Models
                 Players.Add(Player);
             }
             return Players;
-        }
-        public static MainSpeed AddMainSpeed(Team Team, MapManager Map)
-        {
-            var mainSpeed = new MainSpeed();
-            mainSpeed.Texture = ContentContainer.MainSpeedTexture;
-            mainSpeed.Location = Spawn.ChooseBonusRandomSpawnPoint(Map, Team);
-            mainSpeed.IsDead = false;
-            return mainSpeed;
         }
     }
 }
