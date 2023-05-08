@@ -58,6 +58,7 @@ namespace BombAttackGame
 
         protected override void Initialize()
         {
+
             base.Window.AllowUserResizing = false;
             _graphics.PreferredBackBufferWidth = 1000;
             _graphics.PreferredBackBufferHeight = 1000;
@@ -69,9 +70,9 @@ namespace BombAttackGame
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             ContentContainer.Initialize(base.Content);
+            _mapManager.LoadMap();
             AnimationsContainer.Initialize(base.Content);
-            _mapManager.GenerateMirage();
-            _mapCollision.AddRange(_mapManager.Mirage.Rectangle);
+            _mapCollision.AddRange(_mapManager.MapCollisions);
             StartRound();
         }
 
@@ -82,9 +83,10 @@ namespace BombAttackGame
             if(_gameManager.IsOnTimeLapse)
             {
                 var x = gameTime.ElapsedGameTime.TotalMilliseconds;
-                gameTime.TotalGameTime += new TimeSpan((long)x*10000);
+                gameTime.TotalGameTime += new TimeSpan((long)x*15000);
             }
             _gameTime.TotalGameTime = gameTime.TotalGameTime;
+            _gameTime.ElapsedGameTime = gameTime.ElapsedGameTime;
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape)) Exit();
             _inputHandler.HandleInputs(_player);
             _eventProcessor.ProcessEvents();
@@ -98,7 +100,7 @@ namespace BombAttackGame
         {
             foreach (IGameObject gameObject in _gameObjects.ToList())
             {
-                gameObject.Tick(_gameTime, _gameObjects, _mapManager.Mirage.Rectangle);
+                gameObject.Tick(_gameTime, _gameObjects, _mapManager.MapCollisions);
             }
             foreach (IGameSprite gameSprite in _sprites.ToList())
             {

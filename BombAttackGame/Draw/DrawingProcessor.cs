@@ -20,7 +20,7 @@ namespace BombAttackGame.Draw
         private readonly GameTime _gameTime;
         private readonly GameManager _gameManager;
         private float _alpha = 1f;
-        private Color _color = Color.Indigo;
+        private Color _color = Color.White;
 
         public DrawingProcessor(List<IGameObject> gameObjects, List<IGameSprite> sprites, List<Animation> animations, MapManager mapManager, GameTime gameTime, GameManager gameManager)
         {
@@ -35,9 +35,9 @@ namespace BombAttackGame.Draw
         {
             graphicsDevice.Clear(_color);
             spriteBatch.Begin();
+            DrawMap(spriteBatch);
             DrawGameObjects(spriteBatch);
             DrawSprites(spriteBatch);
-            DrawMap(spriteBatch);
             DrawHud(spriteBatch);
             DrawAnimations(spriteBatch);
             DrawFlash(spriteBatch);
@@ -85,7 +85,7 @@ namespace BombAttackGame.Draw
         }
         private string ConvertTime(double minutes, double seconds)
         {
-            if(seconds < 10)
+            if (seconds < 10)
             {
                 return minutes + ":0" + seconds;
             }
@@ -106,15 +106,22 @@ namespace BombAttackGame.Draw
             else
             {
                 _alpha = 1f;
-                _color = Color.Indigo;
             }
         }
         private void DrawMap(SpriteBatch spriteBatch)
         {
-            for (int i = 0; i < _mapManager.Mirage.WallVector.Count; i++)
-            {
-                spriteBatch.Draw(MapManager.Wall, _mapManager.Mirage.WallVector[i], Color.Red * _alpha);
-            }
+            for (int i = 0; i < _mapManager.WallVectors.Count; i++)
+            { spriteBatch.Draw(MapManager.Wall, _mapManager.WallVectors[i], Color.Red * _alpha); }
+            for (int i = 0; i < _mapManager.GroundVectors.Count; i++)
+            { spriteBatch.Draw(MapManager.Ground, _mapManager.GroundVectors[i], Color.RosyBrown * _alpha); }
+            for (int i = 0; i < _mapManager.TTSpawnVectors.Count; i++)
+            { spriteBatch.Draw(MapManager.Ground, _mapManager.TTSpawnVectors[i], Color.RosyBrown* _alpha); }
+            for (int i = 0; i < _mapManager.CTSpawnVectors.Count; i++)
+            { spriteBatch.Draw(MapManager.Ground, _mapManager.CTSpawnVectors[i], Color.RosyBrown* _alpha); }
+            for (int i = 0; i < _mapManager.ABombSiteVectors.Count; i++)
+            { spriteBatch.Draw(MapManager.Ground, _mapManager.ABombSiteVectors[i], Color.RosyBrown* _alpha); }
+            for (int i = 0; i < _mapManager.BBombSiteVectors.Count; i++)
+            { spriteBatch.Draw(MapManager.Ground, _mapManager.BBombSiteVectors[i], Color.RosyBrown* _alpha); }
         }
         private void DrawGameObjects(SpriteBatch spriteBatch)
         {

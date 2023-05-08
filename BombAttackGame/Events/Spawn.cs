@@ -13,21 +13,16 @@ namespace BombAttackGame.Events
             Random random = new Random();
             if(Team == Team.TeamMate)
             {
-                return Map.Mirage.SpawnPoints.ElementAt(random.Next(0, Map.Mirage.SpawnPoints.Count/2));
+                return Map.CTSpawnVectors.ElementAt(random.Next(0, Map.CTSpawnVectors.Count));
             }
             if(Team == Team.Enemy)
             {
-                return Map.Mirage.SpawnPoints.ElementAt(random.Next(Map.Mirage.SpawnPoints.Count/2+1, Map.Mirage.SpawnPoints.Count));
+                return Map.TTSpawnVectors.ElementAt(random.Next(0, Map.TTSpawnVectors.Count));
             }
             else
             {
-                return Map.Mirage.SpawnPoints.ElementAt(random.Next(-1, 10));
+                return Map.CTSpawnVectors.ElementAt(random.Next(0, Map.CTSpawnVectors.Count));
             }
-        }
-        public static Vector2 ChooseBonusRandomSpawnPoint(MapManager Map, Team Team)
-        {
-            Random random = new Random();
-            return Map.Mirage.BonusSpawnPoints.ElementAt(random.Next(0, Map.Mirage.BonusSpawnPoints.Count));
         }
     }
 }

@@ -20,7 +20,6 @@ namespace BombAttackGame
         public double RoundEndTime { get; private set; }
         public int RoundMinutesLeft { get; private set; }
         public int RoundSecondsLeft { get; private set; }
-        private double _totalSecondsLeftLast { get; set; }
         private double _totalSecondsLeft { get; set; }
         public bool IsOnTimeLapse { get; set; }
         public static double MaxRoundSeconds = 90;
