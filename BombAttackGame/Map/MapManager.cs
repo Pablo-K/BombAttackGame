@@ -1,8 +1,12 @@
 ﻿using BombAttackGame.Global;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 
 namespace BombAttackGame.Map
@@ -12,7 +16,7 @@ namespace BombAttackGame.Map
         public static Texture2D Wall => ContentContainer.WallTexture;
         public static Texture2D Water => ContentContainer.WaterTexture;
         public static Texture2D Ground => ContentContainer.GroundTexture;
-        public char[][] CharMap { get; set; } 
+        public char[][] CharMap { get; set; }
         public List<Rectangle> MapCollisions { get; set; }
         public List<Vector2> WallVectors { get; set; }
         public List<Vector2> GroundVectors { get; set; }
@@ -20,6 +24,7 @@ namespace BombAttackGame.Map
         public List<Vector2> BBombSiteVectors { get; set; }
         public List<Vector2> CTSpawnVectors { get; set; }
         public List<Vector2> TTSpawnVectors { get; set; }
+        public static string[] MapString { get; set; }
 
         public MapManager() { }
         public void LoadMap()
@@ -33,8 +38,34 @@ namespace BombAttackGame.Map
             this.CTSpawnVectors = new List<Vector2>();
             this.TTSpawnVectors = new List<Vector2>();
             MapConverter(this.CharMap);
+            MapManager.MapString = CharToStringConverter(this.CharMap);
         }
-
+        private char[][] Reverse(char[][] map)
+        {
+            char[][] newchar = map;
+            for (int i = 0; i < map.Length; i++)
+            {
+                for (int j = 0; j < map.Length; j++)
+                {
+                    newchar[i][j] = map[j][i];
+                }
+            }
+            return newchar;
+        }
+        private string[] CharToStringConverter(char[][] map)
+        {
+            string[] s = new string[map.Length];
+            for (int i = 0;i < map.Length; i++)
+            {
+                string str = "";
+                for (int j = 0; j < map.Length; j++)
+                {
+                    str += map[i][j];
+                }
+                s[i] = str;
+            }
+            return s;
+        }
         private Rectangle TextureRectangle(Vector2 Location)
         {
             return new Rectangle((int)Location.X, (int)Location.Y, MapManager.Wall.Width, MapManager.Wall.Height);

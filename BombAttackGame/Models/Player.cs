@@ -2,14 +2,17 @@
 using BombAttackGame.Enums;
 using BombAttackGame.Global;
 using BombAttackGame.Interfaces;
+using BombAttackGame.Map;
 using BombAttackGame.Models.HoldableObjects;
 using BombAttackGame.Models.HoldableObjects.ThrowableObjects;
 using BombAttackGame.Vector;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace BombAttackGame.Models
@@ -17,7 +20,10 @@ namespace BombAttackGame.Models
     public class Player : IGameObject
     {
         public Vector2 Location { get; set; }
-        public List<Vector2> OldLocation { get; set; }
+        public Vector2 DLocation { get; set; }
+        public Vector2 OldLocation { get; set; }
+        public Point Position { get; set; }
+        public Point OldPosition { get; set; }
         public List<IInventoryItem> Equipment { get; set; }
         public Vector2 ShootLocation { get; set; }
         public Direction Direction { get; set; }
@@ -48,6 +54,13 @@ namespace BombAttackGame.Models
         public int BotGunChance { get; set; }
         public int BotNothingChance { get; set; }
         public int BotGrenadeChance { get; set; }
+        public List<Direction> MoveList { get; set; }
+        public Direction ErrorDirection { get; set; }
+        public Direction PreviousDirection { get; set; }
+        public bool ReadyToGo { get; set; }
+        private bool isBotMove { get; set; }
+        private List<Tile> MovingTiles { get; set; }
+        private Tile PreviousTile { get; set; }
 
         public Player(Team team)
         {
@@ -56,7 +69,6 @@ namespace BombAttackGame.Models
             this.Speed = GameManager.PlayerSpeed;
             this.Health = 100;
             this.MovingTime = GameManager.BotMovingTime;
-            this.OldLocation = new List<Vector2>();
             this.Event = new Queue<Enums.Events>();
             this.IsHuman = false;
             this.VisibleObjects = new List<IGameObject>();
@@ -68,6 +80,8 @@ namespace BombAttackGame.Models
             this.BotNothingChance = GameManager.BotNothingChange;
             this.BotGunChance = GameManager.BotGunChance;
             this.BotGrenadeChance = GameManager.BotGrenadeChance;
+            this.MoveList = new List<Direction>();
+            this.MovingTiles = new List<Tile>();
         }
         public void ChangeTexture()
         {
@@ -140,7 +154,6 @@ namespace BombAttackGame.Models
         }
         public void PlayerMove(Direction direction)
         {
-            OldLocation.Add(Location);
             this.Direction = direction;
             if (!this.Event.Contains(Enums.Events.Move)) { Event.Enqueue(Enums.Events.Move); }
         }
@@ -172,6 +185,16 @@ namespace BombAttackGame.Models
         public void Tick(GameTime gameTime, List<IGameObject> gameObjects, List<Rectangle> mapRectangle)
         {
             this.Time = gameTime.TotalGameTime.TotalMilliseconds;
+            this.DLocation = new Vector2(this.Location.X, this.Location.Y - this.Texture.Height);
+            this.OldPosition = this.Position;
+            if (this.Direction == Direction.Left)
+            { this.Position = new Point((int)(Location.X + this.Texture.Width) / 20, (int)this.Location.Y / 20); }
+            if (this.Direction == Direction.Right)
+            { this.Position = new Point((int)(Location.X - 1) / 20, (int)this.Location.Y / 20); }
+            else if (this.Direction == Direction.Up)
+            { this.Position = new Point((int)Location.X / 20, ((int)this.Location.Y + this.Texture.Height ) / 20); }
+            else
+            { this.Position = new Point((int)Location.X / 20, (int)this.Location.Y / 20); }
             UpdateRectangle();
             CheckIfDead();
             CheckInventory();
@@ -308,21 +331,49 @@ namespace BombAttackGame.Models
         {
             this.Rectangle = new Rectangle((int)Location.X, (int)Location.Y, this.Texture.Width, this.Texture.Height);
         }
-
-        public void BotMove(GameTime gameTime)
+        private void BotMove(GameTime gameTime)
         {
+            if (this.MoveList.Count == 0) { ReadyToGo = false; }
             if (this.IsHuman) return;
-            if (gameTime.TotalGameTime.TotalMilliseconds >= MovingEndTime)
+            if (this.ReadyToGo)
             {
-                Random random = new();
-                int x = random.Next(0, 8);
-                var Dir = (Direction)x;
-                MovingEndTime = gameTime.TotalGameTime.TotalMilliseconds + MovingTime;
-                PlayerMove(Dir);
-                return;
+                if(this.Location == this.OldLocation)
+                {
+                    this.ReadyToGo = false;
+                }
+                if (this.MoveList.Count > 0)
+                {
+                    Point pos = new Point(this.MovingTiles.First().X, this.MovingTiles.First().Y);
+                    if ((this.MoveList.FirstOrDefault() == Direction.Left || this.MoveList.FirstOrDefault() == Direction.Right)&& this.Position.X == pos.X) {
+                        this.MoveList.RemoveAt(0);
+                        this.MovingTiles.RemoveAt(0); }
+                    if ((this.MoveList.FirstOrDefault() == Direction.Up || this.MoveList.FirstOrDefault() == Direction.Down) && this.Position.Y == pos.Y) {
+                        this.MoveList.RemoveAt(0);
+                        this.MovingTiles.RemoveAt(0); }
+                    if (this.MoveList.Count == 0) return;
+                    PlayerMove(this.MoveList.First());
+                    OldLocation = this.Location;
+                    return;
+                }
+                if(this.MoveList.Count < 5)
+                {
+                    Random rand = new();
+                    if(rand.Next(0, 100) > 99) { this.ReadyToGo = false; }
+                }
             }
-            PlayerMove(Direction);
+            else
+            {
+                MoveList.Clear();
+                MovingTiles.Clear();
+                Random rand = new Random();
+                Point point = new Point();
+                if(this.Team == Team.TeamMate)
+                { point = BotPoints.CTPoints[rand.Next(0, BotPoints.CTPoints.Count)]; }
+                else
+                { point = BotPoints.TTPoints[rand.Next(0, BotPoints.CTPoints.Count)]; }
+                PathFinder.findPath(this.MoveList, this.MovingTiles, MapManager.MapString, new Point(this.Position.X, this.Position.Y - 1), point);
+                if (this.MoveList.Count > 0) this.ReadyToGo = true;
+            }
         }
-
     }
 }

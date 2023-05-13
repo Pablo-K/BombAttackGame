@@ -30,6 +30,7 @@ namespace BombAttackGame
         private readonly MapManager _mapManager;
         private readonly GraphicsDeviceManager _graphics;
         private readonly GameManager _gameManager;
+        private BotPoints _botPoints;
         private List<Animation> _animations;
         private Player _player;
         private SpriteBatch _spriteBatch;
@@ -64,6 +65,7 @@ namespace BombAttackGame
             _graphics.PreferredBackBufferHeight = 1000;
             _graphics.ApplyChanges();
             base.Initialize();
+            
         }
 
         protected override void LoadContent()
@@ -73,6 +75,7 @@ namespace BombAttackGame
             _mapManager.LoadMap();
             AnimationsContainer.Initialize(base.Content);
             _mapCollision.AddRange(_mapManager.MapCollisions);
+            _botPoints = new BotPoints(); 
             StartRound();
         }
 
