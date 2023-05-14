@@ -18,11 +18,6 @@ namespace BombAttackGame.Map
             BotPoints.TTPoints.AddRange(GetPointsFromChar('b'));
         }
 
-        private void CreateCTPoints()
-        {
-            CTPoints.Clear();
-            
-        }
         private List<Point> GetPointsFromChar(char c)
         {
             List<Point> points = new List<Point>();

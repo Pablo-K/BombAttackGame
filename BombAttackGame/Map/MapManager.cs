@@ -40,6 +40,26 @@ namespace BombAttackGame.Map
             MapConverter(this.CharMap);
             MapManager.MapString = CharToStringConverter(this.CharMap);
         }
+        public static bool IsOnTile(Vector2 loc, Texture2D texture, Point tile)
+        {
+            bool b = true;
+            List<Point> pos = new List<Point>() {
+                new Point((int)loc.X / 20, (int)loc.Y / 20),
+                new Point(((int)loc.X + texture.Width) / 20, (int)loc.Y / 20),
+                new Point((int)loc.X / 20, ((int)loc.Y + texture.Height) / 20),
+                new Point(((int)loc.X + texture.Width) / 20, ((int)loc.Y + texture.Height) / 20),
+            };
+            foreach (Point p in pos)
+            {
+                if (p != tile)
+                {
+                    b = false;
+                    return b;
+                }
+            }
+            return b;
+        }
+
         private char[][] Reverse(char[][] map)
         {
             char[][] newchar = map;
@@ -55,7 +75,7 @@ namespace BombAttackGame.Map
         private string[] CharToStringConverter(char[][] map)
         {
             string[] s = new string[map.Length];
-            for (int i = 0;i < map.Length; i++)
+            for (int i = 0; i < map.Length; i++)
             {
                 string str = "";
                 for (int j = 0; j < map.Length; j++)

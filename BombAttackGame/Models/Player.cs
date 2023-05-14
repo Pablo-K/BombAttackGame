@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace BombAttackGame.Models
@@ -34,7 +35,6 @@ namespace BombAttackGame.Models
         public bool IsDead { get; set; }
         public bool IsFlashed { get; set; }
         public double MovingTime { get; set; }
-        private double MovingEndTime { get; set; }
         private double UseHoldableItemBlockTime { get; set; }
         private double UseHoldableItemBlockLatency { get; set; }
         public Color Color { get; set; }
@@ -58,9 +58,8 @@ namespace BombAttackGame.Models
         public Direction ErrorDirection { get; set; }
         public Direction PreviousDirection { get; set; }
         public bool ReadyToGo { get; set; }
-        private bool isBotMove { get; set; }
         private List<Tile> MovingTiles { get; set; }
-        private Tile PreviousTile { get; set; }
+        private Direction OldDirection { get; set; }
 
         public Player(Team team)
         {
@@ -187,14 +186,7 @@ namespace BombAttackGame.Models
             this.Time = gameTime.TotalGameTime.TotalMilliseconds;
             this.DLocation = new Vector2(this.Location.X, this.Location.Y - this.Texture.Height);
             this.OldPosition = this.Position;
-            if (this.Direction == Direction.Left)
-            { this.Position = new Point((int)(Location.X + this.Texture.Width) / 20, (int)this.Location.Y / 20); }
-            if (this.Direction == Direction.Right)
-            { this.Position = new Point((int)(Location.X - 1) / 20, (int)this.Location.Y / 20); }
-            else if (this.Direction == Direction.Up)
-            { this.Position = new Point((int)Location.X / 20, ((int)this.Location.Y + this.Texture.Height ) / 20); }
-            else
-            { this.Position = new Point((int)Location.X / 20, (int)this.Location.Y / 20); }
+            this.Position = new Point((int)Location.X / 20, (int)this.Location.Y / 20); 
             UpdateRectangle();
             CheckIfDead();
             CheckInventory();
@@ -339,26 +331,20 @@ namespace BombAttackGame.Models
             {
                 if(this.Location == this.OldLocation)
                 {
-                    this.ReadyToGo = false;
+                    Random rand = new Random();
+                    if(rand.Next(0,1000) > 960) this.ReadyToGo = false;
                 }
                 if (this.MoveList.Count > 0)
                 {
                     Point pos = new Point(this.MovingTiles.First().X, this.MovingTiles.First().Y);
-                    if ((this.MoveList.FirstOrDefault() == Direction.Left || this.MoveList.FirstOrDefault() == Direction.Right)&& this.Position.X == pos.X) {
-                        this.MoveList.RemoveAt(0);
-                        this.MovingTiles.RemoveAt(0); }
-                    if ((this.MoveList.FirstOrDefault() == Direction.Up || this.MoveList.FirstOrDefault() == Direction.Down) && this.Position.Y == pos.Y) {
+                    if (MapManager.IsOnTile(this.Location, this.Texture, pos)) {
+                        this.OldDirection = this.MoveList[0];
                         this.MoveList.RemoveAt(0);
                         this.MovingTiles.RemoveAt(0); }
                     if (this.MoveList.Count == 0) return;
                     PlayerMove(this.MoveList.First());
                     OldLocation = this.Location;
                     return;
-                }
-                if(this.MoveList.Count < 5)
-                {
-                    Random rand = new();
-                    if(rand.Next(0, 100) > 99) { this.ReadyToGo = false; }
                 }
             }
             else
@@ -371,7 +357,7 @@ namespace BombAttackGame.Models
                 { point = BotPoints.CTPoints[rand.Next(0, BotPoints.CTPoints.Count)]; }
                 else
                 { point = BotPoints.TTPoints[rand.Next(0, BotPoints.CTPoints.Count)]; }
-                PathFinder.findPath(this.MoveList, this.MovingTiles, MapManager.MapString, new Point(this.Position.X, this.Position.Y - 1), point);
+                PathFinder.FindPath(this.MoveList, this.MovingTiles, MapManager.MapString, new Point(this.Position.X, this.Position.Y), point);
                 if (this.MoveList.Count > 0) this.ReadyToGo = true;
             }
         }

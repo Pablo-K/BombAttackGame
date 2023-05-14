@@ -9,10 +9,10 @@ namespace BombAttackGame.Map
 {
     internal class PathFinder
     {
-        public static void findPath(List<Direction> list, List<Tile> movingtiles, string[] map, Point position, Point end)
+        public static void FindPath(List<Direction> list, List<Tile> movingtiles, string[] map, Point position, Point end)
         {
             Tile current = null;
-            var start = new Tile { X = position.X, Y = position.Y};
+            var start = new Tile { X = position.X, Y = position.Y };
             var target = new Tile { X = end.X, Y = end.Y };
             var openList = new List<Tile>();
             var closedList = new List<Tile>();
@@ -78,7 +78,6 @@ namespace BombAttackGame.Map
 
             list.Reverse();
             movingtiles.Reverse();
-            Console.WriteLine(newmap);
         }
 
         static List<Tile> GetWalkableAdjacentSquares(int x, int y, string[] map)
