@@ -13,6 +13,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Transactions;
 
 namespace BombAttackGame.Events
 {
@@ -22,16 +23,16 @@ namespace BombAttackGame.Events
         private readonly List<IGameSprite> _sprites;
         private readonly List<Rectangle> _mapCollisions;
         private readonly List<IHoldableObject> _holdableObjects;
+        private readonly List<IOnGroundItem> _onGroundItems;
         private readonly GameManager _gameManager;
         private readonly MapManager _mapManager;
         private List<Animation> _animations;
         private readonly GameTime _gameTime;
-        public bool EndRoundBool;
         public bool EndGameBool;
 
         public EventProcessor(List<IGameObject> gameObjects, List<Rectangle> mapCollisions, GameTime gameTime,
             List<IGameSprite> sprites, List<IHoldableObject> holdableObjects, List<Animation> animations, GameManager gameManager,
-            MapManager mapManager)
+            MapManager mapManager, List<IOnGroundItem> onGroundItems)
         {
             _gameObjects = gameObjects;
             _mapCollisions = mapCollisions;
@@ -41,6 +42,7 @@ namespace BombAttackGame.Events
             _animations = animations;
             _gameManager = gameManager;
             _mapManager = mapManager;
+            _onGroundItems = onGroundItems;
         }
 
         public void ProcessEvents()
@@ -77,6 +79,9 @@ namespace BombAttackGame.Events
                 case Enums.Events.TryShoot:
                     TryShoot(gameObject);
                     break;
+                case Enums.Events.PlantBomb:
+                    PlantBomb(gameObject);
+                    break;
                 case Enums.Events.Throw:
                     ThrowItem(gameObject);
                     break;
@@ -94,6 +99,14 @@ namespace BombAttackGame.Events
             }
         }
 
+        private void PlantBomb(IGameObject gameObject)
+        {
+            Player player = (Player)gameObject;
+            var bomb = (Bomb)player.Inventory.SelectedItem;
+            bomb.Plant(player.Location, _gameTime.TotalGameTime.TotalMilliseconds);
+            _onGroundItems.Add(bomb);
+        }
+
         private void Dead(IGameObject gameObject)
         {
             _gameObjects.Remove(gameObject);
@@ -101,7 +114,7 @@ namespace BombAttackGame.Events
 
         private void ProcessEvent(GameManager gameManager, Enums.Events e)
         {
-            switch(e)
+            switch (e)
             {
                 case Enums.Events.StartRound:
                     StartRound();
@@ -137,9 +150,17 @@ namespace BombAttackGame.Events
         }
         private void StartRound()
         {
+            if (GameManager.StartRoundTime == 0)
+            {
+                Bomb bomb = (Bomb)_onGroundItems.Where(x => x is Bomb).FirstOrDefault();
+                _animations.Add(new Animation(AnimationsContainer.BombBoom, bomb.Location, 3));
+                GameManager.StartRoundTime = _gameTime.TotalGameTime.TotalMilliseconds + GameManager.StartRoundLatency;
+            }
+            if (_gameTime.TotalGameTime.TotalMilliseconds <= GameManager.StartRoundTime) return;
             Player player = new Player(Team.TeamMate);
             this._holdableObjects.Clear();
             this._gameObjects.Clear();
+            this._onGroundItems.Clear();
             player = GameObject.AddPlayer(Team.TeamMate, _mapManager);
             _gameObjects.Add(player);
             player.IsHuman = true;
@@ -194,6 +215,12 @@ namespace BombAttackGame.Events
                     FlashAround(flashGrenade); break;
             }
         }
+        private void ExplodeBomb()
+        {
+            Bomb b = (Bomb)_onGroundItems.Where(x => x is Bomb).FirstOrDefault();
+            DealDamageAround((IHoldableObject)_onGroundItems.Where(x => x is Bomb).FirstOrDefault());
+            _animations.Add(new Animation(AnimationsContainer.HandGrenadeBoom, b.Location));
+        }
         private void FlashAround(FlashGrenade flashGrenade)
         {
             foreach (var obj in _gameObjects.OfType<Player>())
@@ -208,15 +235,32 @@ namespace BombAttackGame.Events
                 }
             }
         }
-        private void DealDamageAround(HandGrenade handGrenade)
+        private void DealDamageAround(IHoldableObject h)
         {
-            foreach (var obj in _gameObjects.OfType<Player>())
+            if (h is HandGrenade)
             {
-                int damage = handGrenade.CalculateDamage(obj);
-                if (damage > 0)
+                var handGrenade = (HandGrenade)h;
+                foreach (var obj in _gameObjects.OfType<Player>())
                 {
-                    DealDamage.DealDamageToPlayer(obj, damage);
-                    CreateDamage(handGrenade, obj, _gameTime);
+                    int damage = handGrenade.CalculateDamage(obj);
+                    if (damage > 0)
+                    {
+                        DealDamage.DealDamageToPlayer(obj, damage);
+                        CreateDamage(handGrenade, obj, _gameTime);
+                    }
+                }
+            }
+            if (h is Bomb)
+            {
+                var bomb = (Bomb)h;
+                foreach (var obj in _gameObjects.OfType<Player>())
+                {
+                    int damage = bomb.CalculateDamage(obj);
+                    if (damage > 0)
+                    {
+                        DealDamage.DealDamageToPlayer(obj, damage);
+                        CreateDamage(bomb, _gameTime);
+                    }
                 }
             }
         }
@@ -455,6 +499,14 @@ namespace BombAttackGame.Events
             Damage Damage = new Damage(bullet.DamageDealt, bullet.Location);
             Damage.Font = ContentContainer.DamageFont;
             Damage.Location = bullet.Location;
+            Damage.ShowTime = gameTime.TotalGameTime.TotalMilliseconds;
+            _sprites.Add(Damage);
+        }
+        private void CreateDamage(Bomb bomb, GameTime gameTime)
+        {
+            Damage Damage = new Damage(bomb.DamageDealt, bomb.Location);
+            Damage.Font = ContentContainer.DamageFont;
+            Damage.Location = bomb.Location;
             Damage.ShowTime = gameTime.TotalGameTime.TotalMilliseconds;
             _sprites.Add(Damage);
         }

@@ -11,6 +11,7 @@ namespace BombAttackGame.Models
         public IInventoryItem Slot1 { get; set; }
         public IInventoryItem Slot2 { get; set; }
         public IInventoryItem Slot3 { get; set; }
+        public IInventoryItem Slot4 { get; set; }
         public int SelectedSlot { get; set; }
         public IInventoryItem SelectedItem { get => GetSelectedItem(); }
         public List<IInventoryItem> InventoryItems { get; set; }
@@ -22,6 +23,7 @@ namespace BombAttackGame.Models
                 case 1: return Slot1;
                 case 2: return Slot2;
                 case 3: return Slot3;
+                case 4: return Slot4;
                 default: throw new Exception();
             }
         }
@@ -38,6 +40,7 @@ namespace BombAttackGame.Models
                 1 => Slot1,
                 2 => Slot2,
                 3 => Slot3,
+                4 => Slot4,
                 _ => throw new ArgumentException()
             };
 
@@ -50,6 +53,7 @@ namespace BombAttackGame.Models
                 case 1: Slot1 = inventoryItem; break;
                 case 2: Slot2 = inventoryItem; break;
                 case 3: Slot3 = inventoryItem; break;
+                case 4: Slot4 = inventoryItem; break;
             }
         }
         public void Select(int slot)
@@ -63,6 +67,7 @@ namespace BombAttackGame.Models
                 1 => Slot1,
                 2 => Slot2,
                 3 => Slot3,
+                4 => Slot4,
                 _ => throw new ArgumentException()
             };
             if(oldItem is not null)
@@ -105,6 +110,17 @@ namespace BombAttackGame.Models
                     newItem = this.InventoryItems.Where(x => x.InventorySlot == 3).Except(list).First();
                     this.Slot3 = this.InventoryItems.Where(x => x.InventorySlot == 3).Except(list).First();
                     this.InventoryItems.Remove(this.Slot3);
+                    break;
+                case 4:
+                    list = new List<IInventoryItem>() { this.Slot4 };
+                    if (!this.InventoryItems.Where(x => x.InventorySlot == 4).Except(list).Any())
+                    {
+                        this.InventoryItems.Remove(this.Slot4);
+                        return;
+                    }
+                    newItem = this.InventoryItems.Where(x => x.InventorySlot == 4).Except(list).First();
+                    this.Slot4 = this.InventoryItems.Where(x => x.InventorySlot == 4).Except(list).First();
+                    this.InventoryItems.Remove(this.Slot4);
                     break;
             }
         }

@@ -25,7 +25,6 @@ namespace BombAttackGame.Models
         public Vector2 OldLocation { get; set; }
         public Point Position { get; set; }
         public Point OldPosition { get; set; }
-        public List<IInventoryItem> Equipment { get; set; }
         public Vector2 ShootLocation { get; set; }
         public Direction Direction { get; set; }
         public Team Team { get; set; }
@@ -41,7 +40,6 @@ namespace BombAttackGame.Models
         public Queue<Enums.Events> Event { get; set; }
         public Rectangle Rectangle { get; set; }
         public bool IsHuman { get; set; }
-        public int Ammo { get; set; }
         public int FlashTime { get; set; }
         public List<IGameObject> VisibleObjects { get; set; }
         public Inventory Inventory { get; set; }
@@ -55,11 +53,8 @@ namespace BombAttackGame.Models
         public int BotNothingChance { get; set; }
         public int BotGrenadeChance { get; set; }
         public List<Direction> MoveList { get; set; }
-        public Direction ErrorDirection { get; set; }
-        public Direction PreviousDirection { get; set; }
         public bool ReadyToGo { get; set; }
         private List<Tile> MovingTiles { get; set; }
-        private Direction OldDirection { get; set; }
 
         public Player(Team team)
         {
@@ -136,6 +131,20 @@ namespace BombAttackGame.Models
                         BlockUseHoldableItem();
                     }
                     break;
+                case 4:
+                    if (this.Inventory.Slot4 != null)
+                    {
+                        if (this.Inventory.SelectedSlot == 4)
+                        {
+                            this.Inventory.SelectNext(slot);
+                        }
+                        else
+                        {
+                            this.Inventory.Select(slot);
+                        }
+                        BlockUseHoldableItem();
+                    }
+                    break;
             }
             this.ChangeInventoryTime = this.Time;
         }
@@ -165,6 +174,10 @@ namespace BombAttackGame.Models
                 this.IsDead = true;
             }
         }
+        public void PlantBomb()
+        {
+            this.Event.Enqueue(Enums.Events.PlantBomb);
+        }
 
         public void UseSelectedItem(Vector2 shootLocation)
         {
@@ -179,6 +192,10 @@ namespace BombAttackGame.Models
                 this.ShootLocation = shootLocation;
                 this.Event.Enqueue(Enums.Events.Throw);
             }
+            if (this.Inventory.SelectedItem is Bomb)
+            {
+                this.PlantBomb();
+            }
         }
 
         public void Tick(GameTime gameTime, List<IGameObject> gameObjects, List<Rectangle> mapRectangle)
@@ -186,7 +203,7 @@ namespace BombAttackGame.Models
             this.Time = gameTime.TotalGameTime.TotalMilliseconds;
             this.DLocation = new Vector2(this.Location.X, this.Location.Y - this.Texture.Height);
             this.OldPosition = this.Position;
-            this.Position = new Point((int)Location.X / 20, (int)this.Location.Y / 20); 
+            this.Position = new Point((int)Location.X / 20, (int)this.Location.Y / 20);
             UpdateRectangle();
             CheckIfDead();
             CheckInventory();
@@ -289,9 +306,9 @@ namespace BombAttackGame.Models
             }
         }
 
-        private async Task UpdateObjectsVisibilityAsync(List<IGameObject> gameObjects, List<Rectangle> mapRectangle)
+        private void UpdateObjectsVisibilityAsync(List<IGameObject> gameObjects, List<Rectangle> mapRectangle)
         {
-            foreach (var obj in gameObjects)
+            foreach (var obj in gameObjects.ToList())
             {
                 bool intersects = VectorTool.CheckLineIntersection(this.Location, obj.Location, mapRectangle);
                 if (!intersects)
@@ -303,7 +320,7 @@ namespace BombAttackGame.Models
                     if (this.VisibleObjects.Contains(obj)) this.VisibleObjects.Remove(obj);
                 }
             }
-            foreach (var obj in this.VisibleObjects)
+            foreach (var obj in this.VisibleObjects.ToList())
             {
                 if (obj.IsDead) this.VisibleObjects.Remove(obj);
             }
@@ -329,18 +346,28 @@ namespace BombAttackGame.Models
             if (this.IsHuman) return;
             if (this.ReadyToGo)
             {
-                if(this.Location == this.OldLocation)
+                if (this.Location == this.OldLocation)
                 {
                     Random rand = new Random();
-                    if(rand.Next(0,1000) > 960) this.ReadyToGo = false;
+                    if (rand.Next(0, 1000) > 960)
+                    {
+                        this.ReadyToGo = false;
+                        return;
+                    }
                 }
                 if (this.MoveList.Count > 0)
                 {
+                    if (Math.Abs(this.Position.X - this.MovingTiles.First().X) > 2 || Math.Abs(this.Position.Y - this.MovingTiles.First().Y) > 2)
+                    {
+                        this.ReadyToGo = false;
+                        return;
+                    }
                     Point pos = new Point(this.MovingTiles.First().X, this.MovingTiles.First().Y);
-                    if (MapManager.IsOnTile(this.Location, this.Texture, pos)) {
-                        this.OldDirection = this.MoveList[0];
+                    if (MapManager.IsOnTile(this.Location, this.Texture, pos))
+                    {
                         this.MoveList.RemoveAt(0);
-                        this.MovingTiles.RemoveAt(0); }
+                        this.MovingTiles.RemoveAt(0);
+                    }
                     if (this.MoveList.Count == 0) return;
                     PlayerMove(this.MoveList.First());
                     OldLocation = this.Location;
@@ -353,7 +380,7 @@ namespace BombAttackGame.Models
                 MovingTiles.Clear();
                 Random rand = new Random();
                 Point point = new Point();
-                if(this.Team == Team.TeamMate)
+                if (this.Team == Team.TeamMate)
                 { point = BotPoints.CTPoints[rand.Next(0, BotPoints.CTPoints.Count)]; }
                 else
                 { point = BotPoints.TTPoints[rand.Next(0, BotPoints.CTPoints.Count)]; }

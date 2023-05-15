@@ -49,11 +49,16 @@ namespace BombAttackGame.Draw
             {
                 if (_gameTime.TotalGameTime.TotalMilliseconds >= animation.LastPartTime + animation.PartTime)
                 {
+                    if (animation.ActualPart == animation.Parts)
+                    {
+                        animation.ActualPart = 1;
+                        animation.RepeatTimes -= 1;
+                    }
                     spriteBatch.Draw(animation.AnimationTexture.ElementAt(animation.ActualPart), animation.Location, Color.Black * _alpha);
                     animation.ActualPart += 1;
                     animation.LastPartTime = _gameTime.TotalGameTime.TotalMilliseconds;
                 }
-                if (animation.ActualPart == animation.Parts)
+                if (animation.ActualPart == animation.Parts && animation.RepeatTimes <= 0)
                 {
                     _animations.Remove(animation);
                 }

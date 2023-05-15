@@ -38,6 +38,9 @@ namespace BombAttackGame.Global
             if (kstate.IsKeyDown(Keys.D3)) {
                 player.ChangeInventorySlot(3);
             }
+            if (kstate.IsKeyDown(Keys.D4)) {
+                player.ChangeInventorySlot(4);
+            }
 
             if (mstate.LeftButton == ButtonState.Pressed) { if (player.CanUseHoldableItem) player.UseSelectedItem(mousePosition); }
 

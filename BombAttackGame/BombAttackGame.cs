@@ -22,6 +22,7 @@ namespace BombAttackGame
         private readonly List<IGameObject> _gameObjects;
         private readonly List<IGameSprite> _sprites;
         private readonly List<IHoldableObject> _holdableObjects;
+        private readonly List<IOnGroundItem> _onGroundItems;
         private readonly List<Rectangle> _mapCollision;
         private readonly EventProcessor _eventProcessor;
         private readonly GameTime _gameTime;
@@ -49,11 +50,12 @@ namespace BombAttackGame
             _mapCollision = new List<Rectangle>();
             _gameTime = new GameTime();
             _holdableObjects = new List<IHoldableObject>();
+            _onGroundItems = new List<IOnGroundItem>();
             _animations = new List<Animation>();
             _mapManager = new MapManager();
             _inputHandler = new InputHandler();
             _gameManager = new GameManager(_gameObjects);
-            _eventProcessor = new EventProcessor(_gameObjects, _mapCollision, _gameTime, _sprites, _holdableObjects, _animations, _gameManager, _mapManager);
+            _eventProcessor = new EventProcessor(_gameObjects, _mapCollision, _gameTime, _sprites, _holdableObjects, _animations, _gameManager, _mapManager, _onGroundItems);
             _draw = new DrawingProcessor(_gameObjects, _sprites, _animations, _mapManager, _gameTime, _gameManager);
         }
 
@@ -61,11 +63,11 @@ namespace BombAttackGame
         {
 
             base.Window.AllowUserResizing = false;
-            _graphics.PreferredBackBufferWidth = 1000;
-            _graphics.PreferredBackBufferHeight = 1000;
+            _graphics.PreferredBackBufferWidth = _mapSize.Width;
+            _graphics.PreferredBackBufferHeight = _mapSize.Height;
             _graphics.ApplyChanges();
             base.Initialize();
-            
+
         }
 
         protected override void LoadContent()
@@ -75,7 +77,7 @@ namespace BombAttackGame
             _mapManager.LoadMap();
             AnimationsContainer.Initialize(base.Content);
             _mapCollision.AddRange(_mapManager.MapCollisions);
-            _botPoints = new BotPoints(); 
+            _botPoints = new BotPoints();
             StartRound();
         }
 
@@ -83,17 +85,22 @@ namespace BombAttackGame
         {
             if (_gameManager.RoundStartedTime == 0) _gameManager.SetTime(gameTime);
             if (_gameObjects.Where(x => x.IsHuman).Any()) _player = (Player)_gameObjects.Where(x => x.IsHuman).FirstOrDefault();
-            if(_gameManager.IsOnTimeLapse)
+            if (_gameManager.IsOnTimeLapse)
             {
                 var x = gameTime.ElapsedGameTime.TotalMilliseconds;
-                gameTime.TotalGameTime += new TimeSpan((long)x*15000);
+                gameTime.TotalGameTime += new TimeSpan((long)x * 15000);
             }
             _gameTime.TotalGameTime = gameTime.TotalGameTime;
             _gameTime.ElapsedGameTime = gameTime.ElapsedGameTime;
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape)) Exit();
             _inputHandler.HandleInputs(_player);
             _eventProcessor.ProcessEvents();
-            _gameManager.UpdateTime(gameTime);
+            if (_onGroundItems.Where(x => x is Bomb).Any())
+            {
+                Bomb b = (Bomb)_onGroundItems.Where(x => x is Bomb).FirstOrDefault();
+                _gameManager.UpdateTime(gameTime, b.BoomTime);
+            }
+            else { _gameManager.UpdateTime(gameTime); }
             _gameManager.Process();
             Tick();
             base.Update(gameTime);
@@ -123,6 +130,9 @@ namespace BombAttackGame
             _player = GameObject.AddPlayer(Team.TeamMate, _mapManager);
             _gameObjects.Add(_player);
             _player.IsHuman = true;
+
+            _player.Inventory.Equip(new Bomb());
+
             _player.Color = Color.Tomato;
             _gameObjects.AddRange(GameObject.AddPlayers(Team.TeamMate, _gameManager.TeamMatesCount, _mapManager));
             _gameObjects.AddRange(GameObject.AddPlayers(Team.Enemy, _gameManager.EnemyCount, _mapManager));

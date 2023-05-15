@@ -15,6 +15,7 @@
         StartRound,
         EndGame,
         Dead,
-        TimeLapse
+        TimeLapse,
+        PlantBomb
     }
 }

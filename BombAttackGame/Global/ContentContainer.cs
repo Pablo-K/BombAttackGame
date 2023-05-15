@@ -27,6 +27,9 @@ namespace BombAttackGame.Global
         private static Texture2D _grenadeTexture;
         private static Texture2D _handGrenadeTexture;
         private static Texture2D _flashGrenadeTexture;
+        private static Texture2D _bombHudTexture;
+        private static Texture2D _bombPlantedTexture;
+        private static Texture2D _bombGroundTexture;
         const string PA = "PlayerAnimation/";
 
         public static SpriteFont HpFont => _hpFont ??= _contentManager.Load<SpriteFont>("hp");
@@ -43,6 +46,9 @@ namespace BombAttackGame.Global
         public static Texture2D GrenadeTexture => _grenadeTexture ??= _contentManager.Load<Texture2D>("grenade");
         public static Texture2D HandGrenadeTexture => _handGrenadeTexture ??= _contentManager.Load<Texture2D>("handgrenade");
         public static Texture2D FlashGrenadeTexture => _flashGrenadeTexture ??= _contentManager.Load<Texture2D>("flashgrenade");
+        public static Texture2D BombHudTexture => _bombHudTexture ??= _contentManager.Load<Texture2D>("bombhud");
+        public static Texture2D BombPlantedTexture => _bombPlantedTexture ??= _contentManager.Load<Texture2D>("bombplanted");
+        public static Texture2D BombGroundTexture => _bombGroundTexture ??= _contentManager.Load<Texture2D>("bomb");
         public static List<Texture2D> TeamMateUp { get { return new List<Texture2D>() { 
             _contentManager.Load<Texture2D>(PA +"teammateup1"), 
             _contentManager.Load<Texture2D>(PA +"teammateup2") }; } }
