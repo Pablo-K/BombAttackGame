@@ -65,7 +65,7 @@ namespace BombAttackGame.Events
             ProcessEvent(_gameManager, _gameManager.Event);
             if (_bomb != null)
             {
-                if (_gameTime.TotalGameTime.TotalMilliseconds >= _bomb.BoomTime && _bomb.BoomTime != 0)
+                if (_gameTime.TotalGameTime.TotalMilliseconds >= _bomb.BoomTime && _bomb.BoomTime != 0 && !_bomb.Exploded)
                 {
                     _bomb.Explode();
                 }
@@ -127,7 +127,7 @@ namespace BombAttackGame.Events
             if (b.Location != new Vector2(0, 0))
             {
                 b.Position = p.Position;
-                _onGroundItems.Add(b);
+                 _onGroundItems.Add(b);
             }
         }
 
@@ -247,6 +247,7 @@ namespace BombAttackGame.Events
         {
             DealDamageAround(bomb);
             _animations.Add(new Animation(AnimationsContainer.BombBoom, bomb.Location, 5));
+            bomb.Event = Enums.Events.None;
         }
         private void Explode(IGameObject gameObject)
         {

@@ -16,6 +16,7 @@
         EndGame,
         Dead,
         TimeLapse,
-        PlantBomb
+        PlantBomb,
+        None
     }
 }

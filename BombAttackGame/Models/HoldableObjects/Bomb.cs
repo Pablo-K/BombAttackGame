@@ -24,6 +24,7 @@ namespace BombAttackGame.Models.HoldableObjects
         public int InventorySlot { get; }
         public int DamageDealt { get; set; }
         public Enums.Events Event { get; set ; }
+        public bool Exploded { get; set; }
 
         public Bomb() : base()
         {
@@ -74,6 +75,7 @@ namespace BombAttackGame.Models.HoldableObjects
         public void Explode()
         {
             this.Event = Enums.Events.Explode;
+            this.Exploded = true;
         }
     }
 }
