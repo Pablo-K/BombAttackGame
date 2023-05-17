@@ -4,6 +4,7 @@ using BombAttackGame.HUD;
 using BombAttackGame.Interfaces;
 using BombAttackGame.Map;
 using BombAttackGame.Models;
+using BombAttackGame.Models.HoldableObjects;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
@@ -16,13 +17,14 @@ namespace BombAttackGame.Draw
         private readonly List<IGameObject> _gameObjects;
         private List<Animation> _animations;
         private readonly List<IGameSprite> _sprites;
+        private readonly List<IOnGroundItem> _onGroundItems;
         private readonly MapManager _mapManager;
         private readonly GameTime _gameTime;
         private readonly GameManager _gameManager;
         private float _alpha = 1f;
         private Color _color = Color.White;
 
-        public DrawingProcessor(List<IGameObject> gameObjects, List<IGameSprite> sprites, List<Animation> animations, MapManager mapManager, GameTime gameTime, GameManager gameManager)
+        public DrawingProcessor(List<IGameObject> gameObjects, List<IGameSprite> sprites, List<Animation> animations, MapManager mapManager, GameTime gameTime, GameManager gameManager, List<IOnGroundItem> onGroundItems)
         {
             _gameObjects = gameObjects;
             _sprites = sprites;
@@ -30,6 +32,7 @@ namespace BombAttackGame.Draw
             _gameTime = gameTime;
             _animations = animations;
             _gameManager = gameManager;
+            _onGroundItems = onGroundItems;
         }
         public void Draw(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice)
         {
@@ -41,7 +44,24 @@ namespace BombAttackGame.Draw
             DrawHud(spriteBatch);
             DrawAnimations(spriteBatch);
             DrawFlash(spriteBatch);
+            DrawOnGroundItems(spriteBatch);
             spriteBatch.End();
+        }
+        private void DrawOnGroundItems(SpriteBatch spriteBatch)
+        {
+            foreach (var item in _onGroundItems)
+            {
+                if (item is Bomb)
+                {
+                    Bomb b = (Bomb)item;
+                    if (b.Planted) spriteBatch.Draw(b.PlantedTexture, b.Location, Color.Red * _alpha);
+                    else
+                    {
+                        spriteBatch.Draw(b.GroundTexture, b.Location, Color.Green * _alpha);
+                    }
+                }
+            }
+
         }
         private void DrawAnimations(SpriteBatch spriteBatch)
         {

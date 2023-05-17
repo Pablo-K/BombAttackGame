@@ -56,7 +56,7 @@ namespace BombAttackGame
             _inputHandler = new InputHandler();
             _gameManager = new GameManager(_gameObjects);
             _eventProcessor = new EventProcessor(_gameObjects, _mapCollision, _gameTime, _sprites, _holdableObjects, _animations, _gameManager, _mapManager, _onGroundItems);
-            _draw = new DrawingProcessor(_gameObjects, _sprites, _animations, _mapManager, _gameTime, _gameManager);
+            _draw = new DrawingProcessor(_gameObjects, _sprites, _animations, _mapManager, _gameTime, _gameManager,_onGroundItems);
         }
 
         protected override void Initialize()
@@ -98,7 +98,8 @@ namespace BombAttackGame
             if (_onGroundItems.Where(x => x is Bomb).Any())
             {
                 Bomb b = (Bomb)_onGroundItems.Where(x => x is Bomb).FirstOrDefault();
-                _gameManager.UpdateTime(gameTime, b.BoomTime);
+                if (b.Planted ) _gameManager.UpdateTime(gameTime, b.BoomTime);
+                else { _gameManager.UpdateTime(gameTime); }
             }
             else { _gameManager.UpdateTime(gameTime); }
             _gameManager.Process();
@@ -131,7 +132,6 @@ namespace BombAttackGame
             _gameObjects.Add(_player);
             _player.IsHuman = true;
 
-            _player.Inventory.Equip(new Bomb());
 
             _player.Color = Color.Tomato;
             _gameObjects.AddRange(GameObject.AddPlayers(Team.TeamMate, _gameManager.TeamMatesCount, _mapManager));
@@ -147,6 +147,10 @@ namespace BombAttackGame
                 player.Inventory.Select(1);
                 _holdableObjects.Add(gun);
             }
+            List<Player> tplayers = new List<Player>();
+            tplayers.AddRange(this._gameObjects.OfType<Player>().Where(x => x.Team == Team.Enemy));
+            int r = new Random().Next(0, tplayers.Count);
+            tplayers.ElementAt(r).Inventory.Equip(new Bomb());
         }
     }
 }

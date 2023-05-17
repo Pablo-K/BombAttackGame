@@ -9,11 +9,9 @@ using BombAttackGame.Models.HoldableObjects;
 using BombAttackGame.Models.HoldableObjects.ThrowableObjects;
 using BombAttackGame.Vector;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Transactions;
 
 namespace BombAttackGame.Events
 {
@@ -28,6 +26,7 @@ namespace BombAttackGame.Events
         private readonly MapManager _mapManager;
         private List<Animation> _animations;
         private readonly GameTime _gameTime;
+        private Bomb _bomb;
         public bool EndGameBool;
 
         public EventProcessor(List<IGameObject> gameObjects, List<Rectangle> mapCollisions, GameTime gameTime,
@@ -64,6 +63,25 @@ namespace BombAttackGame.Events
                 }
             }
             ProcessEvent(_gameManager, _gameManager.Event);
+            if (_bomb != null)
+            {
+                if (_gameTime.TotalGameTime.TotalMilliseconds >= _bomb.BoomTime && _bomb.BoomTime != 0)
+                {
+                    _bomb.Explode();
+                }
+                ProcessEvent(_bomb, _bomb.Event);
+
+            }
+        }
+
+        private void ProcessEvent(Bomb bomb, Enums.Events e)
+        {
+            switch (e)
+            {
+                case Enums.Events.Explode:
+                    Explode(bomb);
+                    break;
+            }
         }
 
         private void ProcessEvent(IGameObject gameObject, Enums.Events e)
@@ -96,15 +114,38 @@ namespace BombAttackGame.Events
                 case Enums.Events.Explode:
                     Explode(gameObject);
                     break;
+                case Enums.Events.DropBomb:
+                    DropBomb(gameObject);
+                    break;
+            }
+        }
+
+        private void DropBomb(IGameObject gameObject)
+        {
+            Player p = (Player)gameObject;
+            Bomb b = Drop.DropBomb(p);
+            if (b.Location != new Vector2(0, 0))
+            {
+                b.Position = p.Position;
+                _onGroundItems.Add(b);
             }
         }
 
         private void PlantBomb(IGameObject gameObject)
         {
             Player player = (Player)gameObject;
-            var bomb = (Bomb)player.Inventory.SelectedItem;
-            bomb.Plant(player.Location, _gameTime.TotalGameTime.TotalMilliseconds);
-            _onGroundItems.Add(bomb);
+            var bomb = (Bomb)player.Inventory.Slot4;
+
+            List<Point> aPoints = new List<Point>(MapManager.GetPointsFromChar('a'));
+            List<Point> bPoints = new List<Point>(MapManager.GetPointsFromChar('b'));
+            if (aPoints.Contains(player.Position) || bPoints.Contains(player.Position))
+            {
+                bomb.Plant(player.Location, _gameTime.TotalGameTime.TotalMilliseconds);
+                bomb.Position = player.Position;
+                _onGroundItems.Add(bomb);
+                _bomb = bomb;
+                player.RemoveFromInventory(bomb);
+            }
         }
 
         private void Dead(IGameObject gameObject)
@@ -133,9 +174,6 @@ namespace BombAttackGame.Events
             {
                 player.Speed = 10;
                 if (player.Inventory.Slot1 is Sheriff sheriff) sheriff.Latency = 20;
-                player.BotGrenadeChance = 10;
-                player.BotGunChance = 20;
-                player.BotNothingChance = 60;
             }
             foreach (var bullet in _gameObjects.OfType<Bullet>())
             {
@@ -150,17 +188,13 @@ namespace BombAttackGame.Events
         }
         private void StartRound()
         {
-            if (GameManager.StartRoundTime == 0)
-            {
-                Bomb bomb = (Bomb)_onGroundItems.Where(x => x is Bomb).FirstOrDefault();
-                _animations.Add(new Animation(AnimationsContainer.BombBoom, bomb.Location, 3));
-                GameManager.StartRoundTime = _gameTime.TotalGameTime.TotalMilliseconds + GameManager.StartRoundLatency;
-            }
+            if (GameManager.StartRoundTime == 0) { GameManager.StartRoundTime = _gameTime.TotalGameTime.TotalMilliseconds + GameManager.StartRoundLatency; }
             if (_gameTime.TotalGameTime.TotalMilliseconds <= GameManager.StartRoundTime) return;
             Player player = new Player(Team.TeamMate);
             this._holdableObjects.Clear();
             this._gameObjects.Clear();
             this._onGroundItems.Clear();
+            this._bomb = null;
             player = GameObject.AddPlayer(Team.TeamMate, _mapManager);
             _gameObjects.Add(player);
             player.IsHuman = true;
@@ -178,6 +212,12 @@ namespace BombAttackGame.Events
                 p.Inventory.Select(1);
                 _holdableObjects.Add(gun);
             }
+
+            List<Player> tplayers = new List<Player>();
+            tplayers.AddRange(this._gameObjects.OfType<Player>().Where(x => x.Team == Team.Enemy));
+            int r = new Random().Next(0, tplayers.Count);
+            tplayers.ElementAt(r).Inventory.Equip(new Bomb());
+
             _gameManager.SetTime(_gameTime);
             _gameManager.ResetEvent();
             _gameManager.Reset();
@@ -203,6 +243,11 @@ namespace BombAttackGame.Events
                 _gameObjects.Add(flashGrenade);
             }
         }
+        private void Explode(Bomb bomb)
+        {
+            DealDamageAround(bomb);
+            _animations.Add(new Animation(AnimationsContainer.BombBoom, bomb.Location, 5));
+        }
         private void Explode(IGameObject gameObject)
         {
             switch (gameObject)
@@ -215,12 +260,6 @@ namespace BombAttackGame.Events
                     FlashAround(flashGrenade); break;
             }
         }
-        private void ExplodeBomb()
-        {
-            Bomb b = (Bomb)_onGroundItems.Where(x => x is Bomb).FirstOrDefault();
-            DealDamageAround((IHoldableObject)_onGroundItems.Where(x => x is Bomb).FirstOrDefault());
-            _animations.Add(new Animation(AnimationsContainer.HandGrenadeBoom, b.Location));
-        }
         private void FlashAround(FlashGrenade flashGrenade)
         {
             foreach (var obj in _gameObjects.OfType<Player>())
@@ -231,6 +270,22 @@ namespace BombAttackGame.Events
                     if (time > 0)
                     {
                         FlashPlayers.Flash(obj, (int)_gameTime.TotalGameTime.TotalMilliseconds + time);
+                    }
+                }
+            }
+        }
+        private void DealDamageAround(IOnGroundItem h)
+        {
+            if (h is Bomb)
+            {
+                var bomb = (Bomb)h;
+                foreach (var obj in _gameObjects.OfType<Player>())
+                {
+                    int damage = bomb.CalculateDamage(obj);
+                    if (damage > 0)
+                    {
+                        DealDamage.DealDamageToPlayer(obj, damage);
+                        CreateDamage(bomb, _gameTime);
                     }
                 }
             }
@@ -247,19 +302,6 @@ namespace BombAttackGame.Events
                     {
                         DealDamage.DealDamageToPlayer(obj, damage);
                         CreateDamage(handGrenade, obj, _gameTime);
-                    }
-                }
-            }
-            if (h is Bomb)
-            {
-                var bomb = (Bomb)h;
-                foreach (var obj in _gameObjects.OfType<Player>())
-                {
-                    int damage = bomb.CalculateDamage(obj);
-                    if (damage > 0)
-                    {
-                        DealDamage.DealDamageToPlayer(obj, damage);
-                        CreateDamage(bomb, _gameTime);
                     }
                 }
             }
@@ -289,6 +331,7 @@ namespace BombAttackGame.Events
 
         private void Move(Player player)
         {
+            if(player.IsDead) return;
             Vector2 newLocation;
             Rectangle rectangle;
             switch (player.Direction)
@@ -405,6 +448,32 @@ namespace BombAttackGame.Events
                     player.Location = newLocation;
                     player.Direction = Direction.UpRight;
                     break;
+            }
+            player.Position = new Point((int)player.Location.X / 20, (int)player.Location.Y / 20);
+            foreach (var item in _onGroundItems.ToList())
+            {
+                if (item.Position == player.Position)
+                {
+                    if (item is Bomb)
+                    {
+                        Bomb b = (Bomb)item;
+                        if (b.Planted) return;
+                        if (player.Team == Team.Enemy)
+                        {
+                            player.Inventory.Equip(item);
+                            item.Position = new Point(0, 0);
+                            item.Location = new Vector2(0, 0);
+                            _onGroundItems.Remove(item);
+                        }
+                    }
+                    else
+                    {
+                        player.Inventory.Equip(item);
+                        item.Position = new Point(0, 0);
+                        item.Location = new Vector2(0, 0);
+                        _onGroundItems.Remove(item);
+                    }
+                }
             }
             player.ChangeTexture();
         }

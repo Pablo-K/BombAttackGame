@@ -2,7 +2,7 @@
 {
     public enum Events
     {
-        None,
+        DropBomb,
         Move,
         TryShoot,
         ObjectHitted,

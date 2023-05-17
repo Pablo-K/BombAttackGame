@@ -1,5 +1,6 @@
 ﻿using BombAttackGame.Abstracts;
 using BombAttackGame.Enums;
+using BombAttackGame.Events;
 using BombAttackGame.Global;
 using BombAttackGame.Interfaces;
 using BombAttackGame.Map;
@@ -24,7 +25,6 @@ namespace BombAttackGame.Models
         public Vector2 DLocation { get; set; }
         public Vector2 OldLocation { get; set; }
         public Point Position { get; set; }
-        public Point OldPosition { get; set; }
         public Vector2 ShootLocation { get; set; }
         public Direction Direction { get; set; }
         public Team Team { get; set; }
@@ -49,9 +49,6 @@ namespace BombAttackGame.Models
         private double ChangeInventoryLatency { get; set; }
         private double WalkTextureTime { get; set; }
         private double WalkTextureTimeLatency { get; set; }
-        public int BotGunChance { get; set; }
-        public int BotNothingChance { get; set; }
-        public int BotGrenadeChance { get; set; }
         public List<Direction> MoveList { get; set; }
         public bool ReadyToGo { get; set; }
         private List<Tile> MovingTiles { get; set; }
@@ -71,9 +68,6 @@ namespace BombAttackGame.Models
             this.Texture = ContentContainer.PlayerTexture(this.Team);
             this.WalkTextureTimeLatency = 100;
             this.ChangeInventoryLatency = 300;
-            this.BotNothingChance = GameManager.BotNothingChange;
-            this.BotGunChance = GameManager.BotGunChance;
-            this.BotGrenadeChance = GameManager.BotGrenadeChance;
             this.MoveList = new List<Direction>();
             this.MovingTiles = new List<Tile>();
         }
@@ -202,8 +196,10 @@ namespace BombAttackGame.Models
         {
             this.Time = gameTime.TotalGameTime.TotalMilliseconds;
             this.DLocation = new Vector2(this.Location.X, this.Location.Y - this.Texture.Height);
-            this.OldPosition = this.Position;
-            this.Position = new Point((int)Location.X / 20, (int)this.Location.Y / 20);
+            if (this.Position == new Point(0, 0))
+            {
+                this.Position = new Point((int)this.Location.X / 20, (int)this.Location.Y / 20);
+            }
             UpdateRectangle();
             CheckIfDead();
             CheckInventory();
@@ -220,12 +216,21 @@ namespace BombAttackGame.Models
             if (this.IsFlashed) return;
             Random random = new Random();
             var x = random.Next(0, 100);
-            if (x < BotNothingChance) return;
+            if (x < GameManager.BotNothingChance) return;
             if (this.Team == Team.Enemy)
             {
+                if (x > GameManager.BotNothingChance + GameManager.BotPlantChance)
+                {
+                    List<Point> points = new List<Point>(MapManager.GetPointsFromChar('a'));
+                    points.AddRange(MapManager.GetPointsFromChar('b'));
+                    if (points.Contains(this.Position))
+                    {
+                        if(this.Inventory.Slot4 is Bomb) this.PlantBomb();
+                    }
+                }
                 var visible = VisibleObjects.OfType<Player>().Where(x => x.Team == Team.TeamMate);
                 if (visible.Count() == 0) return;
-                if (x < BotNothingChance + BotGunChance)
+                if (x < GameManager.BotNothingChance + GameManager.BotGunChance)
                 {
                     var rand = visible.ElementAt(random.Next(0, visible.Count()));
                     UseSelectedItem(rand.Location);
@@ -234,7 +239,7 @@ namespace BombAttackGame.Models
                         if (gun.Magazine == 0) gun.AddReloadEvent();
                     }
                 }
-                else if (x < BotNothingChance + BotGunChance + BotGrenadeChance)
+                else if (x > GameManager.BotNothingChance + GameManager.BotGunChance + GameManager.BotGrenadeChance)
                 {
                     if (this.Inventory.Slot2 != null)
                     {
@@ -248,7 +253,7 @@ namespace BombAttackGame.Models
             {
                 var visible = VisibleObjects.OfType<Player>().Where(x => x.Team == Team.Enemy);
                 if (visible.Count() == 0) return;
-                if (x < BotNothingChance + BotGunChance)
+                if (x > GameManager.BotNothingChance + GameManager.BotGunChance)
                 {
                     var rand = visible.ElementAt(random.Next(0, visible.Count()));
                     UseSelectedItem(rand.Location);
@@ -257,7 +262,7 @@ namespace BombAttackGame.Models
                         if (gun.Magazine == 0) gun.AddReloadEvent();
                     }
                 }
-                else if (x < BotNothingChance + BotGunChance + BotGrenadeChance)
+                else if (x > GameManager.BotNothingChance + GameManager.BotGunChance + GameManager.BotGrenadeChance)
                 {
                     if (this.Inventory.Slot2 != null)
                     {
@@ -283,6 +288,7 @@ namespace BombAttackGame.Models
                 case 1: this.Inventory.Slot1 = null; break;
                 case 2: this.Inventory.Slot2 = null; break;
                 case 3: this.Inventory.Slot3 = null; break;
+                case 4: this.Inventory.Slot4 = null; break;
             }
         }
         private void CheckInventory()
@@ -300,6 +306,13 @@ namespace BombAttackGame.Models
             if (this.Inventory?.SelectedSlot == 3)
             {
                 if (this.Inventory.Slot3 == null)
+                {
+                    ChangeInventorySlot(1);
+                }
+            }
+            if (this.Inventory?.SelectedSlot == 4)
+            {
+                if (this.Inventory.Slot4 == null)
                 {
                     ChangeInventorySlot(1);
                 }
@@ -331,9 +344,14 @@ namespace BombAttackGame.Models
             if (this.Health <= 0)
             {
                 this.Event.Enqueue(Enums.Events.Dead);
+                DropBomb();
                 return true;
             }
             return false;
+        }
+        public void DropBomb()
+        {
+            this.Event.Enqueue(Enums.Events.DropBomb);
         }
 
         public void UpdateRectangle()

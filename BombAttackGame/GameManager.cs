@@ -33,7 +33,8 @@ namespace BombAttackGame
         public static int SheriffLatency = 200;
         public static int BulletSpeed = 5;
         public static int BotMovingTime = 600;
-        public static int BotNothingChange = 90;
+        public static int BotNothingChance = 80;
+        public static int BotPlantChance = 10;
         public static int BotGunChance = 5;
         public static int BotGrenadeChance = 1;
         public static int GrenadeSpeed = 5;
@@ -62,18 +63,20 @@ namespace BombAttackGame
             {
                 TimeLapse();
             }
-            else if (playersTT.Count == 0)
+            if (playersTT.Count == 0)
             {
                 CTWin();
                 return;
             }
-            else if (this._totalSecondsLeft <= 0)
+            if (this._totalSecondsLeft <= 0)
             {
                 CTWin();
+                return;
             }
-            else if(this._totalMiliseconds >= this._bombTime && this._bombTime != 0)
+            if(this._totalMiliseconds >= this._bombTime && this._bombTime != 0)
             {
                 TTWin();
+                return;
             }
             CheckRounds();
         }
@@ -104,7 +107,7 @@ namespace BombAttackGame
 
         public void ResetEvent()
         {
-            this.Event = Enums.Events.None;
+            this.Event = Enums.Events.DropBomb;
         }
         public void Reset()
         {

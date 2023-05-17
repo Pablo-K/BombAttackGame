@@ -40,6 +40,19 @@ namespace BombAttackGame.Map
             MapConverter(this.CharMap);
             MapManager.MapString = CharToStringConverter(this.CharMap);
         }
+        public static List<Point> GetPointsFromChar(char c)
+        {
+            List<Point> points = new List<Point>();
+            for (int i = 0; i < MapManager.MapString.Length; i++)
+            {
+                for (int j = 0; j < MapManager.MapString.Length; j++)
+                {
+                    if (MapManager.MapString[i][j] == c)
+                        points.Add(new Point(j, i));
+                }
+            }
+            return points;
+        }
         public static bool IsOnTile(Vector2 loc, Texture2D texture, Point tile)
         {
             bool b = true;

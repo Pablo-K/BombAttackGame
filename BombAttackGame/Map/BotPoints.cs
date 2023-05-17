@@ -12,29 +12,14 @@ namespace BombAttackGame.Map
         {
             BotPoints.CTPoints = new List<Point>();
             BotPoints.TTPoints = new List<Point>();
-            BotPoints.CTPoints.AddRange(GetPointsFromChar('a'));
-            BotPoints.CTPoints.AddRange(GetPointsFromChar('b'));
-            BotPoints.CTPoints.AddRange(GetPointsFromChar('t'));
-            BotPoints.CTPoints.AddRange(GetPointsFromChar('c'));
-            BotPoints.TTPoints.AddRange(GetPointsFromChar('c'));
-            BotPoints.TTPoints.AddRange(GetPointsFromChar('t'));
-            BotPoints.TTPoints.AddRange(GetPointsFromChar('a'));
-            BotPoints.TTPoints.AddRange(GetPointsFromChar('b'));
+            BotPoints.CTPoints.AddRange(MapManager.GetPointsFromChar('a'));
+            BotPoints.CTPoints.AddRange(MapManager.GetPointsFromChar('b'));
+            BotPoints.CTPoints.AddRange(MapManager.GetPointsFromChar('t'));
+            BotPoints.CTPoints.AddRange(MapManager.GetPointsFromChar('c'));
+            BotPoints.TTPoints.AddRange(MapManager.GetPointsFromChar('c'));
+            BotPoints.TTPoints.AddRange(MapManager.GetPointsFromChar('t'));
+            BotPoints.TTPoints.AddRange(MapManager.GetPointsFromChar('a'));
+            BotPoints.TTPoints.AddRange(MapManager.GetPointsFromChar('b'));
         }
-
-        private List<Point> GetPointsFromChar(char c)
-        {
-            List<Point> points = new List<Point>();
-            for (int i = 0; i < MapManager.MapString.Length; i++)
-            {
-                for (int j = 0; j < MapManager.MapString.Length; j++)
-                {
-                    if (MapManager.MapString[i][j] == c)
-                        points.Add(new Point(j, i));
-                }
-            }
-            return points;
-        }
-
     }
 }
